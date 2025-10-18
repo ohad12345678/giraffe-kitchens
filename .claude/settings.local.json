@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(source venv/bin/activate)",
+      "Bash(uvicorn:*)",
+      "Bash(alembic upgrade:*)",
+      "Bash(python seed_data.py:*)",
+      "Bash(python:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

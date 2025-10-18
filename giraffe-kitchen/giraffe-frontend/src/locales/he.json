@@ -1,0 +1,49 @@
+{
+  "common": {
+    "login": "התחברות",
+    "logout": "התנתקות",
+    "save": "שמור",
+    "cancel": "ביטול",
+    "submit": "שלח",
+    "loading": "טוען...",
+    "error": "שגיאה",
+    "success": "הצלחה"
+  },
+  "auth": {
+    "email": "אימייל",
+    "password": "סיסמה",
+    "loginTitle": "התחברות למערכת",
+    "loginButton": "התחבר",
+    "loginError": "אימייל או סיסמה שגויים",
+    "welcome": "ברוכים הבאים"
+  },
+  "dashboard": {
+    "title": "לוח בקרה",
+    "selectBranch": "בחר סניף",
+    "allBranches": "כל הסניפים",
+    "myBranch": "הסניף שלי"
+  },
+  "dishCheck": {
+    "title": "טופס בקרת איכות מנה",
+    "newCheck": "בדיקה חדשה",
+    "dish": "מנה",
+    "chef": "טבח",
+    "rating": "ציון",
+    "comments": "הערות",
+    "selectDish": "בחר מנה",
+    "selectChef": "בחר טבח",
+    "manualChef": "הקלד שם טבח",
+    "submitSuccess": "הבדיקה נשמרה בהצלחה",
+    "submitError": "שגיאה בשמירת הבדיקה"
+  },
+  "reports": {
+    "title": "דוחות",
+    "daily": "דוח יומי",
+    "weekly": "דוח שבועי",
+    "monthly": "דוח חודשי",
+    "export": "ייצוא לאקסל",
+    "averageRating": "ממוצע ציונים",
+    "totalChecks": "סה״כ בדיקות",
+    "weakDishes": "מנות חלשות"
+  }
+}
