@@ -12,7 +12,8 @@
       "Bash(flyctl deploy:*)",
       "Bash(curl:*)",
       "Bash(git push)",
-      "Bash(npm install)"
+      "Bash(npm install)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []
