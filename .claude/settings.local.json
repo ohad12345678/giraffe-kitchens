@@ -6,7 +6,11 @@
       "Bash(uvicorn:*)",
       "Bash(alembic upgrade:*)",
       "Bash(python seed_data.py:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(export FLYCTL_INSTALL=\"/Users/ohadbanay/.fly\")",
+      "Bash(export PATH=\"$FLYCTL_INSTALL/bin:$PATH\")",
+      "Bash(flyctl deploy:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
