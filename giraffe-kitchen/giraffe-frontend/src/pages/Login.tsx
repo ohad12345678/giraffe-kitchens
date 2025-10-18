@@ -4,24 +4,21 @@ import { useAuth } from '../contexts/AuthContext';
 import { LogIn } from 'lucide-react';
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     setError('');
     setLoading(true);
 
     try {
-      await login({ email, password });
+      await login({ email: 'giraffe@giraffe.com', password: '123' });
       navigate('/dashboard');
     } catch (err) {
-      setError('אימייל או סיסמה שגויים');
+      setError('שגיאה בהתחברות');
     } finally {
       setLoading(false);
     }
@@ -42,60 +39,20 @@ const Login: React.FC = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        <div className="mt-8 space-y-6">
           {error && (
             <div className="bg-red-50 border-r-4 border-red-500 p-4 rounded">
               <p className="text-red-700 text-sm">{error}</p>
             </div>
           )}
 
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                אימייל
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="your@email.com"
-                dir="ltr"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                סיסמה
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="••••••••"
-                dir="ltr"
-              />
-            </div>
-          </div>
-
           <button
-            type="submit"
+            onClick={handleLogin}
             disabled={loading}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full flex justify-center py-4 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? 'מתחבר...' : 'התחבר'}
+            {loading ? 'מתחבר...' : 'התחבר למערכת'}
           </button>
-        </form>
-
-        <div className="mt-6 text-center text-sm text-gray-500">
-          <p>משתמש דמו: hq@giraffe.com / Giraffe2025!</p>
         </div>
       </div>
     </div>
