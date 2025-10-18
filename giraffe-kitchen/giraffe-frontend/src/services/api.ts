@@ -10,7 +10,11 @@ import type {
   DishCheckWithDetails
 } from '../types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Use relative URL in production (when VITE_API_URL is empty string)
+// Use localhost in development (when VITE_API_URL is undefined)
+const API_URL = import.meta.env.VITE_API_URL === undefined
+  ? 'http://localhost:8000'  // Development
+  : import.meta.env.VITE_API_URL;  // Production (can be empty string for relative URLs)
 
 // Create axios instance
 const api = axios.create({

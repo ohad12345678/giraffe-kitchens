@@ -10,10 +10,10 @@ RUN npm ci
 # Copy frontend source
 COPY giraffe-kitchen/giraffe-frontend/ ./
 
-# Set build-time environment variables
-ARG VITE_API_URL=/
-ARG VITE_WS_URL=/
-ARG VITE_ENV=production
+# Set build-time environment variables for Vite
+ENV VITE_API_URL=""
+ENV VITE_WS_URL=""
+ENV VITE_ENV=production
 
 # Build frontend
 RUN npm run build
