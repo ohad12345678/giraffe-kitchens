@@ -36,16 +36,6 @@ app.include_router(ai.router, prefix="/api/v1/ai", tags=["AI Analysis"])
 app.include_router(daily_tasks.router, prefix="/api/v1/tasks", tags=["Daily Tasks"])
 
 
-@app.get("/")
-def root():
-    """Root endpoint - health check."""
-    return {
-        "message": "Giraffe Kitchens API",
-        "version": settings.VERSION,
-        "status": "running"
-    }
-
-
 @app.get("/health")
 def health_check():
     """Health check endpoint."""
@@ -60,14 +50,14 @@ if os.path.exists(static_dir):
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
         """Serve frontend for all non-API routes."""
-        # Don't serve frontend for API routes
-        if full_path.startswith("api/") or full_path.startswith("health") or full_path == "":
+        # Don't serve frontend for API routes - only return JSON for /api/* and /health
+        if full_path.startswith("api/") or full_path == "health":
             return {"message": "Giraffe Kitchens API", "version": settings.VERSION}
 
-        # Check if file exists
+        # Check if specific file exists (like vite.svg, etc)
         file_path = os.path.join(static_dir, full_path)
         if os.path.isfile(file_path):
             return FileResponse(file_path)
 
-        # Default to index.html for SPA routing
+        # Default to index.html for SPA routing (including root path)
         return FileResponse(os.path.join(static_dir, "index.html"))
