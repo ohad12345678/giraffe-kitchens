@@ -40,8 +40,8 @@ def seed_users(db):
 
     # Create HQ user - Simple credentials
     hq_user = User(
-        email="giraffe",
-        password_hash=get_password_hash("giraffe123"),
+        email="giraffe@giraffe.com",
+        password_hash=get_password_hash("123"),
         full_name="Ohad Banay (HQ)",
         role=UserRole.HQ,
         branch_id=None
@@ -55,8 +55,8 @@ def seed_users(db):
     for branch in branches:
         branch_short = branch.name.lower().replace('giraffe ', '').replace(' ', '')
         manager = User(
-            email=f"{branch_short}",
-            password_hash=get_password_hash("giraffe123"),
+            email=f"{branch_short}@giraffe.com",
+            password_hash=get_password_hash("123"),
             full_name=f"Manager - {branch.name}",
             role=UserRole.BRANCH_MANAGER,
             branch_id=branch.id
@@ -129,11 +129,11 @@ def main():
 
         # Print login credentials
         print("\n📝 Login Credentials:")
-        print("HQ User: giraffe / giraffe123")
+        print("HQ User: giraffe@giraffe.com / 123")
         print("Branch Manager examples:")
-        print("  - חיפה / giraffe123")
-        print("  - הרצליה / giraffe123")
-        print("  - לנדמרק / giraffe123")
+        print("  - חיפה@giraffe.com / 123")
+        print("  - הרצליה@giraffe.com / 123")
+        print("  - לנדמרק@giraffe.com / 123")
 
     except Exception as e:
         print(f"❌ Error seeding database: {e}")
