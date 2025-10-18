@@ -1,3 +1,19 @@
+# Stage 1: Build frontend
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /frontend
+
+# Copy frontend package files
+COPY ../giraffe-frontend/package*.json ./
+RUN npm ci
+
+# Copy frontend source
+COPY ../giraffe-frontend/ ./
+
+# Build frontend
+RUN npm run build
+
+# Stage 2: Build backend with frontend
 FROM python:3.9-slim
 
 WORKDIR /app
@@ -14,6 +30,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
+
+# Copy built frontend from first stage
+COPY --from=frontend-builder /frontend/dist /app/static
 
 # Create directory for database
 RUN mkdir -p /data

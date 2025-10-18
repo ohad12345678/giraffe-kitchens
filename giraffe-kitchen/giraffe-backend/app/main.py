@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from app.core.config import settings
 from app.api.v1 import auth, branches, dishes, chefs, checks, ai, daily_tasks
 from app.db.base import Base, engine
@@ -48,3 +50,24 @@ def root():
 def health_check():
     """Health check endpoint."""
     return {"status": "healthy"}
+
+
+# Mount static files for frontend
+static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
+if os.path.exists(static_dir):
+    app.mount("/assets", StaticFiles(directory=os.path.join(static_dir, "assets")), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        """Serve frontend for all non-API routes."""
+        # Don't serve frontend for API routes
+        if full_path.startswith("api/") or full_path.startswith("health") or full_path == "":
+            return {"message": "Giraffe Kitchens API", "version": settings.VERSION}
+
+        # Check if file exists
+        file_path = os.path.join(static_dir, full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+
+        # Default to index.html for SPA routing
+        return FileResponse(os.path.join(static_dir, "index.html"))
