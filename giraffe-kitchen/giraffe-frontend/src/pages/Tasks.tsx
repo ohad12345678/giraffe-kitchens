@@ -359,7 +359,6 @@ const Tasks: React.FC = () => {
                 </div>
 
                 {/* Specific Branch Selection */}
-                {console.log('📊 selectAllBranchesMode =', selectAllBranchesMode, '| Should show branches?', !selectAllBranchesMode)}
                 {!selectAllBranchesMode && (
                   <div className="mt-4 border-2 border-green-500 p-4 rounded-lg">
                     <div className="flex items-center justify-between mb-2">

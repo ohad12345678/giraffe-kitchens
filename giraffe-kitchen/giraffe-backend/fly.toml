@@ -7,7 +7,8 @@ app = 'giraffe-backend'
 primary_region = 'fra'
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = "../Dockerfile"
+  ignorefile = "../.dockerignore"
 
 [env]
   # Database path (stored in persistent volume)
