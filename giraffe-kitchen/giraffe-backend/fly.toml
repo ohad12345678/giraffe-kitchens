@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for giraffe-backend on 2025-10-18T10:46:07+03:00
+# fly.toml app configuration file for Giraffe Kitchens
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -7,9 +7,19 @@ app = 'giraffe-backend'
 primary_region = 'fra'
 
 [build]
+  dockerfile = "Dockerfile"
 
 [env]
-  DATABASE_URL = "/data/giraffe_kitchens.db"
+  # Database path (stored in persistent volume)
+  DATABASE_URL = "sqlite:////data/giraffe_kitchens.db"
+
+  # Application settings
+  APP_NAME = "Giraffe Kitchens API"
+  VERSION = "1.0.0"
+  DEBUG = "false"
+
+  # CORS settings - update with your production frontend URL
+  ALLOWED_ORIGINS = "https://giraffe-backend.fly.dev"
 
 [http_service]
   internal_port = 8000
@@ -18,6 +28,13 @@ primary_region = 'fra'
   auto_start_machines = true
   min_machines_running = 0
   processes = ['app']
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/health"
 
 [mounts]
   source = "giraffe_data"

@@ -1,3 +1,4 @@
+# Python
 __pycache__
 *.pyc
 *.pyo
@@ -5,13 +6,30 @@ __pycache__
 .Python
 venv/
 env/
+
+# Database (production uses volume)
 *.db
 *.db-shm
 *.db-wal
+
+# Environment and config
 .env
+.env.*
+
+# Git
 .git
 .gitignore
+
+# Documentation
 README.md
 *.md
+docs/
+
+# IDE
 .vscode
 .idea
+*.swp
+*.swo
+
+# Frontend (not needed in backend build context, already copied from separate stage)
+# Note: The Dockerfile handles frontend build separately
