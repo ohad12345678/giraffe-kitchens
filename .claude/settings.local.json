@@ -10,7 +10,8 @@
       "Bash(export FLYCTL_INSTALL=\"/Users/ohadbanay/.fly\")",
       "Bash(export PATH=\"$FLYCTL_INSTALL/bin:$PATH\")",
       "Bash(flyctl deploy:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git push)"
     ],
     "deny": [],
     "ask": []
