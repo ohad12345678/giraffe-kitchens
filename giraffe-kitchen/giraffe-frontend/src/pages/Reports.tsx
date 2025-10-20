@@ -78,8 +78,8 @@ const Reports: React.FC = () => {
         }
 
         const filters: any = {
-          start_date: startDate.toISOString().split('T')[0],
-          end_date: endDate.toISOString().split('T')[0],
+          start_date: new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000).toISOString().split('T')[0],
+          end_date: new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000).toISOString().split('T')[0],
         };
 
         if (selectedBranch) {
