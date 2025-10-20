@@ -93,6 +93,13 @@ const NewCheck: React.FC = () => {
     }
 
     try {
+      // Get today's date in local timezone as YYYY-MM-DD (manual formatting to avoid timezone issues)
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const todayLocal = `${year}-${month}-${day}`;
+
       // Prepare data for submission
       const checkData = {
         branch_id: branchId as number,
@@ -102,10 +109,10 @@ const NewCheck: React.FC = () => {
         chef_name_manual: chefId === 'custom' ? customChefName : undefined,
         rating: rating,
         comments: comments || undefined,
-        check_date: new Date().toLocaleDateString('en-CA'), // Local date in YYYY-MM-DD format (en-CA gives ISO format)
+        check_date: todayLocal,
       };
 
-      console.log('Submitting check:', checkData);
+      console.log('Submitting check with date:', todayLocal, checkData);
       await checkAPI.create(checkData);
 
       const dishDisplay = dishId === 'custom' ? customDishName : dishes.find(d => d.id === parseInt(dishId))?.name;
