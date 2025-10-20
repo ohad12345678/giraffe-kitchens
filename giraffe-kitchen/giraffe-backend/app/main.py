@@ -52,7 +52,7 @@ if os.path.exists(static_dir):
     # Mount assets directory
     app.mount("/assets", StaticFiles(directory=os.path.join(static_dir, "assets")), name="assets")
 
-    # Serve root only
+    # Serve root
     @app.get("/", response_class=FileResponse)
     async def serve_root():
         return FileResponse(os.path.join(static_dir, "index.html"))
@@ -61,3 +61,14 @@ if os.path.exists(static_dir):
     @app.get("/vite.svg", response_class=FileResponse)
     async def serve_vite_svg():
         return FileResponse(os.path.join(static_dir, "vite.svg"))
+
+    # Catch-all for SPA routing - ONLY for GET requests, NOT POST
+    # This serves index.html for /dashboard, /reports, etc.
+    @app.get("/{full_path:path}", response_class=FileResponse)
+    async def serve_spa(full_path: str):
+        # Check if it's a specific file first
+        file_path = os.path.join(static_dir, full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        # Otherwise serve index.html for SPA routing
+        return FileResponse(os.path.join(static_dir, "index.html"))
