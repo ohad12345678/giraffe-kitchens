@@ -66,6 +66,10 @@ if os.path.exists(static_dir):
     # This serves index.html for /dashboard, /reports, etc.
     @app.get("/{full_path:path}", response_class=FileResponse)
     async def serve_spa(full_path: str):
+        # NEVER serve frontend for API routes - let them 404 instead
+        if full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Not found")
+
         # Check if it's a specific file first
         file_path = os.path.join(static_dir, full_path)
         if os.path.isfile(file_path):
