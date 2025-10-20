@@ -11,8 +11,8 @@ RUN npm ci
 COPY giraffe-kitchen/giraffe-frontend/ ./
 
 # Set build-time environment variables for Vite
+# Empty VITE_API_URL means frontend will use relative paths (/api/v1/...)
 ENV VITE_API_URL=""
-ENV VITE_WS_URL=""
 ENV VITE_ENV=production
 
 # Build frontend

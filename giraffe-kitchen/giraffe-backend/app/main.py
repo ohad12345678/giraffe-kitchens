@@ -45,43 +45,23 @@ def health_check():
     return {"status": "healthy"}
 
 
-# Mount static files for frontend
+# Mount static files for frontend (must be AFTER all API routes are defined)
 static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
-print(f"🔍 Checking static directory: {static_dir}")
-print(f"📁 Static directory exists: {os.path.exists(static_dir)}")
 if os.path.exists(static_dir):
-    print(f"📂 Static directory contents: {os.listdir(static_dir)}")
-
-if os.path.exists(static_dir):
-    print("✅ Mounting static files for frontend")
-
-    # Mount static assets first
+    # Mount static assets
     app.mount("/assets", StaticFiles(directory=os.path.join(static_dir, "assets")), name="assets")
 
-    # Add middleware to serve SPA for non-API routes
-    @app.middleware("http")
-    async def serve_spa_middleware(request: Request, call_next):
-        """Serve frontend for non-API routes."""
-        # Let API routes pass through
-        if request.url.path.startswith("/api/") or request.url.path == "/health":
-            return await call_next(request)
+    # Serve vite.svg
+    @app.get("/vite.svg", include_in_schema=False)
+    async def vite_svg():
+        return FileResponse(os.path.join(static_dir, "vite.svg"))
 
-        # Let assets pass through
-        if request.url.path.startswith("/assets/"):
-            return await call_next(request)
-
-        # For GET requests to non-API paths, serve index.html
-        if request.method == "GET":
-            # Check if specific file exists (like vite.svg)
-            if request.url.path != "/":
-                file_path = os.path.join(static_dir, request.url.path.lstrip("/"))
-                if os.path.isfile(file_path):
-                    return FileResponse(file_path)
-
-            # Serve index.html for all other GET requests
-            return FileResponse(os.path.join(static_dir, "index.html"))
-
-        # For non-GET requests, continue normally
-        return await call_next(request)
-else:
-    print("⚠️  Static directory not found - frontend will not be served")
+    # Serve index.html for root and all non-API routes (SPA fallback)
+    @app.get("/{catchall:path}", include_in_schema=False)
+    async def serve_spa(catchall: str):
+        # If it's a specific file, try to serve it
+        file_path = os.path.join(static_dir, catchall)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        # Otherwise serve index.html for SPA routing
+        return FileResponse(os.path.join(static_dir, "index.html"))
