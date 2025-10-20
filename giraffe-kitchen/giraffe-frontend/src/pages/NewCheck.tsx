@@ -102,7 +102,7 @@ const NewCheck: React.FC = () => {
         chef_name_manual: chefId === 'custom' ? customChefName : undefined,
         rating: rating,
         comments: comments || undefined,
-        check_date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0], // Local date in YYYY-MM-DD
+        check_date: new Date().toLocaleDateString('en-CA'), // Local date in YYYY-MM-DD format (en-CA gives ISO format)
       };
 
       console.log('Submitting check:', checkData);
