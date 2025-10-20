@@ -344,3 +344,77 @@ def get_check(
         chef_name=chef_display_name,
         created_by_name=creator.full_name if creator else None
     )
+
+
+@router.delete("/{check_id}")
+def delete_check(
+    check_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a specific dish check. Only accessible to ohadb@giraffe.co.il"""
+    # Only allow ohadb@giraffe.co.il to delete checks
+    if current_user.email != "ohadb@giraffe.co.il":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only ohadb@giraffe.co.il can delete checks"
+        )
+
+    check = db.query(DishCheck).filter(DishCheck.id == check_id).first()
+
+    if not check:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Check not found"
+        )
+
+    db.delete(check)
+    db.commit()
+
+    return {"status": "success", "message": f"Check {check_id} deleted successfully"}
+
+
+@router.delete("/bulk/delete")
+def bulk_delete_checks(
+    start_date: Optional[date] = Query(None, description="Delete checks from this date onwards"),
+    end_date: Optional[date] = Query(None, description="Delete checks up to this date"),
+    branch_id: Optional[int] = Query(None, description="Delete checks only from this branch"),
+    delete_all: bool = Query(False, description="Delete ALL checks (use with caution)"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Bulk delete dish checks. Only accessible to ohadb@giraffe.co.il"""
+    # Only allow ohadb@giraffe.co.il to delete checks
+    if current_user.email != "ohadb@giraffe.co.il":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only ohadb@giraffe.co.il can delete checks"
+        )
+
+    # Build delete query
+    query = db.query(DishCheck)
+
+    if not delete_all:
+        # Apply filters
+        if start_date:
+            query = query.filter(DishCheck.check_date >= start_date)
+        if end_date:
+            query = query.filter(DishCheck.check_date <= end_date)
+        if branch_id:
+            query = query.filter(DishCheck.branch_id == branch_id)
+
+    # Count before delete
+    count = query.count()
+
+    if count == 0:
+        return {"status": "success", "message": "No checks found matching the criteria", "deleted_count": 0}
+
+    # Delete
+    query.delete(synchronize_session=False)
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": f"Successfully deleted {count} check(s)",
+        "deleted_count": count
+    }

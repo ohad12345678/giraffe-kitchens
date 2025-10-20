@@ -25,6 +25,16 @@ const Reports: React.FC = () => {
   const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
   const [chatInput, setChatInput] = useState('');
 
+  // Admin delete states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteStartDate, setDeleteStartDate] = useState('');
+  const [deleteEndDate, setDeleteEndDate] = useState('');
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Check if current user is admin (ohadb@giraffe.co.il)
+  const isAdmin = user?.email === 'ohadb@giraffe.co.il';
+
   const handleBack = () => {
     navigate('/dashboard');
   };
@@ -161,6 +171,92 @@ const Reports: React.FC = () => {
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (deleteConfirmText !== 'DELETE') {
+      alert('יש להקליד DELETE לאישור המחיקה');
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const filters: any = {};
+
+      if (deleteStartDate) {
+        filters.start_date = deleteStartDate;
+      }
+      if (deleteEndDate) {
+        filters.end_date = deleteEndDate;
+      }
+
+      const response = await checkAPI.bulkDelete(filters);
+      alert(response.message);
+
+      // Reset and close modal
+      setShowDeleteModal(false);
+      setDeleteStartDate('');
+      setDeleteEndDate('');
+      setDeleteConfirmText('');
+
+      // Reload analytics
+      const loadAnalytics = async () => {
+        setLoading(true);
+        try {
+          const today = new Date();
+          let startDate: Date;
+          let endDate = today;
+
+          switch (dateRange) {
+            case 'today':
+              startDate = today;
+              break;
+            case 'week':
+              startDate = new Date(today);
+              startDate.setDate(today.getDate() - 7);
+              break;
+            case 'month':
+              startDate = new Date(today);
+              startDate.setMonth(today.getMonth() - 1);
+              break;
+            case 'quarter':
+              startDate = new Date(today);
+              startDate.setMonth(today.getMonth() - 3);
+              break;
+            default:
+              startDate = new Date(today);
+              startDate.setDate(today.getDate() - 7);
+          }
+
+          const filters: any = {
+            start_date: new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000).toISOString().split('T')[0],
+            end_date: new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000).toISOString().split('T')[0],
+          };
+
+          if (selectedBranch) {
+            filters.branch_id = selectedBranch;
+          }
+
+          if (selectedDish) {
+            filters.dish_id = selectedDish;
+          }
+
+          const data = await checkAPI.getAnalytics(filters);
+          setAnalytics(data);
+        } catch (error) {
+          console.error('Failed to load analytics:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadAnalytics();
+    } catch (error: any) {
+      console.error('Delete error:', error);
+      alert('שגיאה במחיקה: ' + (error.response?.data?.detail || error.message));
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -185,7 +281,17 @@ const Reports: React.FC = () => {
 
         {/* Filters */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">סינון נתונים</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">סינון נתונים</h2>
+            {isAdmin && (
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+              >
+                מחיקת נתונים
+              </button>
+            )}
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">טווח תאריכים</label>
@@ -454,6 +560,79 @@ const Reports: React.FC = () => {
                   className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
                 >
                   שלח
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Modal */}
+        {showDeleteModal && isAdmin && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">מחיקת בדיקות</h3>
+
+              <div className="space-y-4 mb-6">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <p className="text-red-800 text-sm font-medium">⚠️ אזהרה: פעולה זו בלתי הפיכה!</p>
+                  <p className="text-red-700 text-sm mt-1">הבדיקות שיימחקו לא יהיה ניתן לשחזר.</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">תאריך התחלה (אופציונלי)</label>
+                  <input
+                    type="date"
+                    value={deleteStartDate}
+                    onChange={(e) => setDeleteStartDate(e.target.value)}
+                    className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">אם ריק - יימחקו כל הבדיקות עד תאריך הסיום</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">תאריך סיום (אופציונלי)</label>
+                  <input
+                    type="date"
+                    value={deleteEndDate}
+                    onChange={(e) => setDeleteEndDate(e.target.value)}
+                    className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">אם ריק - יימחקו כל הבדיקות מתאריך ההתחלה</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    הקלד <span className="font-mono bg-gray-100 px-2 py-1 rounded">DELETE</span> לאישור
+                  </label>
+                  <input
+                    type="text"
+                    value={deleteConfirmText}
+                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                    placeholder="DELETE"
+                    className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setDeleteStartDate('');
+                    setDeleteEndDate('');
+                    setDeleteConfirmText('');
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={isDeleting}
+                >
+                  ביטול
+                </button>
+                <button
+                  onClick={handleBulkDelete}
+                  disabled={deleteConfirmText !== 'DELETE' || isDeleting}
+                  className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isDeleting ? 'מוחק...' : 'מחק'}
                 </button>
               </div>
             </div>

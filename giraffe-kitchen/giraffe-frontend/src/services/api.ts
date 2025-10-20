@@ -172,6 +172,21 @@ export const checkAPI = {
     const response = await api.get('/api/v1/checks/analytics', { params: filters });
     return response.data;
   },
+
+  delete: async (checkId: number): Promise<{ status: string; message: string }> => {
+    const response = await api.delete(`/api/v1/checks/${checkId}`);
+    return response.data;
+  },
+
+  bulkDelete: async (filters?: {
+    start_date?: string;
+    end_date?: string;
+    branch_id?: number;
+    delete_all?: boolean;
+  }): Promise<{ status: string; message: string; deleted_count: number }> => {
+    const response = await api.delete('/api/v1/checks/bulk/delete', { params: filters });
+    return response.data;
+  },
 };
 
 // AI endpoints
