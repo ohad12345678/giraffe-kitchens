@@ -174,13 +174,6 @@ def get_analytics(
         DishCheck.check_date <= end_date
     )
 
-    # DEBUG
-    print(f"🔍 Analytics Query - start_date: {start_date}, end_date: {end_date}")
-    all_checks = db.query(DishCheck).all()
-    print(f"🔍 Total checks in DB: {len(all_checks)}")
-    for check in all_checks:
-        print(f"  - Check ID {check.id}: date={check.check_date}, branch={check.branch_id}")
-
     # Branch managers see only their branch
     if current_user.role.value == "branch_manager":
         base_query = base_query.filter(DishCheck.branch_id == current_user.branch_id)
@@ -193,7 +186,6 @@ def get_analytics(
 
     # 1. KPIs
     total_checks = base_query.count()
-    print(f"🔍 Filtered checks count: {total_checks}")
     avg_rating = db.query(func.avg(DishCheck.rating)).filter(
         DishCheck.id.in_([c.id for c in base_query.all()])
     ).scalar() or 0
