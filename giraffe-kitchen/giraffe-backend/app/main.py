@@ -55,26 +55,33 @@ if os.path.exists(static_dir):
 if os.path.exists(static_dir):
     print("✅ Mounting static files for frontend")
 
-    # Mount static assets
+    # Mount static assets first
     app.mount("/assets", StaticFiles(directory=os.path.join(static_dir, "assets")), name="assets")
 
-    # Serve index.html for root
-    @app.get("/")
-    async def serve_root():
-        """Serve frontend index.html for root path."""
-        return FileResponse(os.path.join(static_dir, "index.html"))
+    # Add middleware to serve SPA for non-API routes
+    @app.middleware("http")
+    async def serve_spa_middleware(request: Request, call_next):
+        """Serve frontend for non-API routes."""
+        # Let API routes pass through
+        if request.url.path.startswith("/api/") or request.url.path == "/health":
+            return await call_next(request)
 
-    # Serve vite.svg
-    @app.get("/vite.svg")
-    async def serve_vite_svg():
-        """Serve vite.svg."""
-        return FileResponse(os.path.join(static_dir, "vite.svg"))
+        # Let assets pass through
+        if request.url.path.startswith("/assets/"):
+            return await call_next(request)
 
-    # Catch-all for frontend SPA routing (but exclude /api/ and /health)
-    @app.api_route("/{full_path:path}", methods=["GET"], include_in_schema=False)
-    async def serve_spa(full_path: str):
-        """Serve frontend for SPA routing (dashboard, reports, etc)."""
-        # Return index.html for all frontend routes
-        return FileResponse(os.path.join(static_dir, "index.html"))
+        # For GET requests to non-API paths, serve index.html
+        if request.method == "GET":
+            # Check if specific file exists (like vite.svg)
+            if request.url.path != "/":
+                file_path = os.path.join(static_dir, request.url.path.lstrip("/"))
+                if os.path.isfile(file_path):
+                    return FileResponse(file_path)
+
+            # Serve index.html for all other GET requests
+            return FileResponse(os.path.join(static_dir, "index.html"))
+
+        # For non-GET requests, continue normally
+        return await call_next(request)
 else:
     print("⚠️  Static directory not found - frontend will not be served")
