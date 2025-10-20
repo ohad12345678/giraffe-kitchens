@@ -1,7 +1,8 @@
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.routing import APIRoute
 from app.core.config import settings
 from app.api.v1 import auth, branches, dishes, chefs, checks, ai, daily_tasks, sanitation_audits
 from app.db.base import Base, engine
@@ -28,7 +29,7 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
-# Include routers
+# Include routers FIRST - these take priority
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(branches.router, prefix="/api/v1/branches", tags=["Branches"])
 app.include_router(dishes.router, prefix="/api/v1/dishes", tags=["Dishes"])
@@ -45,5 +46,32 @@ def health_check():
     return {"status": "healthy"}
 
 
-# Don't serve frontend from Railway - use Vercel instead
-# This simplifies routing and prevents conflicts with API routes
+# Serve frontend static files AFTER API routes
+static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
+if os.path.exists(static_dir):
+    # Mount assets directory
+    app.mount("/assets", StaticFiles(directory=os.path.join(static_dir, "assets")), name="assets")
+
+    # Serve specific files
+    @app.get("/vite.svg")
+    async def serve_vite_svg():
+        return FileResponse(os.path.join(static_dir, "vite.svg"))
+
+    @app.get("/")
+    async def serve_root():
+        return FileResponse(os.path.join(static_dir, "index.html"))
+
+    # This MUST be last - catches everything else for SPA routing
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        # Explicitly block API paths that got here by mistake
+        if full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Not found")
+
+        # Try to serve as file first
+        file_path = os.path.join(static_dir, full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+
+        # Default to index.html for SPA routes
+        return FileResponse(os.path.join(static_dir, "index.html"))
