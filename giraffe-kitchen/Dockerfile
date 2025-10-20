@@ -10,7 +10,8 @@ RUN npm ci
 # Copy frontend source
 COPY ./giraffe-frontend/ ./
 
-# Build frontend
+# Build frontend with empty API URL to use relative paths in production
+ENV VITE_API_URL=""
 RUN npm run build
 
 # Stage 2: Build backend with frontend
