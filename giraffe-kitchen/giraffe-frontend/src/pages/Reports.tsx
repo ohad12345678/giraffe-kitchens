@@ -159,15 +159,27 @@ const Reports: React.FC = () => {
       const response = await aiAPI.ask(userMessage, branchId);
 
       setChatMessages(prev => [...prev, { role: 'assistant', content: response.answer }]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('AI API error:', error);
+      console.error('Error details:', error.response?.data);
 
-      // Fallback למענה mock אם אין API key
-      const mockAnswer = getMockResponse(userMessage);
-      setChatMessages(prev => [...prev, {
-        role: 'assistant',
-        content: mockAnswer + '\n\n_[הערה: זוהי תשובת דמו. כדי לקבל ניתוח AI מלא, נא להגדיר ANTHROPIC_API_KEY]_'
-      }]);
+      // Show actual error message if available
+      const errorMessage = error.response?.data?.detail || error.message;
+
+      // If it's an API key error, show mock response
+      if (errorMessage?.includes('API key') || errorMessage?.includes('ANTHROPIC_API_KEY')) {
+        const mockAnswer = getMockResponse(userMessage);
+        setChatMessages(prev => [...prev, {
+          role: 'assistant',
+          content: mockAnswer + '\n\n_[הערה: זוהי תשובת דמו. כדי לקבל ניתוח AI מלא, נא להגדיר ANTHROPIC_API_KEY]_'
+        }]);
+      } else {
+        // Show actual error to user
+        setChatMessages(prev => [...prev, {
+          role: 'assistant',
+          content: `❌ שגיאה: ${errorMessage}\n\nאנא נסה שוב או פנה למנהל המערכת.`
+        }]);
+      }
     }
   };
 
