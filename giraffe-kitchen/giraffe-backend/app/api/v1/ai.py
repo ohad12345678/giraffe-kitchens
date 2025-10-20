@@ -184,22 +184,40 @@ def ask_ai_analysis(
 אם אין מספיק נתונים, אמר זאת בבהירות."""
 
         # Call Claude API
-        message = client.messages.create(
-            model="claude-3-5-sonnet-20240620",
-            max_tokens=1024,
-            system=system_prompt,
-            messages=[
-                {"role": "user", "content": request.question}
-            ]
-        )
+        # Try multiple models in case some are not available for this API key
+        models_to_try = [
+            "claude-3-5-sonnet-latest",
+            "claude-3-opus-latest",
+            "claude-3-sonnet-20240229",
+            "claude-3-haiku-20240307"
+        ]
 
-        # Extract answer
-        answer = message.content[0].text
+        last_error = None
+        for model_name in models_to_try:
+            try:
+                message = client.messages.create(
+                    model=model_name,
+                    max_tokens=1024,
+                    system=system_prompt,
+                    messages=[
+                        {"role": "user", "content": request.question}
+                    ]
+                )
 
-        return AIQueryResponse(
-            answer=answer,
-            context_used=real_context
-        )
+                # Extract answer
+                answer = message.content[0].text
+
+                return AIQueryResponse(
+                    answer=answer,
+                    context_used=real_context
+                )
+            except Exception as model_error:
+                last_error = model_error
+                continue
+
+        # If all models failed, raise the last error
+        if last_error:
+            raise last_error
 
     except Exception as e:
         raise HTTPException(
