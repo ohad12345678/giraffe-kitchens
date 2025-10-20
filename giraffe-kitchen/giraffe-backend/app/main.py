@@ -45,14 +45,20 @@ def health_check():
     return {"status": "healthy"}
 
 
-# Mount static files for frontend (only used in production)
+# Mount static files for frontend
 static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
-if os.path.exists(static_dir) and settings.ENV == "production":
+print(f"🔍 Checking static directory: {static_dir}")
+print(f"📁 Static directory exists: {os.path.exists(static_dir)}")
+if os.path.exists(static_dir):
+    print(f"📂 Static directory contents: {os.listdir(static_dir)}")
+
+if os.path.exists(static_dir):
+    print("✅ Mounting static files for frontend")
     app.mount("/assets", StaticFiles(directory=os.path.join(static_dir, "assets")), name="assets")
 
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
-        """Serve frontend for all non-API routes (production only)."""
+        """Serve frontend for all non-API routes."""
         # Check if specific file exists (like vite.svg, etc)
         file_path = os.path.join(static_dir, full_path)
         if os.path.isfile(file_path):
@@ -60,3 +66,5 @@ if os.path.exists(static_dir) and settings.ENV == "production":
 
         # Default to index.html for SPA routing (including root path)
         return FileResponse(os.path.join(static_dir, "index.html"))
+else:
+    print("⚠️  Static directory not found - frontend will not be served")
