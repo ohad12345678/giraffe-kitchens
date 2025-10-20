@@ -52,26 +52,12 @@ if os.path.exists(static_dir):
     # Mount assets directory
     app.mount("/assets", StaticFiles(directory=os.path.join(static_dir, "assets")), name="assets")
 
-    # Serve specific files
-    @app.get("/vite.svg")
-    async def serve_vite_svg():
-        return FileResponse(os.path.join(static_dir, "vite.svg"))
-
-    @app.get("/")
+    # Serve root only
+    @app.get("/", response_class=FileResponse)
     async def serve_root():
         return FileResponse(os.path.join(static_dir, "index.html"))
 
-    # This MUST be last - catches everything else for SPA routing
-    @app.get("/{full_path:path}")
-    async def serve_spa(full_path: str):
-        # Explicitly block API paths that got here by mistake
-        if full_path.startswith("api/"):
-            raise HTTPException(status_code=404, detail="Not found")
-
-        # Try to serve as file first
-        file_path = os.path.join(static_dir, full_path)
-        if os.path.isfile(file_path):
-            return FileResponse(file_path)
-
-        # Default to index.html for SPA routes
-        return FileResponse(os.path.join(static_dir, "index.html"))
+    # Serve vite.svg
+    @app.get("/vite.svg", response_class=FileResponse)
+    async def serve_vite_svg():
+        return FileResponse(os.path.join(static_dir, "vite.svg"))
