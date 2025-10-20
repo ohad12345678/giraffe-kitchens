@@ -56,6 +56,7 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
         data={
             "sub": str(user.id),  # Must be string for JWT
             "email": user.email,
+            "full_name": user.full_name,
             "role": user.role.value,
             "branch_id": user.branch_id
         },

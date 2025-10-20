@@ -6,6 +6,10 @@ import Dashboard from './pages/Dashboard';
 import NewCheck from './pages/NewCheck';
 import Reports from './pages/Reports';
 import Tasks from './pages/Tasks';
+import SanitationAudits from './pages/SanitationAudits';
+import NewSanitationAudit from './pages/NewSanitationAudit';
+import ViewSanitationAudit from './pages/ViewSanitationAudit';
+import AuditSummary from './pages/AuditSummary';
 
 function App() {
   return (
@@ -47,6 +51,38 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Tasks />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/sanitation-audits"
+              element={
+                <ProtectedRoute>
+                  <SanitationAudits />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/sanitation-audits/new"
+              element={
+                <ProtectedRoute>
+                  <NewSanitationAudit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/sanitation-audits/:id/summary"
+              element={
+                <ProtectedRoute>
+                  <AuditSummary />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/sanitation-audits/:id"
+              element={
+                <ProtectedRoute>
+                  <ViewSanitationAudit />
                 </ProtectedRoute>
               }
             />

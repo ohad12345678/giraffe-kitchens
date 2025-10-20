@@ -1,11 +1,12 @@
 from pydantic import BaseModel, Field
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, date
 
 
 class DishCheckBase(BaseModel):
     branch_id: int
-    dish_id: int
+    dish_id: Optional[int] = None
+    dish_name_manual: Optional[str] = None
     chef_id: Optional[int] = None
     chef_name_manual: Optional[str] = None
     rating: float = Field(..., ge=1, le=10)  # Rating between 1-10
@@ -13,7 +14,7 @@ class DishCheckBase(BaseModel):
 
 
 class DishCheckCreate(DishCheckBase):
-    pass
+    check_date: Optional[date] = None  # Optional, defaults to today if not provided
 
 
 class DishCheckResponse(DishCheckBase):

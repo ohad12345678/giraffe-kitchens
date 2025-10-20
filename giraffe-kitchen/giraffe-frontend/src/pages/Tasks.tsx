@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { tasksAPI, branchAPI, dishAPI } from '../services/api';
-import { ArrowRight, Plus, CheckCircle, Circle, Calendar, Users } from 'lucide-react';
+import { ArrowRight, CheckCircle, Circle } from 'lucide-react';
 import type { DailyTask, TaskAssignment, CreateTaskData, Branch, Dish, TaskType, TaskFrequency } from '../types';
 
 const Tasks: React.FC = () => {
@@ -70,7 +70,15 @@ const Tasks: React.FC = () => {
       return;
     }
 
-    const branchIds = selectAllBranchesMode ? branches.map(b => b.id) : selectedBranches;
+    if (!description.trim()) {
+      alert('❌ יש להזין תיאור למשימה');
+      return;
+    }
+
+    const branchIds = selectAllBranchesMode
+      ? (Array.isArray(branches) ? branches.map(b => b.id) : [])
+      : selectedBranches;
+
     if (branchIds.length === 0) {
       alert('❌ יש לבחור לפחות סניף אחד');
       return;
@@ -175,10 +183,7 @@ const Tasks: React.FC = () => {
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            <div className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              <span>יצירת משימה</span>
-            </div>
+            יצירת משימה
           </button>
           <button
             onClick={() => setActiveTab('manage')}
@@ -188,10 +193,7 @@ const Tasks: React.FC = () => {
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span>משימות קיימות ({tasks.length})</span>
-            </div>
+            משימות קיימות ({tasks.length})
           </button>
           <button
             onClick={() => setActiveTab('track')}
@@ -201,10 +203,7 @@ const Tasks: React.FC = () => {
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span>מעקב השלמה ({stats.percentage}%)</span>
-            </div>
+            מעקב השלמה ({stats.percentage}%)
           </button>
         </div>
 
@@ -255,22 +254,19 @@ const Tasks: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     בחר מנה <span className="text-red-500">*</span>
                   </label>
-                  <div className="max-h-48 overflow-y-auto border border-gray-300 rounded-lg p-2 space-y-1">
-                    {dishes.map((dish) => (
-                      <button
-                        key={dish.id}
-                        type="button"
-                        onClick={() => setSelectedDish(dish.id)}
-                        className={`w-full text-right px-3 py-2 rounded transition-all ${
-                          selectedDish === dish.id
-                            ? 'bg-primary-500 text-white'
-                            : 'hover:bg-gray-100 text-gray-700'
-                        }`}
-                      >
+                  <select
+                    value={selectedDish || ''}
+                    onChange={(e) => setSelectedDish(e.target.value ? Number(e.target.value) : null)}
+                    className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="">בחר מנה...</option>
+                    {Array.isArray(dishes) && dishes.map((dish) => (
+                      <option key={dish.id} value={dish.id}>
                         {dish.name} {dish.category && `(${dish.category})`}
-                      </button>
+                      </option>
                     ))}
-                  </div>
+                  </select>
                 </div>
               )}
 
@@ -437,8 +433,7 @@ const Tasks: React.FC = () => {
 
             {tasks.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
-                <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                <p>אין משימות פעילות כרגע</p>
+                <p className="text-lg mb-4">אין משימות פעילות כרגע</p>
                 <button
                   onClick={() => setActiveTab('create')}
                   className="mt-4 text-primary-600 hover:text-primary-700 font-medium"
@@ -513,8 +508,8 @@ const Tasks: React.FC = () => {
 
               {assignments.length === 0 ? (
                 <div className="text-center py-12 text-gray-500">
-                  <Users className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                  <p>אין משימות להיום</p>
+                  <p className="text-lg font-medium mb-2">אין משימות להיום</p>
+                  <p className="text-sm text-gray-400">צור משימות חדשות בטאב "יצירת משימה"</p>
                 </div>
               ) : (
                 <div className="space-y-3">

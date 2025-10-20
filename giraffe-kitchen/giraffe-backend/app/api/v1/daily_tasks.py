@@ -8,7 +8,8 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import date, datetime
 
-from app.api import deps
+from app.db.base import get_db
+from app.api.deps import get_current_user
 from app.models.user import User, UserRole
 from app.models.daily_task import DailyTask, TaskAssignment, TaskType, TaskFrequency
 from app.models.branch import Branch
@@ -40,13 +41,13 @@ class TaskResponse(BaseModel):
     """תגובת משימה"""
     id: int
     title: str
-    description: Optional[str]
+    description: Optional[str] = None
     task_type: TaskType
-    dish_id: Optional[int]
-    dish_name: Optional[str]
+    dish_id: Optional[int] = None
+    dish_name: Optional[str] = None
     frequency: TaskFrequency
     start_date: date
-    end_date: Optional[date]
+    end_date: Optional[date] = None
     is_active: bool
     created_at: datetime
 
@@ -84,8 +85,8 @@ class CompleteTaskRequest(BaseModel):
 @router.post("/", response_model=TaskResponse)
 def create_task(
     task_data: TaskCreate,
-    db: Session = Depends(deps.get_db),
-    current_user: User = Depends(deps.get_current_user),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     יצירת משימה יומית חדשה (HQ בלבד)
@@ -132,8 +133,8 @@ def create_task(
 @router.get("/", response_model=List[TaskResponse])
 def list_tasks(
     is_active: Optional[bool] = None,
-    db: Session = Depends(deps.get_db),
-    current_user: User = Depends(deps.get_current_user),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     רשימת כל המשימות (HQ בלבד)
@@ -155,8 +156,8 @@ def list_task_assignments(
     task_date: Optional[date] = None,
     branch_id: Optional[int] = None,
     is_completed: Optional[bool] = None,
-    db: Session = Depends(deps.get_db),
-    current_user: User = Depends(deps.get_current_user),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     רשימת כל ההקצאות (HQ בלבד) - מעקב אחר השלמות
@@ -203,8 +204,8 @@ def list_task_assignments(
 @router.get("/my-tasks", response_model=List[TaskAssignmentResponse])
 def get_my_tasks(
     task_date: Optional[date] = None,
-    db: Session = Depends(deps.get_db),
-    current_user: User = Depends(deps.get_current_user),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     המשימות שלי (למנהל סניף) - משימות לסניף שלי
@@ -256,8 +257,8 @@ def get_my_tasks(
 def complete_task(
     assignment_id: int,
     completion_data: CompleteTaskRequest,
-    db: Session = Depends(deps.get_db),
-    current_user: User = Depends(deps.get_current_user),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     סימון משימה כהושלמה
@@ -287,8 +288,8 @@ def complete_task(
 @router.delete("/assignments/{assignment_id}/complete")
 def uncomplete_task(
     assignment_id: int,
-    db: Session = Depends(deps.get_db),
-    current_user: User = Depends(deps.get_current_user),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     ביטול השלמה של משימה

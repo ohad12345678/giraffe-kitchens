@@ -20,11 +20,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check if user is already logged in
     const token = localStorage.getItem('access_token');
     if (token) {
-      // TODO: Fetch current user from API
-      setLoading(false);
-    } else {
-      setLoading(false);
+      try {
+        // Decode JWT to get user info
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setUser({
+          id: parseInt(payload.sub),
+          email: payload.email,
+          full_name: payload.full_name || '',
+          role: payload.role,
+          branch_id: payload.branch_id,
+          created_at: new Date().toISOString(),
+        });
+      } catch (error) {
+        console.error('Failed to decode token:', error);
+        localStorage.removeItem('access_token');
+      }
     }
+    setLoading(false);
   }, []);
 
   const login = async (credentials: LoginCredentials) => {
@@ -41,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser({
         id: parseInt(payload.sub),  // Convert back to number
         email: payload.email,
-        full_name: '', // Will be fetched from API
+        full_name: payload.full_name || '',
         role: payload.role,
         branch_id: payload.branch_id,
         created_at: new Date().toISOString(),

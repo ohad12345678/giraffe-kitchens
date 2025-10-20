@@ -7,7 +7,13 @@ import type {
   Dish,
   Chef,
   DishCheck,
-  DishCheckWithDetails
+  DishCheckWithDetails,
+  SanitationAudit,
+  SanitationAuditSummary,
+  CreateSanitationAudit,
+  SanitationAuditCategoryUpdate,
+  NetworkAuditStats,
+  BranchAuditStats
 } from '../types';
 
 // Use relative URL in production (when VITE_API_URL is empty string)
@@ -76,7 +82,7 @@ export const branchAPI = {
 // Dish endpoints
 export const dishAPI = {
   list: async (): Promise<Dish[]> => {
-    const response = await api.get<Dish[]>('/api/v1/dishes');
+    const response = await api.get<Dish[]>('/api/v1/dishes/');
     return response.data;
   },
 
@@ -90,7 +96,7 @@ export const dishAPI = {
 export const chefAPI = {
   list: async (branchId?: number): Promise<Chef[]> => {
     const params = branchId ? { branch_id: branchId } : {};
-    const response = await api.get<Chef[]>('/api/v1/chefs', { params });
+    const response = await api.get<Chef[]>('/api/v1/chefs/', { params });
     return response.data;
   },
 };
@@ -102,14 +108,14 @@ export const checkAPI = {
     start_date?: string;
     end_date?: string;
   }): Promise<DishCheckWithDetails[]> => {
-    const response = await api.get<DishCheckWithDetails[]>('/api/v1/checks', {
+    const response = await api.get<DishCheckWithDetails[]>('/api/v1/checks/', {
       params: filters,
     });
     return response.data;
   },
 
   create: async (data: Partial<DishCheck>): Promise<DishCheck> => {
-    const response = await api.post<DishCheck>('/api/v1/checks', data);
+    const response = await api.post<DishCheck>('/api/v1/checks/', data);
     return response.data;
   },
 
@@ -228,6 +234,87 @@ export const tasksAPI = {
   // Uncomplete a task
   uncompleteTask: async (assignmentId: number): Promise<{ status: string; message: string }> => {
     const response = await api.delete(`/api/v1/tasks/assignments/${assignmentId}/complete`);
+    return response.data;
+  },
+};
+
+// Sanitation Audit endpoints
+export const sanitationAuditAPI = {
+  // List all audits (HQ sees all, branch managers see only their branch)
+  list: async (filters?: {
+    branch_id?: number;
+    skip?: number;
+    limit?: number;
+  }): Promise<SanitationAuditSummary[]> => {
+    const response = await api.get<SanitationAuditSummary[]>('/api/v1/sanitation-audits/', {
+      params: filters,
+    });
+    return response.data;
+  },
+
+  // Get specific audit by ID
+  get: async (id: number): Promise<SanitationAudit> => {
+    const response = await api.get<SanitationAudit>(`/api/v1/sanitation-audits/${id}`);
+    return response.data;
+  },
+
+  // Create new audit (HQ only)
+  create: async (data: CreateSanitationAudit): Promise<SanitationAudit> => {
+    const response = await api.post<SanitationAudit>('/api/v1/sanitation-audits/', data);
+    return response.data;
+  },
+
+  // Update audit (HQ only)
+  update: async (id: number, data: {
+    end_time?: string;
+    accompanist_name?: string;
+    general_notes?: string;
+    equipment_issues?: string;
+    deficiencies_summary?: string;
+    status?: 'in_progress' | 'completed' | 'reviewed';
+    signature_url?: string;
+  }): Promise<SanitationAudit> => {
+    const response = await api.put<SanitationAudit>(`/api/v1/sanitation-audits/${id}`, data);
+    return response.data;
+  },
+
+  // Generate AI summary
+  generateSummary: async (id: number): Promise<{
+    summary: string;
+    current_score: number;
+    previous_scores: number[];
+  }> => {
+    const response = await api.post(`/api/v1/sanitation-audits/${id}/generate-summary`);
+    return response.data;
+  },
+
+  // Update specific category (HQ only)
+  updateCategory: async (
+    auditId: number,
+    categoryId: number,
+    data: SanitationAuditCategoryUpdate
+  ): Promise<SanitationAudit> => {
+    const response = await api.put<SanitationAudit>(
+      `/api/v1/sanitation-audits/${auditId}/categories/${categoryId}`,
+      data
+    );
+    return response.data;
+  },
+
+  // Delete audit (HQ only)
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/api/v1/sanitation-audits/${id}`);
+  },
+
+  // Get network-wide statistics (HQ only)
+  getNetworkStats: async (): Promise<NetworkAuditStats> => {
+    const response = await api.get<NetworkAuditStats>('/api/v1/sanitation-audits/stats/network');
+    return response.data;
+  },
+
+  // Get branch statistics
+  getBranchStats: async (branchId: number): Promise<BranchAuditStats> => {
+    const response = await api.get<BranchAuditStats>(`/api/v1/sanitation-audits/stats/branch/${branchId}`);
     return response.data;
   },
 };

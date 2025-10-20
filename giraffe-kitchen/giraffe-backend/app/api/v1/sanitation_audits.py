@@ -1,0 +1,653 @@
+"""
+Sanitation Audit API endpoints
+
+These endpoints allow HQ users to create, view, and manage sanitation audit reports.
+Branch managers can view audits for their branch only.
+"""
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from sqlalchemy import func, desc
+from typing import List, Optional
+from datetime import datetime
+
+from app.db.base import get_db
+from app.models.sanitation_audit import SanitationAudit, SanitationAuditCategory, AuditStatus
+from app.models.user import User, UserRole
+from app.models.branch import Branch
+from app.schemas.sanitation_audit import (
+    SanitationAuditCreate,
+    SanitationAuditUpdate,
+    SanitationAuditResponse,
+    SanitationAuditSummary,
+    SanitationAuditCategoryUpdate,
+    NetworkAuditStats,
+    BranchAuditStats,
+)
+from app.api.deps import get_current_user
+
+router = APIRouter()
+
+
+# ===== Helper Functions =====
+
+def calculate_audit_score(audit: SanitationAudit, db: Session) -> None:
+    """
+    Calculate total score for an audit based on category deductions.
+    Updates the audit's total_score and total_deductions.
+    """
+    total_deductions = sum(
+        category.score_deduction
+        for category in audit.categories
+    )
+    audit.total_deductions = total_deductions
+    audit.total_score = max(0, 100 - total_deductions)  # Score can't go below 0
+
+
+def generate_deficiencies_summary(audit: SanitationAudit) -> str:
+    """
+    Generate a text summary of all deficiencies found in the audit.
+    """
+    deficiencies = [
+        f"{cat.category_name} - {cat.notes}"
+        for cat in audit.categories
+        if cat.score_deduction > 0 and cat.notes
+    ]
+    return "\n".join(deficiencies) if deficiencies else "לא נמצאו ליקויים"
+
+
+# ===== CRUD Endpoints =====
+
+@router.post("/", response_model=SanitationAuditResponse, status_code=status.HTTP_201_CREATED)
+def create_sanitation_audit(
+    audit_data: SanitationAuditCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Create a new sanitation audit report.
+
+    - Only HQ users can create audits
+    - Automatically calculates total score based on category deductions
+    - Generates deficiencies summary
+    """
+    # Check if user is HQ
+    if current_user.role != UserRole.HQ:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can create sanitation audits"
+        )
+
+    # Verify branch exists
+    branch = db.query(Branch).filter(Branch.id == audit_data.branch_id).first()
+    if not branch:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Branch not found"
+        )
+
+    # Create audit
+    audit = SanitationAudit(
+        branch_id=audit_data.branch_id,
+        auditor_id=current_user.id,
+        audit_date=audit_data.audit_date,
+        start_time=audit_data.start_time,
+        auditor_name=audit_data.auditor_name,
+        accompanist_name=audit_data.accompanist_name,
+        general_notes=audit_data.general_notes,
+        equipment_issues=audit_data.equipment_issues,
+        status=AuditStatus.IN_PROGRESS
+    )
+
+    db.add(audit)
+    db.flush()  # Get audit.id before adding categories
+
+    # Add categories
+    for cat_data in audit_data.categories:
+        category = SanitationAuditCategory(
+            audit_id=audit.id,
+            category_name=cat_data.category_name,
+            category_key=cat_data.category_key,
+            status=cat_data.status,
+            notes=cat_data.notes,
+            score_deduction=cat_data.score_deduction,
+            check_performed=cat_data.check_performed,
+            check_name=cat_data.check_name,
+            image_urls=",".join(cat_data.image_urls) if cat_data.image_urls else None
+        )
+        db.add(category)
+
+    # Calculate score and generate summary
+    db.flush()
+    calculate_audit_score(audit, db)
+    audit.deficiencies_summary = generate_deficiencies_summary(audit)
+
+    db.commit()
+    db.refresh(audit)
+
+    return audit
+
+
+@router.get("/", response_model=List[SanitationAuditSummary])
+def list_sanitation_audits(
+    branch_id: Optional[int] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    List all sanitation audits.
+
+    - HQ users see all audits (can filter by branch_id)
+    - Branch managers see only their branch's audits
+    """
+    query = db.query(SanitationAudit).join(Branch)
+
+    # Filter by user role
+    if current_user.role == UserRole.BRANCH_MANAGER:
+        if not current_user.branch_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Branch manager must be assigned to a branch"
+            )
+        query = query.filter(SanitationAudit.branch_id == current_user.branch_id)
+    elif branch_id:
+        query = query.filter(SanitationAudit.branch_id == branch_id)
+
+    # Order by most recent first
+    audits = query.order_by(desc(SanitationAudit.audit_date)).offset(skip).limit(limit).all()
+
+    # Format response
+    return [
+        SanitationAuditSummary(
+            id=audit.id,
+            branch_id=audit.branch_id,
+            branch_name=audit.branch.name,
+            audit_date=audit.audit_date,
+            auditor_name=audit.auditor_name,
+            total_score=audit.total_score,
+            total_deductions=audit.total_deductions,
+            status=audit.status,
+            created_at=audit.created_at
+        )
+        for audit in audits
+    ]
+
+
+@router.get("/{audit_id}", response_model=SanitationAuditResponse)
+def get_sanitation_audit(
+    audit_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get a specific sanitation audit by ID.
+
+    - HQ users can view any audit
+    - Branch managers can only view their branch's audits
+    """
+    audit = db.query(SanitationAudit).filter(SanitationAudit.id == audit_id).first()
+
+    if not audit:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Audit not found"
+        )
+
+    # Check permissions
+    if current_user.role == UserRole.BRANCH_MANAGER:
+        if audit.branch_id != current_user.branch_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only view audits for your branch"
+            )
+
+    return audit
+
+
+@router.put("/{audit_id}", response_model=SanitationAuditResponse)
+def update_sanitation_audit(
+    audit_id: int,
+    audit_update: SanitationAuditUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Update a sanitation audit.
+
+    - Only HQ users can update audits
+    - Can update audit details and status
+    """
+    # Only HQ can update
+    if current_user.role != UserRole.HQ:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can update audits"
+        )
+
+    audit = db.query(SanitationAudit).filter(SanitationAudit.id == audit_id).first()
+    if not audit:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Audit not found"
+        )
+
+    # Update fields
+    update_data = audit_update.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(audit, field, value)
+
+    # If completing audit, set signed_at
+    if audit_update.status == AuditStatus.COMPLETED and audit_update.signature_url:
+        audit.signed_at = datetime.utcnow()
+
+    audit.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(audit)
+
+    return audit
+
+
+@router.put("/{audit_id}/categories/{category_id}", response_model=SanitationAuditResponse)
+def update_audit_category(
+    audit_id: int,
+    category_id: int,
+    category_update: SanitationAuditCategoryUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Update a specific category in an audit.
+
+    - Only HQ users can update
+    - Recalculates total score after update
+    """
+    if current_user.role != UserRole.HQ:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can update audit categories"
+        )
+
+    category = db.query(SanitationAuditCategory).filter(
+        SanitationAuditCategory.id == category_id,
+        SanitationAuditCategory.audit_id == audit_id
+    ).first()
+
+    if not category:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Category not found"
+        )
+
+    # Update category
+    update_data = category_update.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        if field == "image_urls" and value:
+            setattr(category, field, ",".join(value))
+        else:
+            setattr(category, field, value)
+
+    category.updated_at = datetime.utcnow()
+
+    # Recalculate audit score
+    audit = category.audit
+    calculate_audit_score(audit, db)
+    audit.deficiencies_summary = generate_deficiencies_summary(audit)
+    audit.updated_at = datetime.utcnow()
+
+    db.commit()
+    db.refresh(audit)
+
+    return audit
+
+
+@router.delete("/{audit_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_sanitation_audit(
+    audit_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Delete a sanitation audit.
+
+    - Only HQ users can delete audits
+    """
+    if current_user.role != UserRole.HQ:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can delete audits"
+        )
+
+    audit = db.query(SanitationAudit).filter(SanitationAudit.id == audit_id).first()
+    if not audit:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Audit not found"
+        )
+
+    db.delete(audit)
+    db.commit()
+
+
+# ===== Analytics Endpoints =====
+
+@router.get("/stats/network", response_model=NetworkAuditStats)
+def get_network_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get network-wide statistics for all branches.
+
+    - Only HQ users can access
+    - Returns average scores, trends, and comparisons
+    """
+    if current_user.role != UserRole.HQ:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can view network statistics"
+        )
+
+    # Get all branches with their audit stats
+    branches = db.query(Branch).all()
+    branch_stats = []
+
+    for branch in branches:
+        audits = db.query(SanitationAudit).filter(
+            SanitationAudit.branch_id == branch.id
+        ).order_by(desc(SanitationAudit.audit_date)).all()
+
+        if not audits:
+            continue
+
+        avg_score = sum(a.total_score for a in audits) / len(audits)
+        latest_score = audits[0].total_score if audits else None
+
+        # Determine trend
+        if len(audits) >= 2:
+            recent_avg = sum(a.total_score for a in audits[:3]) / min(3, len(audits))
+            older_avg = sum(a.total_score for a in audits[3:6]) / max(1, min(3, len(audits) - 3))
+            if recent_avg > older_avg + 5:
+                trend = "improving"
+            elif recent_avg < older_avg - 5:
+                trend = "declining"
+            else:
+                trend = "stable"
+        else:
+            trend = "insufficient_data"
+
+        # Get common issues
+        common_issues = []
+        issue_counts = {}
+        for audit in audits[:5]:  # Last 5 audits
+            for cat in audit.categories:
+                if cat.score_deduction > 0 and cat.category_name:
+                    issue_counts[cat.category_name] = issue_counts.get(cat.category_name, 0) + 1
+
+        common_issues = sorted(issue_counts.items(), key=lambda x: x[1], reverse=True)[:3]
+        common_issues = [issue[0] for issue in common_issues]
+
+        branch_stats.append(BranchAuditStats(
+            branch_id=branch.id,
+            branch_name=branch.name,
+            total_audits=len(audits),
+            average_score=round(avg_score, 1),
+            latest_score=round(latest_score, 1) if latest_score else None,
+            score_trend=trend,
+            common_issues=common_issues
+        ))
+
+    # Calculate network stats
+    total_audits = sum(bs.total_audits for bs in branch_stats)
+    network_avg = sum(bs.average_score * bs.total_audits for bs in branch_stats) / total_audits if total_audits > 0 else 0
+
+    best_branch = max(branch_stats, key=lambda x: x.average_score) if branch_stats else None
+    worst_branch = min(branch_stats, key=lambda x: x.average_score) if branch_stats else None
+
+    # Get network-wide common issues
+    all_issues = []
+    for bs in branch_stats:
+        all_issues.extend(bs.common_issues)
+    issue_counts = {}
+    for issue in all_issues:
+        issue_counts[issue] = issue_counts.get(issue, 0) + 1
+    common_issues_network = sorted(issue_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+    common_issues_network = [issue[0] for issue in common_issues_network]
+
+    return NetworkAuditStats(
+        total_audits=total_audits,
+        network_average_score=round(network_avg, 1),
+        best_performing_branch=best_branch,
+        worst_performing_branch=worst_branch,
+        branch_stats=branch_stats,
+        common_issues_network=common_issues_network
+    )
+
+
+@router.get("/stats/branch/{branch_id}", response_model=BranchAuditStats)
+def get_branch_stats(
+    branch_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get statistics for a specific branch.
+
+    - HQ can view any branch
+    - Branch managers can only view their own branch
+    """
+    # Check permissions
+    if current_user.role == UserRole.BRANCH_MANAGER:
+        if branch_id != current_user.branch_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only view stats for your branch"
+            )
+
+    branch = db.query(Branch).filter(Branch.id == branch_id).first()
+    if not branch:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Branch not found"
+        )
+
+    audits = db.query(SanitationAudit).filter(
+        SanitationAudit.branch_id == branch_id
+    ).order_by(desc(SanitationAudit.audit_date)).all()
+
+    if not audits:
+        return BranchAuditStats(
+            branch_id=branch_id,
+            branch_name=branch.name,
+            total_audits=0,
+            average_score=0,
+            latest_score=None,
+            score_trend="no_data",
+            common_issues=[]
+        )
+
+    avg_score = sum(a.total_score for a in audits) / len(audits)
+    latest_score = audits[0].total_score
+
+    # Determine trend
+    if len(audits) >= 2:
+        recent_avg = sum(a.total_score for a in audits[:3]) / min(3, len(audits))
+        older_avg = sum(a.total_score for a in audits[3:6]) / max(1, min(3, len(audits) - 3))
+        if recent_avg > older_avg + 5:
+            trend = "improving"
+        elif recent_avg < older_avg - 5:
+            trend = "declining"
+        else:
+            trend = "stable"
+    else:
+        trend = "insufficient_data"
+
+    # Get common issues
+    issue_counts = {}
+    for audit in audits[:5]:
+        for cat in audit.categories:
+            if cat.score_deduction > 0 and cat.category_name:
+                issue_counts[cat.category_name] = issue_counts.get(cat.category_name, 0) + 1
+
+    common_issues = sorted(issue_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+    common_issues = [issue[0] for issue in common_issues]
+
+    return BranchAuditStats(
+        branch_id=branch_id,
+        branch_name=branch.name,
+        total_audits=len(audits),
+        average_score=round(avg_score, 1),
+        latest_score=round(latest_score, 1),
+        score_trend=trend,
+        common_issues=common_issues
+    )
+
+
+@router.get("/branches/{branch_id}/recent", response_model=List[SanitationAuditResponse])
+def get_recent_audits_for_branch(
+    branch_id: int,
+    limit: int = 2,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get recent audits for a specific branch (for AI comparison)."""
+    # HQ can see all, branch managers only their branch
+    if current_user.role != UserRole.HQ and current_user.branch_id != branch_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to view this branch's audits"
+        )
+
+    # Get recent audits excluding the current one being created
+    audits = db.query(SanitationAudit).filter(
+        SanitationAudit.branch_id == branch_id,
+        SanitationAudit.status == AuditStatus.COMPLETED
+    ).order_by(desc(SanitationAudit.audit_date)).limit(limit).all()
+
+    # Convert to response format with categories
+    result = []
+    for audit in audits:
+        categories = db.query(SanitationAuditCategory).filter(
+            SanitationAuditCategory.audit_id == audit.id
+        ).all()
+
+        result.append(SanitationAuditResponse(
+            id=audit.id,
+            branch_id=audit.branch_id,
+            auditor_id=audit.auditor_id,
+            audit_date=audit.audit_date,
+            start_time=audit.start_time,
+            end_time=audit.end_time,
+            auditor_name=audit.auditor_name,
+            accompanist_name=audit.accompanist_name,
+            total_score=audit.total_score,
+            total_deductions=audit.total_deductions,
+            status=audit.status.value,
+            general_notes=audit.general_notes,
+            equipment_issues=audit.equipment_issues,
+            deficiencies_summary=audit.deficiencies_summary,
+            signature_url=audit.signature_url,
+            signed_at=audit.signed_at,
+            created_at=audit.created_at,
+            updated_at=audit.updated_at,
+            categories=[{
+                'id': cat.id,
+                'category_name': cat.category_name,
+                'category_key': cat.category_key,
+                'status': cat.status,
+                'notes': cat.notes,
+                'score_deduction': cat.score_deduction,
+                'check_performed': cat.check_performed,
+                'check_name': cat.check_name,
+                'image_urls': cat.image_urls.split(',') if cat.image_urls else []
+            } for cat in categories]
+        ))
+
+    return result
+
+
+@router.post("/{audit_id}/generate-summary")
+def generate_ai_summary(
+    audit_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Generate AI summary with insights and comparison to previous audits."""
+    # Only HQ can generate summaries
+    if current_user.role != UserRole.HQ:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can generate summaries"
+        )
+
+    # Get current audit
+    audit = db.query(SanitationAudit).filter(SanitationAudit.id == audit_id).first()
+    if not audit:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Audit not found"
+        )
+
+    # Get audit categories
+    categories = db.query(SanitationAuditCategory).filter(
+        SanitationAuditCategory.audit_id == audit_id
+    ).all()
+
+    # Get 2 previous audits for comparison
+    previous_audits = db.query(SanitationAudit).filter(
+        SanitationAudit.branch_id == audit.branch_id,
+        SanitationAudit.id != audit_id,
+        SanitationAudit.status == AuditStatus.COMPLETED
+    ).order_by(desc(SanitationAudit.audit_date)).limit(2).all()
+
+    # Prepare data for AI
+    defects = []
+    for cat in categories:
+        if cat.score_deduction > 0:
+            defects.append({
+                'category': cat.category_name,
+                'deduction': cat.score_deduction,
+                'notes': cat.notes
+            })
+
+    # Prepare comparison data
+    comparison_data = []
+    for prev_audit in previous_audits:
+        prev_cats = db.query(SanitationAuditCategory).filter(
+            SanitationAuditCategory.audit_id == prev_audit.id
+        ).all()
+        comparison_data.append({
+            'date': prev_audit.audit_date.strftime('%Y-%m-%d'),
+            'score': prev_audit.total_score,
+            'deductions': prev_audit.total_deductions,
+            'defects': [{'category': c.category_name, 'deduction': c.score_deduction} for c in prev_cats if c.score_deduction > 0]
+        })
+
+    # TODO: Call AI API here to generate summary
+    # For now, return a placeholder
+    ai_summary = f"""
+    ביקורת תברואה - סיכום אוטומטי
+
+    ציון כללי: {audit.total_score}/100
+    סה"כ ניקוד: {audit.total_deductions} נקודות
+
+    ליקויים שנמצאו:
+    {chr(10).join([f"- {d['category']}: {d['deduction']} נקודות - {d['notes'] or 'ללא הערות'}" for d in defects])}
+
+    השוואה לביקורות קודמות:
+    {chr(10).join([f"- {c['date']}: ציון {c['score']}, ניקוד {c['deductions']}" for c in comparison_data]) if comparison_data else "אין ביקורות קודמות להשוואה"}
+
+    המלצות:
+    - יש להתמקד בשיפור הקטגוריות עם הניקוד הגבוה ביותר
+    - מומלץ לעקוב אחר השיפור בביקורות הבאות
+    """
+
+    # Update audit with summary
+    audit.deficiencies_summary = ai_summary
+    db.commit()
+
+    return {
+        "summary": ai_summary,
+        "current_score": audit.total_score,
+        "previous_scores": [c['score'] for c in comparison_data]
+    }

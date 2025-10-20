@@ -31,7 +31,8 @@ export interface Chef {
 export interface DishCheck {
   id: number;
   branch_id: number;
-  dish_id: number;
+  dish_id: number | null;
+  dish_name_manual: string | null;
   chef_id: number | null;
   chef_name_manual: string | null;
   rating: number;
@@ -100,4 +101,92 @@ export interface CreateTaskData {
   start_date: string;
   end_date: string | null;
   branch_ids: number[];
+}
+
+// Sanitation Audits
+export type AuditStatus = 'in_progress' | 'completed' | 'reviewed';
+
+export interface SanitationAuditCategory {
+  id?: number;
+  category_name: string;
+  category_key: string;
+  status: string;
+  notes: string | null;
+  score_deduction: number;
+  check_performed: boolean | null;
+  check_name: string | null;
+  image_urls: string[];
+}
+
+export interface SanitationAudit {
+  id: number;
+  branch_id: number;
+  auditor_id: number;
+  audit_date: string;
+  start_time: string;
+  end_time: string | null;
+  auditor_name: string;
+  accompanist_name: string | null;
+  total_score: number;
+  total_deductions: number;
+  status: AuditStatus;
+  general_notes: string | null;
+  equipment_issues: string | null;
+  deficiencies_summary: string | null;
+  signature_url: string | null;
+  signed_at: string | null;
+  created_at: string;
+  updated_at: string;
+  categories: SanitationAuditCategory[];
+}
+
+export interface SanitationAuditSummary {
+  id: number;
+  branch_id: number;
+  branch_name: string;
+  audit_date: string;
+  auditor_name: string;
+  total_score: number;
+  total_deductions: number;
+  status: AuditStatus;
+  created_at: string;
+}
+
+export interface CreateSanitationAudit {
+  branch_id: number;
+  audit_date: string;
+  start_time: string;
+  auditor_name: string;
+  accompanist_name: string | null;
+  general_notes: string | null;
+  equipment_issues: string | null;
+  categories: Omit<SanitationAuditCategory, 'id'>[];
+}
+
+export interface SanitationAuditCategoryUpdate {
+  status?: string;
+  notes?: string;
+  score_deduction?: number;
+  check_performed?: boolean | null;
+  check_name?: string;
+  image_urls?: string[];
+}
+
+export interface BranchAuditStats {
+  branch_id: number;
+  branch_name: string;
+  total_audits: number;
+  average_score: number;
+  latest_score: number | null;
+  score_trend: 'improving' | 'declining' | 'stable' | 'insufficient_data' | 'no_data';
+  common_issues: string[];
+}
+
+export interface NetworkAuditStats {
+  total_audits: number;
+  network_average_score: number;
+  best_performing_branch: BranchAuditStats | null;
+  worst_performing_branch: BranchAuditStats | null;
+  branch_stats: BranchAuditStats[];
+  common_issues_network: string[];
 }

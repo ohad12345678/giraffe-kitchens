@@ -8,6 +8,7 @@ from app.models.branch import Branch
 from app.models.dish import Dish
 from app.models.chef import Chef
 from app.core.security import get_password_hash
+from chefs_data import CHEFS_BY_BRANCH
 
 
 def seed_branches(db):
@@ -40,7 +41,7 @@ def seed_users(db):
 
     # Create HQ user - Simple credentials
     hq_user = User(
-        email="giraffe@giraffe.com",
+        email="ohadb@giraffe.co.il",
         password_hash=get_password_hash("123"),
         full_name="Ohad Banay (HQ)",
         role=UserRole.HQ,
@@ -73,46 +74,115 @@ def seed_users(db):
 def seed_dishes(db):
     """Seed common dishes."""
     dishes = [
-        # מנות - הקטגוריות יוגדרו מאוחר יותר
-        Dish(name="סלט מלפפונים", category=None),
-        Dish(name="סלט תאילנדי", category=None),
-        Dish(name="סלט דג לבן", category=None),
-        Dish(name="גיוזה", category=None),
-        Dish(name="וון טון", category=None),
-        Dish(name="צ'אזה", category=None),
-        Dish(name="סינטה נודלס", category=None),
-        Dish(name="אפגנית", category=None),
-        Dish(name="סצ'ואן", category=None),
-        Dish(name="פיליפינית", category=None),
-        Dish(name="מלאכית", category=None),
-        Dish(name="קארי דלעת", category=None),
+        # ראשונות
+        {"name": "סלט אילנדי", "category": "ראשונות"},
+        {"name": "סלט בריאות", "category": "ראשונות"},
+        {"name": "סלט מלפפונים", "category": "ראשונות"},
+        {"name": "בריוש טרטר ים", "category": "ראשונות"},
+        {"name": "טרטר מיזו", "category": "ראשונות"},
+        {"name": "סשימי סלמון", "category": "ראשונות"},
+        {"name": "טוקיו סביצ'ה", "category": "ראשונות"},
+        {"name": "סלט דג לבן", "category": "ראשונות"},
+        {"name": "סלט מיסו סיזר", "category": "ראשונות"},
+
+        # ראשונות חמות
+        {"name": "קריספי שרימפס", "category": "ראשונות חמות"},
+        {"name": "באן דג", "category": "ראשונות חמות"},
+        {"name": "באן בשר", "category": "ראשונות חמות"},
+        {"name": "באן עוף", "category": "ראשונות חמות"},
+        {"name": "גיוזה", "category": "ראשונות חמות"},
+        {"name": "בייבי דאמפלינג", "category": "ראשונות חמות"},
+        {"name": "קלמרי מטוגן", "category": "ראשונות חמות"},
+        {"name": "אגרול", "category": "ראשונות חמות"},
+
+        # סושי
+        {"name": "אוקינאווה הנד רול", "category": "סושי"},
+        {"name": "ווג'י רול", "category": "סושי"},
+        {"name": "ווג'י גרנדה", "category": "סושי"},
+        {"name": "מאקי סלמון", "category": "סושי"},
+        {"name": "דרגון קראנץ'", "category": "סושי"},
+        {"name": "סלמון מאודה", "category": "סושי"},
+        {"name": "שרימפס טמפורה", "category": "סושי"},
+        {"name": "מאקי טונה", "category": "סושי"},
+        {"name": "סלמון גרנדה", "category": "סושי"},
+        {"name": "ספיישל ספייסי סלמון", "category": "סושי"},
+        {"name": "ספייסי טונה", "category": "סושי"},
+        {"name": "צ'יזו רול", "category": "סושי"},
+
+        # אורז
+        {"name": "צ'אזה", "category": "אורז"},
+        {"name": "סינטה סצ'ואן", "category": "אורז"},
+        {"name": "עוף בלימון", "category": "אורז"},
+        {"name": "אפגנית", "category": "אורז"},
+        {"name": "קארי כתום", "category": "אורז"},
+        {"name": "אורז מטוגן", "category": "אורז"},
+        {"name": "פילה סלמון", "category": "אורז"},
+
+        # צ'יראשי
+        {"name": "צ'יראשי סלמון מאודה", "category": "צ'יראשי"},
+        {"name": "צ'יראשי סלמון", "category": "צ'יראשי"},
+        {"name": "צ'יראשי טופו", "category": "צ'יראשי"},
+
+        # ווק
+        {"name": "המנה החריפה", "category": "ווק"},
+        {"name": "סינטה נודלס", "category": "ווק"},
+        {"name": "הקיסרית החדשה", "category": "ווק"},
+        {"name": "פיליפינית", "category": "ווק"},
+        {"name": "באטר נודלס", "category": "ווק"},
+        {"name": "סלמון אודון", "category": "ווק"},
+        {"name": "מלאזית", "category": "ווק"},
+        {"name": "ביף רייס", "category": "ווק"},
+        {"name": "פאד תאי קלאסי", "category": "ווק"},
+        {"name": "פאד תאי חריף", "category": "ווק"},
+        {"name": "אטריות שחורות", "category": "ווק"},
+
+        # מרקים
+        {"name": "מרק עדשים", "category": "מרקים"},
+        {"name": "מרק תירס", "category": "מרקים"},
+        {"name": "מרק תאילנדי", "category": "מרקים"},
     ]
 
-    for dish in dishes:
-        existing = db.query(Dish).filter(Dish.name == dish.name).first()
+    for dish_data in dishes:
+        existing = db.query(Dish).filter(Dish.name == dish_data["name"]).first()
         if not existing:
-            db.add(dish)
+            db.add(Dish(**dish_data))
 
     db.commit()
     print("✅ Dishes seeded")
 
 
 def seed_chefs(db):
-    """Seed sample chefs for each branch."""
+    """Seed real Chinese chefs for each branch from chefs_data.py"""
     branches = db.query(Branch).all()
 
-    chef_names = ["David", "Sarah", "Michael", "Rachel", "Yossi"]
+    # First, delete all existing generic chefs
+    deleted_count = db.query(Chef).delete()
+    if deleted_count > 0:
+        print(f"🗑️  Deleted {deleted_count} old generic chef names")
 
+    # Add real Chinese chef names from chefs_data.py
+    total_chefs = 0
     for branch in branches:
-        for name in chef_names:
-            chef = Chef(
-                name=name,
-                branch_id=branch.id
-            )
-            db.add(chef)
+        if branch.name in CHEFS_BY_BRANCH:
+            chef_names = CHEFS_BY_BRANCH[branch.name]
+            for name in chef_names:
+                existing = db.query(Chef).filter(
+                    Chef.name == name,
+                    Chef.branch_id == branch.id
+                ).first()
+
+                if not existing:
+                    chef = Chef(
+                        name=name,
+                        branch_id=branch.id
+                    )
+                    db.add(chef)
+                    total_chefs += 1
+        else:
+            print(f"⚠️  Warning: No chefs defined for {branch.name}")
 
     db.commit()
-    print("✅ Chefs seeded")
+    print(f"✅ Seeded {total_chefs} Chinese chefs across all branches")
 
 
 def main():
@@ -129,7 +199,7 @@ def main():
 
         # Print login credentials
         print("\n📝 Login Credentials:")
-        print("HQ User: giraffe@giraffe.com / 123")
+        print("HQ User: ohadb@giraffe.co.il / 123")
         print("Branch Manager examples:")
         print("  - חיפה@giraffe.com / 123")
         print("  - הרצליה@giraffe.com / 123")

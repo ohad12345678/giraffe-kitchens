@@ -18,10 +18,11 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies for PostgreSQL
 RUN apt-get update && apt-get install -y \
     gcc \
-    sqlite3 \
+    postgresql-client \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
@@ -34,11 +35,8 @@ COPY ./giraffe-backend/ .
 # Copy built frontend from first stage
 COPY --from=frontend-builder /frontend/dist /app/static
 
-# Create directory for database
-RUN mkdir -p /data
-
 # Expose port
 EXPOSE 8000
 
 # Run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]

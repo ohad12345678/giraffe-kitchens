@@ -18,3 +18,4 @@ class Branch(Base):
     users = relationship("User", back_populates="branch")
     chefs = relationship("Chef", back_populates="branch")
     dish_checks = relationship("DishCheck", back_populates="branch")
+    sanitation_audits = relationship("SanitationAudit", back_populates="branch")

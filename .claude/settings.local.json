@@ -19,7 +19,10 @@
       "Bash(find . -name \".gitignore\" -exec echo \"=== {} ===\" ; -exec cat {} ;)",
       "Bash(VITE_API_URL=\"\" npm run build:*)",
       "Bash(cat:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(lsof -i :8000 -i :5173)",
+      "Bash(python3 -c \"import sys, json; data = json.load(sys.stdin); print(data[''''access_token''''])\")",
+      "Bash(docker-compose exec app alembic revision --autogenerate -m \"Add sanitation audit tables\")"
     ],
     "deny": [],
     "ask": []

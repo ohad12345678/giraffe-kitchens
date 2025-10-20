@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Star } from 'lucide-react';
-import { chefAPI, dishAPI } from '../services/api';
-import type { Chef, Dish } from '../types';
+import { chefAPI, dishAPI, checkAPI, branchAPI } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+import type { Chef, Dish, Branch } from '../types';
 
 const NewCheck: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const branchId = location.state?.branchId;
+  const { user, isHQ } = useAuth();
 
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [branchId, setBranchId] = useState<number | null>(null);
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [chefs, setChefs] = useState<Chef[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,51 +23,102 @@ const NewCheck: React.FC = () => {
   const [comments, setComments] = useState('');
   const [hoveredRating, setHoveredRating] = useState(0);
 
+  // Load branches on mount
   useEffect(() => {
-    if (!branchId) {
-      alert('❌ לא נבחר סניף');
-      navigate('/dashboard');
-      return;
-    }
+    const loadBranches = async () => {
+      try {
+        const branchesData = await branchAPI.list();
+        setBranches(branchesData);
+
+        // Auto-select branch for branch managers
+        if (!isHQ && user?.branch_id) {
+          setBranchId(user.branch_id);
+        }
+      } catch (error) {
+        console.error('Failed to load branches:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadBranches();
+  }, [isHQ, user]);
+
+  // Load dishes and chefs when branch is selected
+  useEffect(() => {
+    if (!branchId) return;
+
+    const loadData = async () => {
+      try {
+        const [dishesData, chefsData] = await Promise.all([
+          dishAPI.list(),
+          chefAPI.list(branchId),
+        ]);
+        setDishes(dishesData);
+        setChefs(chefsData);
+      } catch (error) {
+        console.error('Failed to load data:', error);
+        alert('❌ שגיאה בטעינת הנתונים');
+      }
+    };
     loadData();
   }, [branchId]);
 
-  const loadData = async () => {
-    try {
-      const [dishesData, chefsData] = await Promise.all([
-        dishAPI.list(),
-        chefAPI.list(branchId), // טעינת טבחים לפי סניף
-      ]);
-      setDishes(dishesData);
-      setChefs(chefsData);
-    } catch (error) {
-      console.error('Failed to load data:', error);
-      alert('❌ שגיאה בטעינת הנתונים');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validation
-    const finalDishName = dishId === 'custom' ? customDishName : dishId;
-    const finalChefName = chefId === 'custom' ? customChefName : chefId;
-
-    if (!finalDishName || !finalChefName) {
-      alert('❌ יש למלא את כל השדות החובה');
+    if (!branchId) {
+      alert('❌ יש לבחור סניף');
       return;
     }
 
-    // Mock submission - show success message
-    const dishDisplay = dishId === 'custom' ? customDishName : dishes.find(d => d.id === parseInt(dishId))?.name;
-    const chefDisplay = chefId === 'custom' ? customChefName : chefs.find(c => c.id === parseInt(chefId))?.name;
+    if (!dishId) {
+      alert('❌ יש לבחור מנה');
+      return;
+    }
 
-    alert(`✅ הבדיקה נשלחה בהצלחה!\n\nמנה: ${dishDisplay}\nטבח: ${chefDisplay}\nציון: ${rating}/10`);
+    if (!chefId) {
+      alert('❌ יש לבחור טבח');
+      return;
+    }
 
-    // Navigate back to dashboard
-    navigate('/dashboard');
+    if (dishId === 'custom' && !customDishName.trim()) {
+      alert('❌ יש להזין שם מנה');
+      return;
+    }
+
+    if (chefId === 'custom' && !customChefName.trim()) {
+      alert('❌ יש להזין שם טבח');
+      return;
+    }
+
+    try {
+      // Prepare data for submission
+      const checkData = {
+        branch_id: branchId as number,
+        dish_id: dishId !== 'custom' ? parseInt(dishId) : undefined,
+        dish_name_manual: dishId === 'custom' ? customDishName : undefined,
+        chef_id: chefId !== 'custom' ? parseInt(chefId) : undefined,
+        chef_name_manual: chefId === 'custom' ? customChefName : undefined,
+        rating: rating,
+        comments: comments || undefined,
+        check_date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+      };
+
+      console.log('Submitting check:', checkData);
+      await checkAPI.create(checkData);
+
+      const dishDisplay = dishId === 'custom' ? customDishName : dishes.find(d => d.id === parseInt(dishId))?.name;
+      const chefDisplay = chefId === 'custom' ? customChefName : chefs.find(c => c.id === parseInt(chefId))?.name;
+
+      alert(`✅ הבדיקה נשלחה בהצלחה!\n\nמנה: ${dishDisplay}\nטבח: ${chefDisplay}\nציון: ${rating}/10`);
+
+      // Navigate back to dashboard
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Failed to submit check:', error);
+      alert('❌ שגיאה בשליחת הבדיקה. נסה שוב.');
+    }
   };
 
   const handleCancel = () => {
@@ -102,6 +155,29 @@ const NewCheck: React.FC = () => {
           <p className="text-gray-600 mb-8">מלא את הפרטים הבאים כדי לתעד בדיקת איכות</p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Branch Selection (HQ only, Branch Managers see their branch auto-selected) */}
+            {isHQ && (
+              <div>
+                <label htmlFor="branch" className="block text-sm font-medium text-gray-700 mb-2">
+                  סניף <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="branch"
+                  value={branchId || ''}
+                  onChange={(e) => setBranchId(e.target.value ? Number(e.target.value) : null)}
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  required
+                >
+                  <option value="">בחר סניף...</option>
+                  {Array.isArray(branches) && branches.map((branch) => (
+                    <option key={branch.id} value={branch.id}>
+                      {branch.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             {/* Dish Selection */}
             <div>
               <label htmlFor="dish" className="block text-sm font-medium text-gray-700 mb-2">
@@ -119,7 +195,7 @@ const NewCheck: React.FC = () => {
                 className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
                 <option value="">בחר מנה...</option>
-                {dishes.map((dish) => (
+                {Array.isArray(dishes) && dishes.map((dish) => (
                   <option key={dish.id} value={dish.id}>
                     {dish.name} ({dish.category})
                   </option>
@@ -157,7 +233,7 @@ const NewCheck: React.FC = () => {
                 className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
                 <option value="">בחר טבח...</option>
-                {chefs.map((chef) => (
+                {Array.isArray(chefs) && chefs.map((chef) => (
                   <option key={chef.id} value={chef.id}>
                     {chef.name}
                   </option>

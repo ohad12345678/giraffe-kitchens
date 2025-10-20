@@ -1,0 +1,87 @@
+"""
+Chef names data organized by branch.
+This file contains the real chef names for each Giraffe Kitchen branch.
+"""
+
+CHEFS_BY_BRANCH = {
+    "Giraffe לנדמרק": [
+        "rongshan yang",
+        "yang ziming",
+        "dong haiyang",
+        "zhang ning",
+        "wang jianli",
+        "wang huanbin",
+        "yu deyang",
+        "jun zhang",
+        "bi yanchao",
+        "zhang wanlin",
+        "ma huan",
+    ],
+    "Giraffe הרצליה": [
+        "zhao heqtao",
+        "xue baobao",
+        "cong hui",
+        "yun qinyong",
+        "wang qinghuan",
+        "shi guang",
+        "zhang hopeng",
+        "tang hongli",
+        "hao shenghuhan",
+    ],
+    "Giraffe ראשון לציון": [
+        "liu cheng",
+        "zhang guorong",
+        "jinlai zhou",
+        "ma guangbing",
+        "ran yuze",
+        "fang ding",
+    ],
+    "Giraffe חיפה": [
+        "song xingguo",
+        "li fangliu",
+        "li jinfeng",
+        "wang yonggang",
+        "zhao hongshuai",
+    ],
+    "Giraffe רמת החייל": [
+        "shi yancai",
+        "wang anning",
+        "lan guangqiang",
+        "huang zhicheng",
+        "yin hongfeng",
+        "liu zengwei",
+        "li zhao",
+        "zhang decai",
+        "yue zhou",
+        "zhu chaofan",
+    ],
+    "Giraffe נס ציונה": [
+        "cha zhongxue",
+        "zhao kecun",
+        "zhang jinzhen",
+        "li feng",
+        "jinxiang feng",
+    ],
+    "Giraffe פתח תקווה": [
+        "li junjie",
+        "yin yanwei",
+        "yu jian",
+        "dai jianbo",
+        "li zhang",
+        "he shen",
+    ],
+    "Giraffe סביון": [
+        "wu gang",
+        "wang yulong",
+        "CAIHUA SONG",
+        "wang binbin",
+        "liu guodong",
+        "liu fujie",
+    ],
+    "Giraffe מודיעין": [
+        "zhao chuanfeng",
+        "zhao zhenguo",
+        "zhao",
+        "wang fuquan",
+    ],
+}

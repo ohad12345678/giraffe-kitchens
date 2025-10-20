@@ -44,15 +44,19 @@ def list_checks(
     result = []
     for check in checks:
         branch = db.query(Branch).filter(Branch.id == check.branch_id).first()
-        dish = db.query(Dish).filter(Dish.id == check.dish_id).first()
+        dish = db.query(Dish).filter(Dish.id == check.dish_id).first() if check.dish_id else None
         chef = db.query(Chef).filter(Chef.id == check.chef_id).first() if check.chef_id else None
         creator = db.query(User).filter(User.id == check.created_by).first()
+
+        # Use manual name if no dish/chef ID provided
+        dish_display_name = dish.name if dish else check.dish_name_manual
+        chef_display_name = chef.name if chef else check.chef_name_manual
 
         result.append(DishCheckWithDetails(
             **check.__dict__,
             branch_name=branch.name if branch else None,
-            dish_name=dish.name if dish else None,
-            chef_name=chef.name if chef else check.chef_name_manual,
+            dish_name=dish_display_name,
+            chef_name=chef_display_name,
             created_by_name=creator.full_name if creator else None
         ))
 
@@ -105,13 +109,13 @@ def get_weakest_dish(
     week_start = today - timedelta(days=today.weekday())  # Monday
     week_end = week_start + timedelta(days=6)  # Sunday
 
-    # Build query based on user role
+    # Build query based on user role - use COALESCE to handle manual dishes
     query = db.query(
         DishCheck.dish_id,
-        Dish.name.label('dish_name'),
+        func.coalesce(Dish.name, DishCheck.dish_name_manual).label('dish_name'),
         func.avg(DishCheck.rating).label('avg_score'),
         func.count(DishCheck.id).label('check_count')
-    ).join(
+    ).outerjoin(
         Dish, DishCheck.dish_id == Dish.id
     ).filter(
         DishCheck.check_date >= week_start,
@@ -123,7 +127,10 @@ def get_weakest_dish(
         query = query.filter(DishCheck.branch_id == current_user.branch_id)
 
     # Group by dish and order by average score (ascending = worst first)
-    result = query.group_by(DishCheck.dish_id, Dish.name).order_by(func.avg(DishCheck.rating).asc()).first()
+    result = query.group_by(
+        DishCheck.dish_id,
+        func.coalesce(Dish.name, DishCheck.dish_name_manual)
+    ).order_by(func.avg(DishCheck.rating).asc()).first()
 
     if not result:
         return {
@@ -188,36 +195,43 @@ def get_analytics(
         DishCheck.rating < 7
     ).scalar() or 0
 
-    # Top chef
+    # Top chef - include manual chef names
     top_chef_result = db.query(
-        Chef.name,
+        func.coalesce(Chef.name, DishCheck.chef_name_manual).label('name'),
         func.avg(DishCheck.rating).label('avg_score')
-    ).join(
-        DishCheck, DishCheck.chef_id == Chef.id
+    ).outerjoin(
+        Chef, DishCheck.chef_id == Chef.id
     ).filter(
         DishCheck.id.in_([c.id for c in base_query.all()])
-    ).group_by(Chef.id, Chef.name).order_by(
+    ).group_by(
+        DishCheck.chef_id,
+        func.coalesce(Chef.name, DishCheck.chef_name_manual)
+    ).order_by(
         func.avg(DishCheck.rating).desc()
     ).first()
 
-    # 2. Dish ratings with trends
+    # 2. Dish ratings with trends - include manual dishes
     dish_ratings = db.query(
-        Dish.id,
-        Dish.name,
+        DishCheck.dish_id,
+        func.coalesce(Dish.name, DishCheck.dish_name_manual).label('name'),
         Dish.category,
         func.avg(DishCheck.rating).label('avg_score'),
         func.count(DishCheck.id).label('check_count')
-    ).join(
-        DishCheck, DishCheck.dish_id == Dish.id
+    ).outerjoin(
+        Dish, DishCheck.dish_id == Dish.id
     ).filter(
         DishCheck.id.in_([c.id for c in base_query.all()])
-    ).group_by(Dish.id, Dish.name, Dish.category).order_by(
+    ).group_by(
+        DishCheck.dish_id,
+        func.coalesce(Dish.name, DishCheck.dish_name_manual),
+        Dish.category
+    ).order_by(
         func.avg(DishCheck.rating).desc()
     ).all()
 
     dish_ratings_list = [
         {
-            "dish_id": d.id,
+            "dish_id": d.dish_id,
             "name": d.name,
             "category": d.category,
             "rating": round(float(d.avg_score), 1),
@@ -227,28 +241,32 @@ def get_analytics(
         for d in dish_ratings
     ]
 
-    # 3. Chef performance
+    # 3. Chef performance - include manual chef names
     chef_performance = db.query(
-        Chef.id,
-        Chef.name,
+        DishCheck.chef_id,
+        func.coalesce(Chef.name, DishCheck.chef_name_manual).label('name'),
         Branch.name.label('branch_name'),
         func.avg(DishCheck.rating).label('avg_score'),
         func.count(DishCheck.id).label('check_count')
-    ).join(
-        DishCheck, DishCheck.chef_id == Chef.id
-    ).join(
+    ).outerjoin(
+        Chef, DishCheck.chef_id == Chef.id
+    ).outerjoin(
         Branch, Chef.branch_id == Branch.id
     ).filter(
         DishCheck.id.in_([c.id for c in base_query.all()])
-    ).group_by(Chef.id, Chef.name, Branch.name).order_by(
+    ).group_by(
+        DishCheck.chef_id,
+        func.coalesce(Chef.name, DishCheck.chef_name_manual),
+        Branch.name
+    ).order_by(
         func.avg(DishCheck.rating).desc()
     ).all()
 
     chef_performance_list = [
         {
-            "chef_id": c.id,
+            "chef_id": c.chef_id,
             "name": c.name,
-            "branch": c.branch_name,
+            "branch": c.branch_name if c.branch_name else "לא מוגדר",
             "rating": round(float(c.avg_score), 1),
             "checks_count": c.check_count
         }
@@ -311,14 +329,18 @@ def get_check(
 
     # Enrich with details
     branch = db.query(Branch).filter(Branch.id == check.branch_id).first()
-    dish = db.query(Dish).filter(Dish.id == check.dish_id).first()
+    dish = db.query(Dish).filter(Dish.id == check.dish_id).first() if check.dish_id else None
     chef = db.query(Chef).filter(Chef.id == check.chef_id).first() if check.chef_id else None
     creator = db.query(User).filter(User.id == check.created_by).first()
+
+    # Use manual name if no dish/chef ID provided
+    dish_display_name = dish.name if dish else check.dish_name_manual
+    chef_display_name = chef.name if chef else check.chef_name_manual
 
     return DishCheckWithDetails(
         **check.__dict__,
         branch_name=branch.name if branch else None,
-        dish_name=dish.name if dish else None,
-        chef_name=chef.name if chef else check.chef_name_manual,
+        dish_name=dish_display_name,
+        chef_name=chef_display_name,
         created_by_name=creator.full_name if creator else None
     )

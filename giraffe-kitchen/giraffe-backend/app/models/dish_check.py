@@ -13,7 +13,8 @@ class DishCheck(Base):
 
     # Foreign keys
     branch_id = Column(Integer, ForeignKey("branches.id"), nullable=False)
-    dish_id = Column(Integer, ForeignKey("dishes.id"), nullable=False)
+    dish_id = Column(Integer, ForeignKey("dishes.id"), nullable=True)  # Optional if manual
+    dish_name_manual = Column(String, nullable=True)  # Manual entry if dish not in list
     chef_id = Column(Integer, ForeignKey("chefs.id"), nullable=True)  # Optional if typed manually
     chef_name_manual = Column(String, nullable=True)  # Manual entry if chef not in list
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)

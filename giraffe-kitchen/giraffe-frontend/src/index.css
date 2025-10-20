@@ -80,6 +80,12 @@ body::after {
   text-align: right;
 }
 
+/* Select dropdown styling */
+select option {
+  color: #111827;
+  background-color: white;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
