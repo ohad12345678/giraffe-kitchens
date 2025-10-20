@@ -11,5 +11,6 @@ echo "Seeding initial data..."
 python seed_data.py || echo "⚠️  Seeding skipped (data may already exist)"
 
 # Start the application
+echo "PORT environment variable: ${PORT}"
 echo "Starting application on port ${PORT:-8000}..."
-exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info
+exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --proxy-headers --forwarded-allow-ips='*'
