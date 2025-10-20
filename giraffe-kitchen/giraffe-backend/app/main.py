@@ -59,6 +59,10 @@ if os.path.exists(static_dir):
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
         """Serve frontend for all non-API routes."""
+        # Don't serve frontend for API routes
+        if full_path.startswith("api/"):
+            return {"detail": "Not Found"}
+
         # Check if specific file exists (like vite.svg, etc)
         file_path = os.path.join(static_dir, full_path)
         if os.path.isfile(file_path):
