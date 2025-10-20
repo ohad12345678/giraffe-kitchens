@@ -42,11 +42,8 @@ COPY --from=frontend-builder /frontend/dist /app/static
 # Create directory for database
 RUN mkdir -p /data
 
-# Make start script executable
-RUN chmod +x start.sh
-
 # Expose port
 EXPOSE 8000
 
-# Run the application with startup script
-CMD ["./start.sh"]
+# Run the application with startup script using bash
+CMD ["bash", "start.sh"]
