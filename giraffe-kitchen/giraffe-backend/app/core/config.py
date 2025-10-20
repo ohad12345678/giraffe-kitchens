@@ -12,10 +12,10 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
 
     # Database
-    DATABASE_URL: str
+    DATABASE_URL: str = "sqlite:///./giraffe_kitchens.db"
 
     # JWT
-    JWT_SECRET: str
+    JWT_SECRET: str = "default-secret-change-in-production"
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
