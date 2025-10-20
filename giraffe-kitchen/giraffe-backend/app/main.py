@@ -45,23 +45,5 @@ def health_check():
     return {"status": "healthy"}
 
 
-# Mount static files for frontend (must be AFTER all API routes are defined)
-static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
-if os.path.exists(static_dir):
-    # Mount static assets
-    app.mount("/assets", StaticFiles(directory=os.path.join(static_dir, "assets")), name="assets")
-
-    # Serve vite.svg
-    @app.get("/vite.svg", include_in_schema=False)
-    async def vite_svg():
-        return FileResponse(os.path.join(static_dir, "vite.svg"))
-
-    # Serve index.html for root and all non-API routes (SPA fallback)
-    @app.get("/{catchall:path}", include_in_schema=False)
-    async def serve_spa(catchall: str):
-        # If it's a specific file, try to serve it
-        file_path = os.path.join(static_dir, catchall)
-        if os.path.isfile(file_path):
-            return FileResponse(file_path)
-        # Otherwise serve index.html for SPA routing
-        return FileResponse(os.path.join(static_dir, "index.html"))
+# Don't serve frontend from Railway - use Vercel instead
+# This simplifies routing and prevents conflicts with API routes
