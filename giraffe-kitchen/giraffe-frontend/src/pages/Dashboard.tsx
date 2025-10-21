@@ -191,26 +191,28 @@ const Dashboard: React.FC = () => {
           {isHQ && (stats?.branches.best || stats?.branches.worst) && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
               <h3 className="text-sm font-medium text-gray-600 mb-4">סניפים - תברואה (90 יום)</h3>
-              <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 {/* Best Branch */}
                 {stats?.branches.best && (
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">סניף מצטיין 🏆</p>
+                  <div className="text-center p-3 bg-green-50 rounded-lg border border-green-100">
+                    <p className="text-xs text-gray-500 mb-2">סניף מצטיין 🏆</p>
                     <p className="text-lg font-bold text-green-600">{stats.branches.best.name}</p>
-                    <p className="text-sm text-gray-600">
-                      ציון: {stats.branches.best.score} | {stats.branches.best.audit_count} ביקורות
+                    <p className="text-sm text-gray-600 mt-1">
+                      ציון: {stats.branches.best.score}
                     </p>
+                    <p className="text-xs text-gray-500">{stats.branches.best.audit_count} ביקורות</p>
                   </div>
                 )}
 
                 {/* Worst Branch */}
                 {stats?.branches.worst && (
-                  <div className={stats?.branches.best ? "pt-4 border-t border-gray-100" : ""}>
-                    <p className="text-xs text-gray-500 mb-1">סניף דורש שיפור ⚠️</p>
+                  <div className="text-center p-3 bg-red-50 rounded-lg border border-red-100">
+                    <p className="text-xs text-gray-500 mb-2">דורש שיפור ⚠️</p>
                     <p className="text-lg font-bold text-red-600">{stats.branches.worst.name}</p>
-                    <p className="text-sm text-gray-600">
-                      ציון: {stats.branches.worst.score} | {stats.branches.worst.audit_count} ביקורות
+                    <p className="text-sm text-gray-600 mt-1">
+                      ציון: {stats.branches.worst.score}
                     </p>
+                    <p className="text-xs text-gray-500">{stats.branches.worst.audit_count} ביקורות</p>
                   </div>
                 )}
               </div>
