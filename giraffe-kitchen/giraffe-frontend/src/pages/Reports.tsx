@@ -510,19 +510,19 @@ const Reports: React.FC = () => {
         {/* AI Chatbot Toggle Button */}
         <button
           onClick={() => setShowChatbot(!showChatbot)}
-          className="fixed bottom-6 left-6 bg-primary-600 text-white p-4 rounded-full shadow-lg hover:bg-primary-700 transition-all z-50 flex items-center gap-2"
+          className="fixed bottom-6 left-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-all z-50 flex items-center gap-2"
         >
           <MessageSquare className="h-6 w-6" />
-          {!showChatbot && <span className="pr-2">שאל את ה-AI</span>}
+          {!showChatbot && <span className="pr-2">שאל את הצ'אט</span>}
         </button>
 
         {/* AI Chatbot Window */}
         {showChatbot && (
           <div className="fixed bottom-24 left-6 w-96 bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-gray-200 z-50">
-            <div className="bg-primary-600 text-white p-4 rounded-t-xl flex items-center justify-between">
+            <div className="bg-green-500 text-white p-4 rounded-t-xl flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <MessageSquare className="h-5 w-5" />
-                <h3 className="font-semibold">ניתוח AI - Claude</h3>
+                <h3 className="font-semibold">ניתוח AI - דוחות בדיקות</h3>
               </div>
               <button onClick={() => setShowChatbot(false)} className="text-white hover:text-gray-200">
                 ✕
@@ -546,7 +546,7 @@ const Reports: React.FC = () => {
                     <div
                       className={`max-w-xs p-3 rounded-lg ${
                         msg.role === 'user'
-                          ? 'bg-primary-600 text-white'
+                          ? 'bg-green-500 text-white'
                           : 'bg-gray-100 text-gray-900'
                       }`}
                     >
@@ -563,13 +563,13 @@ const Reports: React.FC = () => {
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                   placeholder="שאל שאלה על הנתונים..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
                 <button
                   onClick={handleSendMessage}
-                  className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+                  className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors"
                 >
                   שלח
                 </button>

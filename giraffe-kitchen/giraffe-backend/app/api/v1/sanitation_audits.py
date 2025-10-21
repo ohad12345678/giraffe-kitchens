@@ -141,11 +141,12 @@ def generate_deficiencies_summary(audit: SanitationAudit, db: Session) -> str:
 בבקשה צור ניתוח מפורט ומקצועי של ביקורת התברואה לפי הפורמט המוגדר לעיל.
 """
 
-        # Try models
+        # Try models (including haiku as fallback)
         models_to_try = [
             "claude-3-5-sonnet-latest",
             "claude-3-opus-latest",
-            "claude-3-sonnet-20240229"
+            "claude-3-sonnet-20240229",
+            "claude-3-haiku-20240307"  # Fallback model that works
         ]
 
         for model_name in models_to_try:
@@ -161,7 +162,7 @@ def generate_deficiencies_summary(audit: SanitationAudit, db: Session) -> str:
                 )
 
                 summary = message.content[0].text
-                print(f"✅ AI summary generated successfully")
+                print(f"✅ AI summary generated successfully with {model_name}")
                 return summary
 
             except Exception as model_error:
