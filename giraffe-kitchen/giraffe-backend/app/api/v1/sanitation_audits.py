@@ -65,11 +65,16 @@ def generate_deficiencies_summary(audit: SanitationAudit, db: Session) -> str:
     Generate an AI-powered professional summary of the audit using Claude.
     Falls back to simple text if AI is unavailable.
     """
+    print(f"\n{'='*60}")
+    print(f"🤖 generate_deficiencies_summary called for audit {audit.id}")
+    print(f"{'='*60}\n")
+
     # Get API key
     api_key = settings.ANTHROPIC_API_KEY
 
     # Fallback to simple summary if no API key
     if not api_key:
+        print("⚠️  No ANTHROPIC_API_KEY found - using fallback summary")
         deficiencies = [
             f"{cat.category_name} - {cat.notes}"
             for cat in audit.categories
