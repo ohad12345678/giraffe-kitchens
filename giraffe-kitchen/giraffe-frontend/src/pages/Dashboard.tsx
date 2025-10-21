@@ -2,20 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { checkAPI } from '../services/api';
-import { Building2, LogOut } from 'lucide-react';
+import { Building2, LogOut, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout, isHQ } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [todayChecks, setTodayChecks] = useState<number>(0);
-  const [averageRating, setAverageRating] = useState<number>(0);
-  const [weakestDish, setWeakestDish] = useState<{
-    dish_name: string | null;
-    avg_score: number | null;
-    check_count: number;
-    message?: string;
-  } | null>(null);
+  const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
     loadDashboardData();
@@ -24,27 +17,25 @@ const Dashboard: React.FC = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-
-      // Load today's analytics
-      const today = new Date().toISOString().split('T')[0];
-      const analyticsData = await checkAPI.getAnalytics({
-        start_date: today,
-        end_date: today,
-      });
-
-      setTodayChecks(analyticsData.kpis.total_checks);
-      setAverageRating(analyticsData.kpis.average_rating);
-
-      // Load weakest dish for the week
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      const weakestDishData = await checkAPI.getWeakestDish();
-      setWeakestDish(weakestDishData);
+      const data = await checkAPI.getDashboardStats();
+      setStats(data);
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const getTrendIcon = (changePercent: number) => {
+    if (changePercent > 0) return <TrendingUp className="h-4 w-4 text-green-600" />;
+    if (changePercent < 0) return <TrendingDown className="h-4 w-4 text-red-600" />;
+    return <Minus className="h-4 w-4 text-gray-400" />;
+  };
+
+  const getTrendColor = (changePercent: number) => {
+    if (changePercent > 0) return 'text-green-600';
+    if (changePercent < 0) return 'text-red-600';
+    return 'text-gray-500';
   };
 
   if (loading) {
@@ -56,7 +47,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -92,45 +83,135 @@ const Dashboard: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-600">בדיקות היום</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{todayChecks}</p>
+        {/* Dashboard Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+
+          {/* Card 1: Daily Checks + Average Score */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <h3 className="text-sm font-medium text-gray-600 mb-4">בדיקות מנות היום</h3>
+            <div className="space-y-4">
+              {/* Checks Count */}
+              <div>
+                <div className="flex items-baseline justify-between">
+                  <p className="text-3xl font-bold text-gray-900">{stats?.daily_checks.today_count || 0}</p>
+                  <div className="flex items-center gap-1">
+                    {getTrendIcon(stats?.daily_checks.count_change_percent || 0)}
+                    <span className={`text-sm font-medium ${getTrendColor(stats?.daily_checks.count_change_percent || 0)}`}>
+                      {stats?.daily_checks.count_change_percent > 0 ? '+' : ''}
+                      {stats?.daily_checks.count_change_percent?.toFixed(1)}%
+                    </span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  לעומת {stats?.daily_checks.last_week_count || 0} בשבוע שעבר
+                </p>
+              </div>
+
+              {/* Average Score */}
+              <div className="pt-4 border-t border-gray-100">
+                <p className="text-xs text-gray-600 mb-1">ממוצע ציונים</p>
+                <div className="flex items-baseline justify-between">
+                  <p className="text-2xl font-bold text-blue-600">
+                    {stats?.daily_checks.today_avg_score?.toFixed(1) || '0.0'}
+                  </p>
+                  <div className="flex items-center gap-1">
+                    {getTrendIcon(stats?.daily_checks.avg_change_percent || 0)}
+                    <span className={`text-sm font-medium ${getTrendColor(stats?.daily_checks.avg_change_percent || 0)}`}>
+                      {stats?.daily_checks.avg_change_percent > 0 ? '+' : ''}
+                      {stats?.daily_checks.avg_change_percent?.toFixed(1)}%
+                    </span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  לעומת {stats?.daily_checks.last_week_avg_score?.toFixed(1) || '0.0'} בשבוע שעבר
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-600">ממוצע ציונים</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
-                {averageRating > 0 ? averageRating.toFixed(1) : '0.0'}
+          {/* Card 2: Weekly Sanitation Audits */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <h3 className="text-sm font-medium text-gray-600 mb-4">ביקורות תברואה שבועיות</h3>
+            <div className="flex items-baseline justify-between">
+              <p className="text-3xl font-bold text-green-600">{stats?.weekly_audits.this_week_count || 0}</p>
+              <div className="flex items-center gap-1">
+                {getTrendIcon(stats?.weekly_audits.change_percent || 0)}
+                <span className={`text-sm font-medium ${getTrendColor(stats?.weekly_audits.change_percent || 0)}`}>
+                  {stats?.weekly_audits.change_percent > 0 ? '+' : ''}
+                  {stats?.weekly_audits.change_percent?.toFixed(1)}%
+                </span>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              לעומת {stats?.weekly_audits.last_month_count || 0} באותו שבוע בחודש שעבר
+            </p>
+          </div>
+
+          {/* Card 3: Strongest & Weakest Dishes */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <h3 className="text-sm font-medium text-gray-600 mb-4">מנות - 30 יום אחרונים</h3>
+            <div className="space-y-4">
+              {/* Strongest Dish */}
+              <div>
+                <p className="text-xs text-gray-500 mb-1">מנה חזקה 💪</p>
+                {stats?.dishes.strongest ? (
+                  <>
+                    <p className="text-lg font-bold text-green-600">{stats.dishes.strongest.name}</p>
+                    <p className="text-sm text-gray-600">
+                      ציון: {stats.dishes.strongest.score} | {stats.dishes.strongest.check_count} בדיקות
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-400">אין מספיק נתונים</p>
+                )}
+              </div>
+
+              {/* Weakest Dish */}
+              <div className="pt-4 border-t border-gray-100">
+                <p className="text-xs text-gray-500 mb-1">מנה חלשה ⚠️</p>
+                {stats?.dishes.weakest ? (
+                  <>
+                    <p className="text-lg font-bold text-red-600">{stats.dishes.weakest.name}</p>
+                    <p className="text-sm text-gray-600">
+                      ציון: {stats.dishes.weakest.score} | {stats.dishes.weakest.check_count} בדיקות
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-400">אין מספיק נתונים</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Card 4: Best Branch for Sanitation (HQ only) */}
+          {isHQ && stats?.branches.best && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+              <h3 className="text-sm font-medium text-gray-600 mb-4">סניף מצטיין בתברואה 🏆</h3>
+              <p className="text-2xl font-bold text-green-600">{stats.branches.best.name}</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.branches.best.score}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                ממוצע מ-{stats.branches.best.audit_count} ביקורות (90 יום)
               </p>
             </div>
-          </div>
+          )}
 
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-600">מנה חלשה השבוע</p>
-              {weakestDish?.dish_name ? (
-                <>
-                  <p className="text-2xl font-bold text-red-600 mt-2">{weakestDish.dish_name}</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    ממוצע: {weakestDish.avg_score?.toFixed(1)} | {weakestDish.check_count} בדיקות
-                  </p>
-                </>
-              ) : (
-                <p className="text-lg text-gray-400 mt-2">{weakestDish?.message || 'טוען...'}</p>
-              )}
+          {/* Card 5: Worst Branch for Sanitation (HQ only) */}
+          {isHQ && stats?.branches.worst && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+              <h3 className="text-sm font-medium text-gray-600 mb-4">סניף דורש שיפור בתברואה ⚠️</h3>
+              <p className="text-2xl font-bold text-red-600">{stats.branches.worst.name}</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.branches.worst.score}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                ממוצע מ-{stats.branches.worst.audit_count} ביקורות (90 יום)
+              </p>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 relative z-10">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">פעולות מהירות</h2>
-          <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <button
               onClick={() => navigate('/new-check')}
               className="p-4 border-2 border-primary-200 rounded-lg hover:bg-primary-50 transition-colors text-center"
@@ -138,7 +219,6 @@ const Dashboard: React.FC = () => {
               <span className="font-medium text-gray-900">בדיקת מנות</span>
             </button>
 
-            {/* Tasks button - HQ only */}
             {isHQ && (
               <button
                 onClick={() => navigate('/tasks')}
@@ -148,7 +228,6 @@ const Dashboard: React.FC = () => {
               </button>
             )}
 
-            {/* Sanitation Audits button */}
             <button
               onClick={() => navigate('/sanitation-audits')}
               className="p-4 border-2 border-green-200 rounded-lg hover:bg-green-50 transition-colors text-center"

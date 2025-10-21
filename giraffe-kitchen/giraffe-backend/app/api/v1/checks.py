@@ -10,6 +10,7 @@ from app.models.user import User
 from app.models.branch import Branch
 from app.models.dish import Dish
 from app.models.chef import Chef
+from app.models.sanitation_audit import SanitationAudit, AuditStatus
 from app.api.deps import get_current_user
 
 router = APIRouter()
@@ -424,4 +425,203 @@ def bulk_delete_checks(
         "status": "success",
         "message": f"Successfully deleted {count} check(s)",
         "deleted_count": count
+    }
+
+
+@router.get("/dashboard/stats")
+def get_dashboard_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get comprehensive dashboard statistics:
+    1. Daily dish checks + average score (compared to same day last week)
+    2. Weekly sanitation audits (compared to same week last month)
+    3. Strongest and weakest dishes
+    4. Best and worst branches for sanitation
+    """
+    from datetime import datetime
+
+    today = date.today()
+
+    # === 1. Daily Dish Checks & Average Score ===
+    # Today's data
+    today_checks = db.query(DishCheck).filter(
+        DishCheck.check_date == today
+    )
+
+    # Branch managers see only their branch
+    if current_user.role.value == "branch_manager":
+        today_checks = today_checks.filter(DishCheck.branch_id == current_user.branch_id)
+
+    today_count = today_checks.count()
+    today_avg = db.query(func.avg(DishCheck.rating)).filter(
+        DishCheck.id.in_([c.id for c in today_checks.all()])
+    ).scalar() or 0
+
+    # Last week same day
+    last_week_same_day = today - timedelta(days=7)
+    last_week_checks = db.query(DishCheck).filter(
+        DishCheck.check_date == last_week_same_day
+    )
+
+    if current_user.role.value == "branch_manager":
+        last_week_checks = last_week_checks.filter(DishCheck.branch_id == current_user.branch_id)
+
+    last_week_count = last_week_checks.count()
+    last_week_avg = db.query(func.avg(DishCheck.rating)).filter(
+        DishCheck.id.in_([c.id for c in last_week_checks.all()])
+    ).scalar() or 0
+
+    # Calculate changes
+    count_change = today_count - last_week_count
+    count_change_percent = ((today_count - last_week_count) / last_week_count * 100) if last_week_count > 0 else 0
+    avg_change = today_avg - last_week_avg
+    avg_change_percent = ((today_avg - last_week_avg) / last_week_avg * 100) if last_week_avg > 0 else 0
+
+    # === 2. Weekly Sanitation Audits ===
+    # This week (last 7 days)
+    week_start = today - timedelta(days=7)
+    this_week_audits = db.query(SanitationAudit).filter(
+        SanitationAudit.audit_date >= week_start,
+        SanitationAudit.audit_date <= today,
+        SanitationAudit.status == AuditStatus.COMPLETED
+    )
+
+    if current_user.role.value == "branch_manager":
+        this_week_audits = this_week_audits.filter(SanitationAudit.branch_id == current_user.branch_id)
+
+    this_week_count = this_week_audits.count()
+
+    # Same week last month (~30 days ago)
+    last_month_week_start = today - timedelta(days=37)  # 30 + 7
+    last_month_week_end = today - timedelta(days=30)
+    last_month_audits = db.query(SanitationAudit).filter(
+        SanitationAudit.audit_date >= last_month_week_start,
+        SanitationAudit.audit_date <= last_month_week_end,
+        SanitationAudit.status == AuditStatus.COMPLETED
+    )
+
+    if current_user.role.value == "branch_manager":
+        last_month_audits = last_month_audits.filter(SanitationAudit.branch_id == current_user.branch_id)
+
+    last_month_count = last_month_audits.count()
+    audits_change = this_week_count - last_month_count
+    audits_change_percent = ((this_week_count - last_month_count) / last_month_count * 100) if last_month_count > 0 else 0
+
+    # === 3. Strongest and Weakest Dishes (last 30 days) ===
+    month_ago = today - timedelta(days=30)
+    dish_stats_query = db.query(
+        DishCheck.dish_id,
+        func.coalesce(Dish.name, DishCheck.dish_name_manual).label('name'),
+        func.avg(DishCheck.rating).label('avg_score'),
+        func.count(DishCheck.id).label('check_count')
+    ).outerjoin(
+        Dish, DishCheck.dish_id == Dish.id
+    ).filter(
+        DishCheck.check_date >= month_ago,
+        DishCheck.check_date <= today
+    )
+
+    if current_user.role.value == "branch_manager":
+        dish_stats_query = dish_stats_query.filter(DishCheck.branch_id == current_user.branch_id)
+
+    dish_stats = dish_stats_query.group_by(
+        DishCheck.dish_id,
+        func.coalesce(Dish.name, DishCheck.dish_name_manual)
+    ).having(
+        func.count(DishCheck.id) >= 3  # At least 3 checks
+    ).all()
+
+    strongest_dish = None
+    weakest_dish = None
+
+    if dish_stats:
+        sorted_dishes = sorted(dish_stats, key=lambda x: x.avg_score)
+        weakest = sorted_dishes[0]
+        strongest = sorted_dishes[-1]
+
+        weakest_dish = {
+            "name": weakest.name,
+            "score": round(float(weakest.avg_score), 1),
+            "check_count": weakest.check_count
+        }
+
+        strongest_dish = {
+            "name": strongest.name,
+            "score": round(float(strongest.avg_score), 1),
+            "check_count": strongest.check_count
+        }
+
+    # === 4. Best and Worst Branches for Sanitation (last 90 days) ===
+    three_months_ago = today - timedelta(days=90)
+    branch_stats_query = db.query(
+        SanitationAudit.branch_id,
+        Branch.name.label('branch_name'),
+        func.avg(SanitationAudit.total_score).label('avg_score'),
+        func.count(SanitationAudit.id).label('audit_count')
+    ).join(
+        Branch, SanitationAudit.branch_id == Branch.id
+    ).filter(
+        SanitationAudit.audit_date >= three_months_ago,
+        SanitationAudit.audit_date <= today,
+        SanitationAudit.status == AuditStatus.COMPLETED
+    )
+
+    # Branch managers only see their own branch
+    if current_user.role.value == "branch_manager":
+        branch_stats_query = branch_stats_query.filter(SanitationAudit.branch_id == current_user.branch_id)
+
+    branch_stats = branch_stats_query.group_by(
+        SanitationAudit.branch_id,
+        Branch.name
+    ).having(
+        func.count(SanitationAudit.id) >= 2  # At least 2 audits
+    ).all()
+
+    best_branch = None
+    worst_branch = None
+
+    if branch_stats and current_user.role.value != "branch_manager":  # Only show if HQ
+        sorted_branches = sorted(branch_stats, key=lambda x: x.avg_score)
+        worst = sorted_branches[0]
+        best = sorted_branches[-1]
+
+        worst_branch = {
+            "name": worst.branch_name,
+            "score": round(float(worst.avg_score), 1),
+            "audit_count": worst.audit_count
+        }
+
+        best_branch = {
+            "name": best.branch_name,
+            "score": round(float(best.avg_score), 1),
+            "audit_count": best.audit_count
+        }
+
+    return {
+        "daily_checks": {
+            "today_count": today_count,
+            "today_avg_score": round(float(today_avg), 1) if today_avg else 0,
+            "last_week_count": last_week_count,
+            "last_week_avg_score": round(float(last_week_avg), 1) if last_week_avg else 0,
+            "count_change": count_change,
+            "count_change_percent": round(count_change_percent, 1),
+            "avg_change": round(avg_change, 2),
+            "avg_change_percent": round(avg_change_percent, 1)
+        },
+        "weekly_audits": {
+            "this_week_count": this_week_count,
+            "last_month_count": last_month_count,
+            "change": audits_change,
+            "change_percent": round(audits_change_percent, 1)
+        },
+        "dishes": {
+            "strongest": strongest_dish,
+            "weakest": weakest_dish
+        },
+        "branches": {
+            "best": best_branch,
+            "worst": worst_branch
+        }
     }
