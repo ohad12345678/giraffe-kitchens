@@ -578,7 +578,8 @@ def get_dashboard_stats(
     best_branch = None
     worst_branch = None
 
-    if branch_stats and current_user.role.value != "branch_manager":  # Only show if HQ
+    # Only show best/worst if HQ and there are at least 2 branches
+    if branch_stats and current_user.role.value != "branch_manager" and len(branch_stats) >= 2:
         sorted_branches = sorted(branch_stats, key=lambda x: x.avg_score)
         worst = sorted_branches[0]
         best = sorted_branches[-1]
