@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { checkAPI } from '../services/api';
 import { Building2, LogOut, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import NotificationBadge from '../components/manager-reviews/NotificationBadge';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -63,6 +64,9 @@ const Dashboard: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-4">
+              {/* Manager Reviews Notifications */}
+              <NotificationBadge />
+
               <div className="text-left">
                 <p className="text-sm font-medium text-gray-900">{user?.email}</p>
                 <p className="text-xs text-gray-500">

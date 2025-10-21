@@ -677,3 +677,74 @@ def get_manager_review_history(
         "manager_name": reviews[0].manager.name if reviews else None,
         "history": history
     }
+
+
+@router.get("/notifications")
+def get_review_notifications(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get notifications for pending reviews and reviews due"""
+
+    # Determine current quarter and year
+    today = date.today()
+    current_year = today.year
+    current_month = today.month
+
+    # Map month to quarter
+    if current_month <= 3:
+        current_quarter = ReviewQuarter.Q1
+    elif current_month <= 6:
+        current_quarter = ReviewQuarter.Q2
+    elif current_month <= 9:
+        current_quarter = ReviewQuarter.Q3
+    else:
+        current_quarter = ReviewQuarter.Q4
+
+    # Get all branch managers
+    managers = db.query(User).filter(User.role == "manager").all()
+
+    notifications = {
+        "pending_reviews": [],  # Reviews in draft/submitted status
+        "missing_reviews": [],  # Managers without review for current quarter
+        "total_count": 0
+    }
+
+    # Check for pending reviews (draft or submitted)
+    pending = db.query(ManagerReview).filter(
+        ManagerReview.status.in_([ReviewStatus.DRAFT, ReviewStatus.SUBMITTED])
+    ).all()
+
+    for review in pending:
+        notifications["pending_reviews"].append({
+            "id": review.id,
+            "manager_name": review.manager.name,
+            "branch_name": review.branch.name,
+            "status": review.status,
+            "year": review.year,
+            "quarter": review.quarter,
+            "days_since_created": (today - review.created_at.date()).days if review.created_at else 0
+        })
+
+    # Check for missing reviews for current quarter
+    for manager in managers:
+        # Check if review exists for current quarter
+        existing_review = db.query(ManagerReview).filter(
+            ManagerReview.manager_id == manager.id,
+            ManagerReview.year == current_year,
+            ManagerReview.quarter == current_quarter
+        ).first()
+
+        if not existing_review:
+            notifications["missing_reviews"].append({
+                "manager_id": manager.id,
+                "manager_name": manager.name,
+                "branch_id": manager.branch_id,
+                "branch_name": manager.branch.name if manager.branch else "N/A",
+                "quarter": current_quarter,
+                "year": current_year
+            })
+
+    notifications["total_count"] = len(notifications["pending_reviews"]) + len(notifications["missing_reviews"])
+
+    return notifications

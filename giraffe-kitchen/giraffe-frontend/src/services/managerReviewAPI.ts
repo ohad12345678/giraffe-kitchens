@@ -114,6 +114,14 @@ export const managerReviewAPI = {
     const response = await api.get(`/api/v1/manager-reviews/manager/${managerId}/history`);
     return response.data;
   },
+
+  /**
+   * Get notifications for pending and missing reviews
+   */
+  getNotifications: async () => {
+    const response = await api.get('/api/v1/manager-reviews/notifications');
+    return response.data;
+  },
 };
 
 export default managerReviewAPI;
