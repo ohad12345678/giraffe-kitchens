@@ -298,12 +298,7 @@ def create_review(
         auto_sanitation_avg=review.auto_sanitation_avg,
         auto_dish_checks_avg=review.auto_dish_checks_avg,
         auto_sanitation_count=review.auto_sanitation_count,
-        auto_dish_checks_count=review.auto_dish_checks_count,
-        ai_summary=review.ai_summary,
-        created_at=review.created_at,
-        updated_at=review.updated_at,
-        submitted_at=review.submitted_at,
-        completed_at=review.completed_at
+        auto_dish_checks_count=review.auto_dish_checks_count
     )
 
 
