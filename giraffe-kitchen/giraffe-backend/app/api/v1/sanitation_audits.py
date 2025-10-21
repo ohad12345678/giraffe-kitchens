@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
 from typing import List, Optional
 from datetime import datetime
+from anthropic import Anthropic
+import os
 
 from app.db.base import get_db
 from app.models.sanitation_audit import SanitationAudit, SanitationAuditCategory, AuditStatus
@@ -24,11 +26,25 @@ from app.schemas.sanitation_audit import (
     BranchAuditStats,
 )
 from app.api.deps import get_current_user
+from app.core.config import settings
 
 router = APIRouter()
 
 
 # ===== Helper Functions =====
+
+def load_prompt_template(prompt_name: str) -> Optional[str]:
+    """Load a prompt template from the prompts directory."""
+    prompts_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'prompts')
+    prompt_path = os.path.join(prompts_dir, f"{prompt_name}.txt")
+
+    try:
+        with open(prompt_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        print(f"⚠️  Prompt file not found: {prompt_path}")
+        return None
+
 
 def calculate_audit_score(audit: SanitationAudit, db: Session) -> None:
     """
@@ -43,16 +59,121 @@ def calculate_audit_score(audit: SanitationAudit, db: Session) -> None:
     audit.total_score = max(0, 100 - total_deductions)  # Score can't go below 0
 
 
-def generate_deficiencies_summary(audit: SanitationAudit) -> str:
+def generate_deficiencies_summary(audit: SanitationAudit, db: Session) -> str:
     """
-    Generate a text summary of all deficiencies found in the audit.
+    Generate an AI-powered professional summary of the audit using Claude.
+    Falls back to simple text if AI is unavailable.
     """
-    deficiencies = [
-        f"{cat.category_name} - {cat.notes}"
-        for cat in audit.categories
-        if cat.score_deduction > 0 and cat.notes
-    ]
-    return "\n".join(deficiencies) if deficiencies else "לא נמצאו ליקויים"
+    # Get API key
+    api_key = settings.ANTHROPIC_API_KEY
+
+    # Fallback to simple summary if no API key
+    if not api_key:
+        deficiencies = [
+            f"{cat.category_name} - {cat.notes}"
+            for cat in audit.categories
+            if cat.score_deduction > 0 and cat.notes
+        ]
+        return "\n".join(deficiencies) if deficiencies else "לא נמצאו ליקויים"
+
+    try:
+        # Prepare audit data for AI analysis
+        categories_with_issues = [
+            {
+                "name": cat.category_name,
+                "deduction": cat.score_deduction,
+                "notes": cat.notes,
+                "status": cat.status
+            }
+            for cat in audit.categories
+            if cat.score_deduction > 0
+        ]
+
+        # Build detailed audit context
+        audit_context = f"""
+## פרטי הביקורת:
+- **סניף:** {audit.branch.name}
+- **תאריך ביקורת:** {audit.audit_date.strftime('%d/%m/%Y')}
+- **ממלא:** {audit.auditor_name}
+- **מלווה:** {audit.accompanist_name or 'לא צוין'}
+- **ציון כולל:** {audit.total_score}/100
+- **סך ניכויים:** {audit.total_deductions} נקודות
+
+## ליקויים שנמצאו ({len(categories_with_issues)} עמדות):
+"""
+
+        for cat in categories_with_issues:
+            audit_context += f"\n### {cat['name']}\n"
+            audit_context += f"- **ניכוי:** {cat['deduction']} נקודות\n"
+            audit_context += f"- **סטטוס:** {cat['status']}\n"
+            if cat['notes']:
+                audit_context += f"- **הערות:** {cat['notes']}\n"
+
+        if audit.general_notes:
+            audit_context += f"\n## הערות כלליות:\n{audit.general_notes}\n"
+
+        if audit.equipment_issues:
+            audit_context += f"\n## בעיות ציוד:\n{audit.equipment_issues}\n"
+
+        # Load the detailed prompt template
+        prompt_template = load_prompt_template("sanitation_audit_analysis")
+
+        if not prompt_template:
+            # Fallback if template not found
+            raise Exception("Prompt template not found")
+
+        # Create Claude client
+        client = Anthropic(api_key=api_key, timeout=60.0)  # Longer timeout for analysis
+
+        # Build system prompt with template + context
+        system_prompt = f"""{prompt_template}
+
+---
+
+{audit_context}
+
+בבקשה צור ניתוח מפורט ומקצועי של ביקורת התברואה לפי הפורמט המוגדר לעיל.
+"""
+
+        # Try models
+        models_to_try = [
+            "claude-3-5-sonnet-latest",
+            "claude-3-opus-latest",
+            "claude-3-sonnet-20240229"
+        ]
+
+        for model_name in models_to_try:
+            try:
+                print(f"🤖 Generating audit summary with {model_name}")
+                message = client.messages.create(
+                    model=model_name,
+                    max_tokens=4096,  # Longer response for detailed analysis
+                    system=system_prompt,
+                    messages=[
+                        {"role": "user", "content": "צור ניתוח מפורט של דוח הביקורת"}
+                    ]
+                )
+
+                summary = message.content[0].text
+                print(f"✅ AI summary generated successfully")
+                return summary
+
+            except Exception as model_error:
+                print(f"❌ Model {model_name} failed: {str(model_error)}")
+                continue
+
+        # If all models failed, fall back to simple summary
+        raise Exception("All AI models failed")
+
+    except Exception as e:
+        print(f"⚠️  AI summary generation failed: {str(e)}, using fallback")
+        # Fallback to simple text summary
+        deficiencies = [
+            f"{cat.category_name} - {cat.notes}"
+            for cat in audit.categories
+            if cat.score_deduction > 0 and cat.notes
+        ]
+        return "\n".join(deficiencies) if deficiencies else "לא נמצאו ליקויים"
 
 
 # ===== CRUD Endpoints =====
@@ -119,7 +240,7 @@ def create_sanitation_audit(
     # Calculate score and generate summary
     db.flush()
     calculate_audit_score(audit, db)
-    audit.deficiencies_summary = generate_deficiencies_summary(audit)
+    audit.deficiencies_summary = generate_deficiencies_summary(audit, db)
 
     db.commit()
     db.refresh(audit)
@@ -292,7 +413,7 @@ def update_audit_category(
     # Recalculate audit score
     audit = category.audit
     calculate_audit_score(audit, db)
-    audit.deficiencies_summary = generate_deficiencies_summary(audit)
+    audit.deficiencies_summary = generate_deficiencies_summary(audit, db)
     audit.updated_at = datetime.utcnow()
 
     db.commit()

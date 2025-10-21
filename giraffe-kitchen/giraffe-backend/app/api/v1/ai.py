@@ -363,25 +363,8 @@ def ask_sanitation_analysis(
     try:
         client = Anthropic(api_key=api_key, timeout=30.0)
 
-        # Load the detailed prompt template
-        prompt_template = load_prompt_template("sanitation_audit_analysis")
-
-        if prompt_template:
-            # Use the detailed prompt with context data
-            system_prompt = f"""{prompt_template}
-
----
-
-## נתוני ההקשר (תקופה: {real_context['date_range']}):
-- סך ביקורות: {real_context['total_audits']}
-- ציון ממוצע: {real_context['average_score']} (מתוך 100)
-- ניכויים ממוצעים: {real_context['average_deductions']} נקודות
-- הבעיות השכיחות: {', '.join(real_context['top_issues'])}
-- הציון הגבוה ביותר: {real_context['best_score']}
-- הציון הנמוך ביותר: {real_context['worst_score']}"""
-        else:
-            # Fallback to simple prompt if template file not found
-            system_prompt = f"""אתה מומחה לתברואה ובטיחות מזון במסעדות.
+        # Simple prompt for open-ended chat questions
+        system_prompt = f"""אתה מומחה לתברואה ובטיחות מזון במסעדות.
 
 הנתונים הנוכחיים (תקופה: {real_context['date_range']}):
 - סך ביקורות: {real_context['total_audits']}
