@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float, Text, Date
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.base import Base
@@ -24,7 +24,7 @@ class DishCheck(Base):
     comments = Column(Text, nullable=True)
 
     # Timestamps
-    check_date = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    check_date = Column(Date, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships

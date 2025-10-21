@@ -20,7 +20,7 @@ class DishCheckCreate(DishCheckBase):
 class DishCheckResponse(DishCheckBase):
     id: int
     created_by: int
-    check_date: datetime
+    check_date: date
     created_at: datetime
 
     class Config:
