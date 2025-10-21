@@ -183,27 +183,33 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Card 4: Best Branch for Sanitation (HQ only) */}
-          {isHQ && stats?.branches.best && (
+          {/* Card 4: Best & Worst Branches for Sanitation (HQ only) - Combined */}
+          {isHQ && (stats?.branches.best || stats?.branches.worst) && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-              <h3 className="text-sm font-medium text-gray-600 mb-4">סניף מצטיין בתברואה 🏆</h3>
-              <p className="text-2xl font-bold text-green-600">{stats.branches.best.name}</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.branches.best.score}</p>
-              <p className="text-xs text-gray-500 mt-1">
-                ממוצע מ-{stats.branches.best.audit_count} ביקורות (90 יום)
-              </p>
-            </div>
-          )}
+              <h3 className="text-sm font-medium text-gray-600 mb-4">סניפים - תברואה (90 יום)</h3>
+              <div className="space-y-4">
+                {/* Best Branch */}
+                {stats?.branches.best && (
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">סניף מצטיין 🏆</p>
+                    <p className="text-lg font-bold text-green-600">{stats.branches.best.name}</p>
+                    <p className="text-sm text-gray-600">
+                      ציון: {stats.branches.best.score} | {stats.branches.best.audit_count} ביקורות
+                    </p>
+                  </div>
+                )}
 
-          {/* Card 5: Worst Branch for Sanitation (HQ only) */}
-          {isHQ && stats?.branches.worst && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-              <h3 className="text-sm font-medium text-gray-600 mb-4">סניף דורש שיפור בתברואה ⚠️</h3>
-              <p className="text-2xl font-bold text-red-600">{stats.branches.worst.name}</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.branches.worst.score}</p>
-              <p className="text-xs text-gray-500 mt-1">
-                ממוצע מ-{stats.branches.worst.audit_count} ביקורות (90 יום)
-              </p>
+                {/* Worst Branch */}
+                {stats?.branches.worst && (
+                  <div className={stats?.branches.best ? "pt-4 border-t border-gray-100" : ""}>
+                    <p className="text-xs text-gray-500 mb-1">סניף דורש שיפור ⚠️</p>
+                    <p className="text-lg font-bold text-red-600">{stats.branches.worst.name}</p>
+                    <p className="text-sm text-gray-600">
+                      ציון: {stats.branches.worst.score} | {stats.branches.worst.audit_count} ביקורות
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
