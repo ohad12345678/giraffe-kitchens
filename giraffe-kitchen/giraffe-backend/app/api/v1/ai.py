@@ -165,9 +165,9 @@ def ask_ai_analysis(
         "date_range": f"{start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}"
     }
 
-    # Create Claude client
+    # Create Claude client with timeout
     try:
-        client = Anthropic(api_key=api_key)
+        client = Anthropic(api_key=api_key, timeout=30.0)  # 30 second timeout
 
         # Build context-aware prompt with real data
         system_prompt = f"""אתה מומחה לניתוח נתוני בקרת איכות במסעדות.
@@ -195,6 +195,7 @@ def ask_ai_analysis(
         last_error = None
         for model_name in models_to_try:
             try:
+                print(f"🤖 Trying Claude model: {model_name}")
                 message = client.messages.create(
                     model=model_name,
                     max_tokens=1024,
@@ -206,12 +207,14 @@ def ask_ai_analysis(
 
                 # Extract answer
                 answer = message.content[0].text
+                print(f"✅ Claude responded successfully with {model_name}")
 
                 return AIQueryResponse(
                     answer=answer,
                     context_used=real_context
                 )
             except Exception as model_error:
+                print(f"❌ Model {model_name} failed: {str(model_error)}")
                 last_error = model_error
                 continue
 
