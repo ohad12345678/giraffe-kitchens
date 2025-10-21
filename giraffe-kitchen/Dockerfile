@@ -1,4 +1,5 @@
 # Stage 1: Build frontend
+# Force rebuild - updated to use dynamic API URL detection
 FROM node:20-alpine AS frontend-builder
 
 WORKDIR /frontend
