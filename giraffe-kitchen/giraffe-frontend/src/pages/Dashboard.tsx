@@ -247,6 +247,13 @@ const Dashboard: React.FC = () => {
             >
               <span className="font-medium text-gray-900">דוחות</span>
             </button>
+
+            <button
+              onClick={() => navigate('/manager-reviews')}
+              className="p-4 border-2 border-orange-200 rounded-lg hover:bg-orange-50 transition-colors text-center"
+            >
+              <span className="font-medium text-gray-900">הערכות מנהלים</span>
+            </button>
           </div>
         </div>
       </main>
