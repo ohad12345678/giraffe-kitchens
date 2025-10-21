@@ -529,9 +529,7 @@ def get_dashboard_stats(
     dish_stats = dish_stats_query.group_by(
         DishCheck.dish_id,
         func.coalesce(Dish.name, DishCheck.dish_name_manual)
-    ).having(
-        func.count(DishCheck.id) >= 3  # At least 3 checks
-    ).all()
+    ).all()  # Show all dishes with any checks
 
     strongest_dish = None
     weakest_dish = None
@@ -575,9 +573,7 @@ def get_dashboard_stats(
     branch_stats = branch_stats_query.group_by(
         SanitationAudit.branch_id,
         Branch.name
-    ).having(
-        func.count(SanitationAudit.id) >= 2  # At least 2 audits
-    ).all()
+    ).all()  # Show all branches with any audits
 
     best_branch = None
     worst_branch = None
