@@ -16,33 +16,49 @@ import type {
   BranchAuditStats
 } from '../types';
 
-// Use relative URL in production (when VITE_API_URL is empty string or on railway.app)
-// Use localhost in development (when VITE_API_URL is undefined)
-const getAPIURL = () => {
-  // If on Railway production, use empty string for relative URLs
-  if (typeof window !== 'undefined' && window.location.hostname.includes('railway.app')) {
+// Get API URL dynamically at runtime
+const getAPIURL = (): string => {
+  // Check if VITE_API_URL is set in environment
+  const envUrl = import.meta.env.VITE_API_URL;
+
+  // If it's an empty string, use relative URLs
+  if (envUrl === '') {
     return '';
   }
-  // Otherwise use env variable or default to localhost
-  return import.meta.env.VITE_API_URL === undefined
-    ? 'http://localhost:8000'
-    : import.meta.env.VITE_API_URL;
+
+  // If it's set to a value, use that
+  if (envUrl && envUrl !== 'undefined') {
+    return envUrl;
+  }
+
+  // Runtime detection: check if we're on Railway
+  const hostname = window.location.hostname;
+  if (hostname.includes('railway.app') || hostname.includes('up.railway')) {
+    console.log('🚂 Railway production detected - using relative URLs');
+    return '';
+  }
+
+  // Default to localhost for local development
+  console.log('💻 Local development - using localhost:8000');
+  return 'http://localhost:8000';
 };
 
-const API_URL = getAPIURL();
-
-// Create axios instance
+// Create axios instance without baseURL - we'll set it dynamically
 const api = axios.create({
-  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Add auth token to requests
+// Intercept requests to set baseURL dynamically and add auth token
 api.interceptors.request.use((config) => {
+  // Set baseURL dynamically at runtime
+  const baseURL = getAPIURL();
+  config.baseURL = baseURL;
+
+  // Add auth token
   const token = localStorage.getItem('access_token');
-  console.log('🔑 API Request to:', config.url, '- Token:', token ? 'EXISTS' : 'MISSING');
+  console.log('🔑 API Request to:', baseURL + config.url, '- Token:', token ? 'EXISTS' : 'MISSING');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
     console.log('🔑 Authorization header set');
