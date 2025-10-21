@@ -620,5 +620,10 @@ def get_dashboard_stats(
         "branches": {
             "best": best_branch,
             "worst": worst_branch
+        },
+        "debug_branch_stats": {
+            "total_branches": len(branch_stats) if branch_stats else 0,
+            "user_role": current_user.role.value,
+            "raw_stats": [{"branch": b.branch_name, "score": float(b.avg_score), "count": b.audit_count} for b in branch_stats] if branch_stats else []
         }
     }
