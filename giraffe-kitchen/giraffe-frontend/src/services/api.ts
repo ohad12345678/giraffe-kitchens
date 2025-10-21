@@ -16,11 +16,20 @@ import type {
   BranchAuditStats
 } from '../types';
 
-// Use relative URL in production (when VITE_API_URL is empty string)
+// Use relative URL in production (when VITE_API_URL is empty string or on railway.app)
 // Use localhost in development (when VITE_API_URL is undefined)
-const API_URL = import.meta.env.VITE_API_URL === undefined
-  ? 'http://localhost:8000'  // Development
-  : import.meta.env.VITE_API_URL;  // Production (can be empty string for relative URLs)
+const getAPIURL = () => {
+  // If on Railway production, use empty string for relative URLs
+  if (typeof window !== 'undefined' && window.location.hostname.includes('railway.app')) {
+    return '';
+  }
+  // Otherwise use env variable or default to localhost
+  return import.meta.env.VITE_API_URL === undefined
+    ? 'http://localhost:8000'
+    : import.meta.env.VITE_API_URL;
+};
+
+const API_URL = getAPIURL();
 
 // Create axios instance
 const api = axios.create({
