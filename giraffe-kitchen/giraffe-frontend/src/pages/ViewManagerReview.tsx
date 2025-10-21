@@ -4,6 +4,7 @@ import { managerReviewAPI } from '../services/managerReviewAPI';
 import type { DetailedReview, UpdateReviewRequest } from '../types/managerReview';
 import ScoreInput from '../components/manager-reviews/ScoreInput';
 import TrendChart from '../components/manager-reviews/TrendChart';
+import AIChat from '../components/manager-reviews/AIChat';
 import { exportReviewToPDF } from '../utils/pdfExport';
 import {
   ArrowLeft,
@@ -509,6 +510,9 @@ const ViewManagerReview: React.FC = () => {
           )}
         </div>
       </main>
+
+      {/* AI Chat - Floating */}
+      <AIChat reviewId={Number(id)} />
     </div>
   );
 };

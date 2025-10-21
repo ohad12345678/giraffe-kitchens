@@ -748,3 +748,114 @@ def get_review_notifications(
     notifications["total_count"] = len(notifications["pending_reviews"]) + len(notifications["missing_reviews"])
 
     return notifications
+
+
+class AIChatRequest(BaseModel):
+    """Request for AI chat about a review"""
+    messages: List[dict]
+
+
+@router.post("/{review_id}/ai-chat")
+def chat_with_ai_about_review(
+    review_id: int,
+    request: AIChatRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Chat with AI about a specific manager review"""
+
+    # Get review
+    review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
+    if not review:
+        raise HTTPException(status_code=404, detail="Review not found")
+
+    # Get API key
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="AI service not configured")
+
+    # Build context about the review
+    context = f"""
+הנה מידע על הערכת הביצועים:
+
+**מנהל:** {review.manager.name}
+**סניף:** {review.branch.name}
+**תקופה:** {review.quarter} {review.year}
+**סטטוס:** {review.status}
+
+**ציונים:**
+- ציון כולל: {review.overall_score if review.overall_score else 'טרם הוערך'}
+- תפעול (35%): {review.operational_score if review.operational_score else 'טרם הוערך'}
+- אנשים (30%): {review.people_score if review.people_score else 'טרם הוערך'}
+- עסקי (25%): {review.business_score if review.business_score else 'טרם הוערך'}
+- מנהיגות (10%): {review.leadership_score if review.leadership_score else 'טרם הוערך'}
+
+**נתונים אוטומטיים מהמערכת:**
+- ממוצע תברואה: {review.auto_sanitation_avg if review.auto_sanitation_avg else 'אין נתונים'} ({review.auto_sanitation_count or 0} ביקורות)
+- ממוצע בדיקות מנות: {review.auto_dish_checks_avg if review.auto_dish_checks_avg else 'אין נתונים'} ({review.auto_dish_checks_count or 0} בדיקות)
+
+**פירוט ציוני תפעול:**
+- תברואה: {review.sanitation_score or '-'}
+- מלאי: {review.inventory_score or '-'}
+- איכות מוצרים: {review.quality_score or '-'}
+- תחזוקה: {review.maintenance_score or '-'}
+
+**פירוט ציוני אנשים:**
+- גיוס: {review.recruitment_score or '-'}
+- שיבוץ: {review.scheduling_score or '-'}
+- שימור עובדים: {review.retention_score or '-'}
+
+**פירוט ציוני עסקי:**
+- מכירות: {review.sales_score or '-'}
+- יעילות: {review.efficiency_score or '-'}
+
+**ציון מנהיגות:** {review.leadership_score or '-'}
+"""
+
+    # Create system prompt
+    system_prompt = """אתה יועץ ארגוני מומחה המתמחה בהערכות ביצועים ופיתוח מנהלים בתחום המזון והמסעדנות.
+
+תפקידך:
+1. לנתח הערכות ביצועים של מנהלי סניפים
+2. לזהות נקודות חוזק וחולשה
+3. לתת המלצות ממוקדות לשיפור
+4. לעזור בבניית תוכנית התפתחות אישית (IDP)
+5. להציע דרכי פעולה קונקרטיות
+
+כללים:
+- תמיד ענה בעברית
+- היה ממוקד ומעשי
+- תן דוגמאות קונקרטיות מעולם המסעדנות
+- התמקד בנושאים הרלוונטיים להערכה הספציפית
+- השתמש בנתונים האוטומטיים מהמערכת לתמיכה בניתוח שלך
+- כאשר הציונים נמוכים (מתחת ל-70), הצע צעדים ממשיים לשיפור
+- כאשר הציונים גבוהים (מעל 85), הדגש חשיבות שמירה על הרמה והמשך התפתחות"""
+
+    # Call Claude API
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+
+        # Add context as first user message if this is the first message
+        messages = request.messages.copy()
+        if len(messages) == 1:
+            messages[0]["content"] = f"{context}\n\n{messages[0]['content']}"
+
+        response = client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=2000,
+            system=system_prompt,
+            messages=messages
+        )
+
+        return {
+            "response": response.content[0].text,
+            "model": response.model,
+            "usage": {
+                "input_tokens": response.usage.input_tokens,
+                "output_tokens": response.usage.output_tokens
+            }
+        }
+
+    except Exception as e:
+        print(f"AI Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"AI service error: {str(e)}")

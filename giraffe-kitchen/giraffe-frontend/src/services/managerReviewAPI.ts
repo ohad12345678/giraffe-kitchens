@@ -99,9 +99,7 @@ export const managerReviewAPI = {
    * Chat with AI about a specific review
    */
   chatWithAI: async (reviewId: number, messages: Array<{ role: string; content: string }>) => {
-    const response = await api.post('/api/v1/ai/chat', {
-      context_type: 'manager_review',
-      context_id: reviewId,
+    const response = await api.post(`/api/v1/manager-reviews/${reviewId}/ai-chat`, {
       messages,
     });
     return response.data;
