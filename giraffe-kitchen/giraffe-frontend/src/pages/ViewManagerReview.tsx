@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { managerReviewAPI } from '../services/managerReviewAPI';
 import type { DetailedReview, UpdateReviewRequest } from '../types/managerReview';
 import ScoreInput from '../components/manager-reviews/ScoreInput';
+import TrendChart from '../components/manager-reviews/TrendChart';
 import { exportReviewToPDF } from '../utils/pdfExport';
 import {
   ArrowLeft,
@@ -20,6 +21,7 @@ const ViewManagerReview: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [review, setReview] = useState<DetailedReview | null>(null);
+  const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +58,17 @@ const ViewManagerReview: React.FC = () => {
       setLoading(true);
       const data = await managerReviewAPI.getReview(Number(id));
       setReview(data);
+
+      // Load manager history for trend chart
+      if (data.manager?.id) {
+        try {
+          const historyData = await managerReviewAPI.getManagerHistory(data.manager.id);
+          setHistory(historyData.history || []);
+        } catch (err) {
+          console.error('Failed to load history:', err);
+          setHistory([]);
+        }
+      }
 
       // Populate form with existing scores
       setScores({
@@ -487,6 +500,13 @@ const ViewManagerReview: React.FC = () => {
               />
             </div>
           </div>
+
+          {/* Historical Trend Chart */}
+          {history.length > 0 && (
+            <div className="mt-6">
+              <TrendChart data={history} />
+            </div>
+          )}
         </div>
       </main>
     </div>

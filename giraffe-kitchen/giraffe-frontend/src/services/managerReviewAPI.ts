@@ -106,6 +106,14 @@ export const managerReviewAPI = {
     });
     return response.data;
   },
+
+  /**
+   * Get review history for a manager (for trend charts)
+   */
+  getManagerHistory: async (managerId: number) => {
+    const response = await api.get(`/api/v1/manager-reviews/manager/${managerId}/history`);
+    return response.data;
+  },
 };
 
 export default managerReviewAPI;

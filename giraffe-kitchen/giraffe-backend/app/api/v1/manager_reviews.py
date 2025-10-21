@@ -633,3 +633,47 @@ def delete_review(
     db.commit()
 
     return {"message": "Review deleted successfully"}
+
+
+@router.get("/manager/{manager_id}/history")
+def get_manager_review_history(
+    manager_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get review history for a specific manager (for trend charts)"""
+
+    reviews = db.query(ManagerReview).filter(
+        ManagerReview.manager_id == manager_id,
+        ManagerReview.overall_score.isnot(None)  # Only completed reviews with scores
+    ).order_by(ManagerReview.year, ManagerReview.quarter).all()
+
+    history = []
+    for review in reviews:
+        # Format quarter label
+        quarter_labels = {
+            ReviewQuarter.Q1: "Q1",
+            ReviewQuarter.Q2: "Q2",
+            ReviewQuarter.Q3: "Q3",
+            ReviewQuarter.Q4: "Q4"
+        }
+
+        history.append({
+            "id": review.id,
+            "period": f"{quarter_labels.get(review.quarter, review.quarter)} {review.year}",
+            "year": review.year,
+            "quarter": review.quarter,
+            "overall_score": review.overall_score,
+            "operational_score": review.operational_score,
+            "people_score": review.people_score,
+            "business_score": review.business_score,
+            "leadership_score": review.leadership_score,
+            "auto_sanitation_avg": review.auto_sanitation_avg,
+            "auto_dish_checks_avg": review.auto_dish_checks_avg
+        })
+
+    return {
+        "manager_id": manager_id,
+        "manager_name": reviews[0].manager.name if reviews else None,
+        "history": history
+    }
