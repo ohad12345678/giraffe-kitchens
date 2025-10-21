@@ -8,6 +8,7 @@ from typing import Optional
 from anthropic import Anthropic
 from datetime import date, timedelta
 from sqlalchemy import func
+import os
 
 from app.api import deps
 from app.models.user import User
@@ -19,6 +20,19 @@ from app.models.sanitation_audit import SanitationAudit, SanitationAuditCategory
 from app.core.config import settings
 
 router = APIRouter()
+
+
+def load_prompt_template(prompt_name: str) -> str:
+    """Load a prompt template from the prompts directory."""
+    prompts_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'prompts')
+    prompt_path = os.path.join(prompts_dir, f"{prompt_name}.txt")
+
+    try:
+        with open(prompt_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        print(f"⚠️  Prompt file not found: {prompt_path}")
+        return None
 
 
 class AIQueryRequest(BaseModel):
@@ -349,8 +363,25 @@ def ask_sanitation_analysis(
     try:
         client = Anthropic(api_key=api_key, timeout=30.0)
 
-        # Build context-aware prompt
-        system_prompt = f"""אתה מומחה לתברואה ובטיחות מזון במסעדות.
+        # Load the detailed prompt template
+        prompt_template = load_prompt_template("sanitation_audit_analysis")
+
+        if prompt_template:
+            # Use the detailed prompt with context data
+            system_prompt = f"""{prompt_template}
+
+---
+
+## נתוני ההקשר (תקופה: {real_context['date_range']}):
+- סך ביקורות: {real_context['total_audits']}
+- ציון ממוצע: {real_context['average_score']} (מתוך 100)
+- ניכויים ממוצעים: {real_context['average_deductions']} נקודות
+- הבעיות השכיחות: {', '.join(real_context['top_issues'])}
+- הציון הגבוה ביותר: {real_context['best_score']}
+- הציון הנמוך ביותר: {real_context['worst_score']}"""
+        else:
+            # Fallback to simple prompt if template file not found
+            system_prompt = f"""אתה מומחה לתברואה ובטיחות מזון במסעדות.
 
 הנתונים הנוכחיים (תקופה: {real_context['date_range']}):
 - סך ביקורות: {real_context['total_audits']}
