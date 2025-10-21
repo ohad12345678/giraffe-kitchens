@@ -105,17 +105,11 @@ export default function ViewSanitationAudit() {
           </div>
 
           {/* Score Display */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
             <div className="bg-blue-50 rounded-lg p-4">
               <div className="text-sm text-gray-600 mb-1">ציון סופי</div>
               <div className={`text-4xl font-bold ${getScoreColor(audit.total_score)}`}>
                 {audit.total_score.toFixed(1)}
-              </div>
-            </div>
-            <div className="bg-red-50 rounded-lg p-4">
-              <div className="text-sm text-gray-600 mb-1">סה"כ ניקוד</div>
-              <div className="text-4xl font-bold text-red-600">
-                -{audit.total_deductions.toFixed(1)}
               </div>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">

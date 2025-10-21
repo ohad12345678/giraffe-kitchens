@@ -5,7 +5,7 @@ These endpoints allow HQ users to create, view, and manage sanitation audit repo
 Branch managers can view audits for their branch only.
 """
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, desc
 from typing import List, Optional
 from datetime import datetime
@@ -245,6 +245,7 @@ def create_sanitation_audit(
 
     # Calculate score and generate summary
     db.flush()
+    db.refresh(audit)  # Load relationships
     calculate_audit_score(audit, db)
     audit.deficiencies_summary = generate_deficiencies_summary(audit, db)
 
@@ -470,6 +471,7 @@ def update_audit_category(
 
     # Recalculate audit score
     audit = category.audit
+    db.refresh(audit)  # Load relationships including branch
     calculate_audit_score(audit, db)
     audit.deficiencies_summary = generate_deficiencies_summary(audit, db)
     audit.updated_at = datetime.utcnow()
@@ -759,8 +761,10 @@ def generate_ai_summary(
             detail="Only HQ users can generate summaries"
         )
 
-    # Get current audit
-    audit = db.query(SanitationAudit).filter(SanitationAudit.id == audit_id).first()
+    # Get current audit with branch relationship loaded
+    audit = db.query(SanitationAudit).options(
+        joinedload(SanitationAudit.branch)
+    ).filter(SanitationAudit.id == audit_id).first()
     if not audit:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
