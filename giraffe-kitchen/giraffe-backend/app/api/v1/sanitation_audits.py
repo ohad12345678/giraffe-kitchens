@@ -377,53 +377,54 @@ def update_sanitation_audit(
     db.commit()
     db.refresh(audit)
 
-    # Send email notification if audit was just completed
-    if is_now_completed and not was_completed:
-        try:
-            # Get branch manager email
-            branch_manager = db.query(User).filter(
-                User.branch_id == audit.branch_id,
-                User.role == UserRole.BRANCH_MANAGER
-            ).first()
-
-            # Get all HQ users emails
-            hq_users = db.query(User).filter(User.role == UserRole.HQ).all()
-
-            # Prepare recipient list
-            recipients = []
-            if branch_manager and branch_manager.email:
-                recipients.append(branch_manager.email)
-            recipients.extend([user.email for user in hq_users if user.email])
-
-            if recipients:
-                # Determine score color
-                score_color = "#22c55e"  # green
-                if audit.total_score < 70:
-                    score_color = "#ef4444"  # red
-                elif audit.total_score < 85:
-                    score_color = "#f59e0b"  # orange
-
-                # Prepare audit data for email
-                audit_data = {
-                    'branch_name': audit.branch.name,
-                    'audit_date': audit.audit_date.strftime('%d/%m/%Y'),
-                    'auditor_name': audit.auditor_name,
-                    'accompanist_name': audit.accompanist_name,
-                    'total_score': audit.total_score,
-                    'score_color': score_color,
-                    'audit_url': f"{settings.ALLOWED_ORIGINS.split(',')[0]}/sanitation-audits/{audit.id}"
-                }
-
-                # Send email with the summary
-                send_audit_completion_email(
-                    audit_data=audit_data,
-                    summary=audit.deficiencies_summary or "לא נמצאו ליקויים",
-                    to_emails=recipients
-                )
-                print(f"📧 Sent audit completion email to {len(recipients)} recipients")
-        except Exception as e:
-            print(f"⚠️  Failed to send audit completion email: {str(e)}")
-            # Don't fail the request if email fails
+    # TEMPORARILY DISABLED: Send email notification if audit was just completed
+    # TODO: Re-enable after testing phase
+    # if is_now_completed and not was_completed:
+    #     try:
+    #         # Get branch manager email
+    #         branch_manager = db.query(User).filter(
+    #             User.branch_id == audit.branch_id,
+    #             User.role == UserRole.BRANCH_MANAGER
+    #         ).first()
+    #
+    #         # Get all HQ users emails
+    #         hq_users = db.query(User).filter(User.role == UserRole.HQ).all()
+    #
+    #         # Prepare recipient list
+    #         recipients = []
+    #         if branch_manager and branch_manager.email:
+    #             recipients.append(branch_manager.email)
+    #         recipients.extend([user.email for user in hq_users if user.email])
+    #
+    #         if recipients:
+    #             # Determine score color
+    #             score_color = "#22c55e"  # green
+    #             if audit.total_score < 70:
+    #                 score_color = "#ef4444"  # red
+    #             elif audit.total_score < 85:
+    #                 score_color = "#f59e0b"  # orange
+    #
+    #             # Prepare audit data for email
+    #             audit_data = {
+    #                 'branch_name': audit.branch.name,
+    #                 'audit_date': audit.audit_date.strftime('%d/%m/%Y'),
+    #                 'auditor_name': audit.auditor_name,
+    #                 'accompanist_name': audit.accompanist_name,
+    #                 'total_score': audit.total_score,
+    #                 'score_color': score_color,
+    #                 'audit_url': f"{settings.ALLOWED_ORIGINS.split(',')[0]}/sanitation-audits/{audit.id}"
+    #             }
+    #
+    #             # Send email with the summary
+    #             send_audit_completion_email(
+    #                 audit_data=audit_data,
+    #                 summary=audit.deficiencies_summary or "לא נמצאו ליקויים",
+    #                 to_emails=recipients
+    #             )
+    #             print(f"📧 Sent audit completion email to {len(recipients)} recipients")
+    #     except Exception as e:
+    #         print(f"⚠️  Failed to send audit completion email: {str(e)}")
+    #         # Don't fail the request if email fails
 
     return audit
 
