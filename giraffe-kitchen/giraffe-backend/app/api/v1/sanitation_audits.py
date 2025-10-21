@@ -744,24 +744,9 @@ def generate_ai_summary(
             'defects': [{'category': c.category_name, 'deduction': c.score_deduction} for c in prev_cats if c.score_deduction > 0]
         })
 
-    # TODO: Call AI API here to generate summary
-    # For now, return a placeholder
-    ai_summary = f"""
-    ביקורת תברואה - סיכום אוטומטי
-
-    ציון כללי: {audit.total_score}/100
-    סה"כ ניקוד: {audit.total_deductions} נקודות
-
-    ליקויים שנמצאו:
-    {chr(10).join([f"- {d['category']}: {d['deduction']} נקודות - {d['notes'] or 'ללא הערות'}" for d in defects])}
-
-    השוואה לביקורות קודמות:
-    {chr(10).join([f"- {c['date']}: ציון {c['score']}, ניקוד {c['deductions']}" for c in comparison_data]) if comparison_data else "אין ביקורות קודמות להשוואה"}
-
-    המלצות:
-    - יש להתמקד בשיפור הקטגוריות עם הניקוד הגבוה ביותר
-    - מומלץ לעקוב אחר השיפור בביקורות הבאות
-    """
+    # Generate AI-powered summary using the detailed prompt template
+    # This will use the same function we created earlier
+    ai_summary = generate_deficiencies_summary(audit, db)
 
     # Update audit with summary
     audit.deficiencies_summary = ai_summary
