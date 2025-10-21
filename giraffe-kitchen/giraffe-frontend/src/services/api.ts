@@ -16,31 +16,26 @@ import type {
   BranchAuditStats
 } from '../types';
 
-// Get API URL dynamically at runtime
+// Get API URL dynamically at runtime - purely runtime detection, no env vars
 const getAPIURL = (): string => {
-  // Check if VITE_API_URL is set in environment
-  const envUrl = import.meta.env.VITE_API_URL;
-
-  // If it's an empty string, use relative URLs
-  if (envUrl === '') {
-    return '';
-  }
-
-  // If it's set to a value, use that
-  if (envUrl && envUrl !== 'undefined') {
-    return envUrl;
-  }
-
-  // Runtime detection: check if we're on Railway
+  // Runtime detection ONLY - check hostname
   const hostname = window.location.hostname;
+
+  // If on Railway production, use relative URLs
   if (hostname.includes('railway.app') || hostname.includes('up.railway')) {
     console.log('🚂 Railway production detected - using relative URLs');
     return '';
   }
 
-  // Default to localhost for local development
-  console.log('💻 Local development - using localhost:8000');
-  return 'http://localhost:8000';
+  // If localhost, use port 8000
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    console.log('💻 Local development - using localhost:8000');
+    return 'http://localhost:8000';
+  }
+
+  // Default to relative URLs for any other domain
+  console.log('🌐 Unknown domain - using relative URLs');
+  return '';
 };
 
 // Create axios instance without baseURL - we'll set it dynamically
