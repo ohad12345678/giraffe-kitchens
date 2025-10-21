@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { managerReviewAPI } from '../services/managerReviewAPI';
 import type { DetailedReview, UpdateReviewRequest } from '../types/managerReview';
 import ScoreInput from '../components/manager-reviews/ScoreInput';
+import { exportReviewToPDF } from '../utils/pdfExport';
 import {
   ArrowLeft,
   Building2,
@@ -11,7 +12,8 @@ import {
   Save,
   Send,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  FileDown
 } from 'lucide-react';
 
 const ViewManagerReview: React.FC = () => {
@@ -231,6 +233,16 @@ const ViewManagerReview: React.FC = () => {
             </div>
             <div className="flex items-center gap-3">
               {getStatusBadge(review.status)}
+
+              {/* Export PDF Button - Always visible */}
+              <button
+                onClick={() => exportReviewToPDF(review)}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              >
+                <FileDown className="h-4 w-4" />
+                ייצא PDF
+              </button>
+
               {isEditable && (
                 <>
                   <button
