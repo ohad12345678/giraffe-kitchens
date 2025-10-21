@@ -70,6 +70,10 @@ def create_check(
     current_user: User = Depends(get_current_user)
 ):
     """Create a new dish check."""
+    # DEBUG: Print what we received
+    print(f"🔍 CREATE CHECK - Received date: {check_data.check_date}")
+    print(f"🔍 CREATE CHECK - Full data: {check_data.dict()}")
+
     # Branch managers can only create checks for their own branch
     if current_user.role.value == "branch_manager" and check_data.branch_id != current_user.branch_id:
         raise HTTPException(
@@ -92,6 +96,9 @@ def create_check(
     db.add(new_check)
     db.commit()
     db.refresh(new_check)
+
+    print(f"🔍 CREATE CHECK - Saved to DB with date: {new_check.check_date}")
+    print(f"🔍 CREATE CHECK - Saved to DB, ID: {new_check.id}")
 
     return new_check
 
