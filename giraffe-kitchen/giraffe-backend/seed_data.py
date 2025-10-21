@@ -38,34 +38,74 @@ def seed_users(db):
     """Seed HQ users and branch managers."""
     # Get all branches
     branches = db.query(Branch).all()
+    branch_map = {branch.name: branch for branch in branches}
 
-    # Create HQ user - Simple credentials
-    hq_user = User(
-        email="ohadb@giraffe.co.il",
-        password_hash=get_password_hash("123"),
-        full_name="Ohad Banay (HQ)",
-        role=UserRole.HQ,
-        branch_id=None
-    )
+    # Create HQ users with real emails
+    hq_users = [
+        {"email": "ohadb@giraffe.co.il", "name": "Ohad Banay"},
+        {"email": "nofar@giraffe.co.il", "name": "Nofar"},
+        {"email": "aviv@giraffe.co.il", "name": "Aviv"},
+        {"email": "alma@giraffe.co.il", "name": "Alma"},
+        {"email": "talz@giraffe.co.il", "name": "Talz"},
+    ]
 
-    existing = db.query(User).filter(User.email == hq_user.email).first()
-    if not existing:
-        db.add(hq_user)
-
-    # Create one branch manager per branch - Simple credentials
-    for branch in branches:
-        branch_short = branch.name.lower().replace('giraffe ', '').replace(' ', '')
-        manager = User(
-            email=f"{branch_short}@giraffe.com",
-            password_hash=get_password_hash("123"),
-            full_name=f"Manager - {branch.name}",
-            role=UserRole.BRANCH_MANAGER,
-            branch_id=branch.id
-        )
-
-        existing = db.query(User).filter(User.email == manager.email).first()
+    for user_data in hq_users:
+        existing = db.query(User).filter(User.email == user_data["email"]).first()
         if not existing:
-            db.add(manager)
+            hq_user = User(
+                email=user_data["email"],
+                password_hash=get_password_hash("123"),
+                full_name=f"{user_data['name']} (HQ)",
+                role=UserRole.HQ,
+                branch_id=None
+            )
+            db.add(hq_user)
+
+    # Create branch managers with real emails
+    branch_managers = [
+        {"email": "harel@giraffe.co.il", "name": "Harel", "branch": "Giraffe חיפה"},
+        {"email": "hemi@giraffe.co.il", "name": "Hemi", "branch": "Giraffe רמת החייל"},
+        {"email": "pini@giraffe.co.il", "name": "Pini", "branch": "Giraffe לנדמרק"},
+        {"email": "ella@giraffe.co.il", "name": "Ella", "branch": "Giraffe נס ציונה"},
+        {"email": "ori@giraffe.co.il", "name": "Ori", "branch": "Giraffe פתח תקווה"},
+        {"email": "chen@giraffe.co.il", "name": "Chen", "branch": "Giraffe פתח תקווה"},
+    ]
+
+    for manager_data in branch_managers:
+        existing = db.query(User).filter(User.email == manager_data["email"]).first()
+        if not existing:
+            branch = branch_map.get(manager_data["branch"])
+            if branch:
+                manager = User(
+                    email=manager_data["email"],
+                    password_hash=get_password_hash("123"),
+                    full_name=manager_data["name"],
+                    role=UserRole.BRANCH_MANAGER,
+                    branch_id=branch.id
+                )
+                db.add(manager)
+            else:
+                print(f"⚠️  Warning: Branch '{manager_data['branch']}' not found for {manager_data['name']}")
+
+    # Create generic managers for branches without real users
+    for branch in branches:
+        has_manager = db.query(User).filter(
+            User.branch_id == branch.id,
+            User.role == UserRole.BRANCH_MANAGER
+        ).first()
+
+        if not has_manager:
+            branch_short = branch.name.lower().replace('giraffe ', '').replace(' ', '')
+            generic_manager = User(
+                email=f"{branch_short}@giraffe.com",
+                password_hash=get_password_hash("123"),
+                full_name=f"Manager - {branch.name}",
+                role=UserRole.BRANCH_MANAGER,
+                branch_id=branch.id
+            )
+            existing = db.query(User).filter(User.email == generic_manager.email).first()
+            if not existing:
+                db.add(generic_manager)
 
     db.commit()
     print("✅ Users seeded")
@@ -199,11 +239,19 @@ def main():
 
         # Print login credentials
         print("\n📝 Login Credentials:")
-        print("HQ User: ohadb@giraffe.co.il / 123")
-        print("Branch Manager examples:")
-        print("  - חיפה@giraffe.com / 123")
-        print("  - הרצליה@giraffe.com / 123")
-        print("  - לנדמרק@giraffe.com / 123")
+        print("\n👔 HQ Users (all password: 123):")
+        print("  - ohadb@giraffe.co.il")
+        print("  - nofar@giraffe.co.il")
+        print("  - aviv@giraffe.co.il")
+        print("  - alma@giraffe.co.il")
+        print("  - talz@giraffe.co.il")
+        print("\n🏢 Branch Managers (all password: 123):")
+        print("  - harel@giraffe.co.il (חיפה)")
+        print("  - hemi@giraffe.co.il (רמת החייל)")
+        print("  - pini@giraffe.co.il (לנדמרק)")
+        print("  - ella@giraffe.co.il (נס ציונה)")
+        print("  - ori@giraffe.co.il (פתח תקווה)")
+        print("  - chen@giraffe.co.il (פתח תקווה)")
 
     except Exception as e:
         print(f"❌ Error seeding database: {e}")
