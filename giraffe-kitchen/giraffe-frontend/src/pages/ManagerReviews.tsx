@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { managerReviewAPI } from '../services/managerReviewAPI';
 import type { ManagerReview, ReviewQuarter, ReviewStatus } from '../types/managerReview';
 import { Building2, Plus, Filter, Calendar, User, FileText } from 'lucide-react';
+import CreateReviewModal from '../components/manager-reviews/CreateReviewModal';
 
 const ManagerReviews: React.FC = () => {
   const navigate = useNavigate();
@@ -257,21 +258,15 @@ const ManagerReviews: React.FC = () => {
         )}
       </main>
 
-      {/* Create Modal - Coming next */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">הערכה חדשה</h2>
-            <p className="text-gray-600 mb-4">פיצ'ר זה יבנה בשלב הבא</p>
-            <button
-              onClick={() => setShowCreateModal(false)}
-              className="w-full px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
-            >
-              סגור
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Create Modal */}
+      <CreateReviewModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={() => {
+          loadReviews(); // Reload the list
+          setShowCreateModal(false);
+        }}
+      />
     </div>
   );
 };

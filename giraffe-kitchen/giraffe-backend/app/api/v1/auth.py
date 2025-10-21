@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import timedelta
+from typing import List
 from app.db.base import get_db
 from app.schemas.user import UserCreate, UserLogin, UserResponse, Token
 from app.models.user import User
 from app.core.security import verify_password, get_password_hash, create_access_token
 from app.core.config import settings
+from app.api.deps import get_current_user
 
 router = APIRouter()
 
@@ -64,3 +66,13 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
     )
 
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("/users", response_model=List[UserResponse])
+def list_users(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """List all users (for creating manager reviews)."""
+    users = db.query(User).all()
+    return users

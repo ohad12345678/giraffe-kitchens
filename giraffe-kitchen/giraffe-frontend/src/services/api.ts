@@ -77,6 +77,19 @@ export const branchAPI = {
     const response = await api.get<Branch>(`/api/v1/branches/${id}`);
     return response.data;
   },
+
+  getBranches: async (): Promise<Branch[]> => {
+    const response = await api.get<Branch[]>('/api/v1/branches/');
+    return response.data;
+  },
+};
+
+// User endpoints
+export const userAPI = {
+  list: async (): Promise<User[]> => {
+    const response = await api.get<User[]>('/api/v1/auth/users');
+    return response.data;
+  },
 };
 
 // Dish endpoints
