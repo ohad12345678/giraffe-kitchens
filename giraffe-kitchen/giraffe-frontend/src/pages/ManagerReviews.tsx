@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { managerReviewAPI } from '../services/managerReviewAPI';
+import { branchAPI } from '../services/api';
 import type { ManagerReview, ReviewQuarter, ReviewStatus } from '../types/managerReview';
-import { Building2, Plus, Filter, Calendar, User, FileText } from 'lucide-react';
+import type { Branch } from '../types';
+import { Building2, Plus, Filter, Calendar, User, FileText, TrendingUp, Award } from 'lucide-react';
 import CreateReviewModal from '../components/manager-reviews/CreateReviewModal';
 
 const ManagerReviews: React.FC = () => {
   const navigate = useNavigate();
   useAuth(); // May be used later for role-based features
   const [reviews, setReviews] = useState<ManagerReview[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -17,10 +20,24 @@ const ManagerReviews: React.FC = () => {
   const [filterYear, setFilterYear] = useState<number>(new Date().getFullYear());
   const [filterQuarter, setFilterQuarter] = useState<ReviewQuarter | ''>('');
   const [filterStatus, setFilterStatus] = useState<ReviewStatus | ''>('');
+  const [filterBranch, setFilterBranch] = useState<number | ''>('');
+
+  useEffect(() => {
+    loadBranches();
+  }, []);
 
   useEffect(() => {
     loadReviews();
-  }, [filterYear, filterQuarter, filterStatus]);
+  }, [filterYear, filterQuarter, filterStatus, filterBranch]);
+
+  const loadBranches = async () => {
+    try {
+      const data = await branchAPI.getBranches();
+      setBranches(data);
+    } catch (error) {
+      console.error('Failed to load branches:', error);
+    }
+  };
 
   const loadReviews = async () => {
     try {
@@ -29,6 +46,7 @@ const ManagerReviews: React.FC = () => {
       if (filterYear) params.year = filterYear;
       if (filterQuarter) params.quarter = filterQuarter;
       if (filterStatus) params.status = filterStatus;
+      if (filterBranch) params.branch_id = filterBranch;
 
       const data = await managerReviewAPI.listReviews(params);
       setReviews(data);
@@ -142,6 +160,20 @@ const ManagerReviews: React.FC = () => {
                 <option value="submitted">הוגש</option>
                 <option value="completed">הושלם</option>
               </select>
+
+              {/* Branch Filter */}
+              <select
+                value={filterBranch}
+                onChange={(e) => setFilterBranch(e.target.value ? Number(e.target.value) : '')}
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              >
+                <option value="">כל הסניפים</option>
+                {branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Create Button */}
@@ -156,25 +188,75 @@ const ManagerReviews: React.FC = () => {
         </div>
 
         {/* Stats Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+          {/* Total Reviews */}
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-sm text-gray-600">סך הערכות</p>
+            <div className="flex items-center gap-2 mb-1">
+              <FileText className="h-4 w-4 text-gray-400" />
+              <p className="text-sm text-gray-600">סך הערכות</p>
+            </div>
             <p className="text-2xl font-bold text-gray-900">{reviews.length}</p>
           </div>
+
+          {/* Average Score */}
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-sm text-gray-600">טיוטות</p>
+            <div className="flex items-center gap-2 mb-1">
+              <TrendingUp className="h-4 w-4 text-gray-400" />
+              <p className="text-sm text-gray-600">ממוצע ציונים</p>
+            </div>
+            {reviews.filter((r) => r.overall_score !== null).length > 0 ? (
+              <p className={`text-2xl font-bold ${getScoreColor(
+                reviews
+                  .filter((r) => r.overall_score !== null)
+                  .reduce((sum, r) => sum + (r.overall_score || 0), 0) /
+                  reviews.filter((r) => r.overall_score !== null).length
+              )}`}>
+                {(
+                  reviews
+                    .filter((r) => r.overall_score !== null)
+                    .reduce((sum, r) => sum + (r.overall_score || 0), 0) /
+                  reviews.filter((r) => r.overall_score !== null).length
+                ).toFixed(1)}
+              </p>
+            ) : (
+              <p className="text-2xl font-bold text-gray-400">-</p>
+            )}
+          </div>
+
+          {/* Top Performer */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <Award className="h-4 w-4 text-yellow-500" />
+              <p className="text-sm text-gray-600">מצטיין</p>
+            </div>
+            {reviews.filter((r) => r.overall_score !== null).length > 0 ? (
+              <>
+                <p className="text-lg font-bold text-green-600 truncate">
+                  {reviews.reduce((top, r) =>
+                    (r.overall_score || 0) > (top.overall_score || 0) ? r : top
+                  ).manager_name}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {reviews.reduce((top, r) =>
+                    (r.overall_score || 0) > (top.overall_score || 0) ? r : top
+                  ).overall_score}
+                </p>
+              </>
+            ) : (
+              <p className="text-lg font-bold text-gray-400">-</p>
+            )}
+          </div>
+
+          {/* Status Breakdown */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <p className="text-sm text-gray-600 mb-1">טיוטות</p>
             <p className="text-2xl font-bold text-gray-500">
               {reviews.filter((r) => r.status === 'draft').length}
             </p>
           </div>
+
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-sm text-gray-600">הוגשו</p>
-            <p className="text-2xl font-bold text-blue-600">
-              {reviews.filter((r) => r.status === 'submitted').length}
-            </p>
-          </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-sm text-gray-600">הושלמו</p>
+            <p className="text-sm text-gray-600 mb-1">הושלמו</p>
             <p className="text-2xl font-bold text-green-600">
               {reviews.filter((r) => r.status === 'completed').length}
             </p>
