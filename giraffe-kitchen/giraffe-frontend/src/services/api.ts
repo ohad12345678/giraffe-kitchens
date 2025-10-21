@@ -199,6 +199,10 @@ export const aiAPI = {
     });
     return response.data;
   },
+  askSanitation: async (params: { question: string; date_range?: string; branch_id?: number }): Promise<{ answer: string; context_used: any }> => {
+    const response = await api.post('/api/v1/ai/ask-sanitation', params);
+    return response.data;
+  },
 };
 
 // Daily Tasks endpoints
