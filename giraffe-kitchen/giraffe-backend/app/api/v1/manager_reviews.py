@@ -17,7 +17,7 @@ from app.models.user import User
 from app.models.branch import Branch
 from app.models.sanitation_audit import SanitationAudit, AuditStatus
 from app.models.dish_check import DishCheck
-from app.api.v1.auth import get_current_user
+from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/manager-reviews", tags=["manager-reviews"])
 
