@@ -1,20 +1,18 @@
 # Stage 1: Build frontend
-# Force rebuild v2 - Railway hostname detection fix
+# Force rebuild v3 - Copy source BEFORE npm ci to bust cache
 FROM node:20-alpine AS frontend-builder
 
 WORKDIR /frontend
 
-# Copy frontend package files
-COPY ./giraffe-frontend/package*.json ./
-RUN npm ci
-
-# Copy frontend source
+# Copy ALL frontend files first (this changes more often)
 COPY ./giraffe-frontend/ ./
 
+# Install dependencies (will use cache if package.json hasn't changed)
+RUN npm ci
+
 # Build frontend - uses runtime hostname detection (no env vars needed)
-# Add build timestamp to prevent caching
-ARG BUILD_DATE=unknown
-RUN echo "Build date: ${BUILD_DATE}" && npm run build
+# The build will always run fresh because source files were copied above
+RUN echo "Building frontend..." && npm run build
 
 # Stage 2: Build backend with frontend
 FROM python:3.9-slim
