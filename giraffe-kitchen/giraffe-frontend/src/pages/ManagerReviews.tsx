@@ -6,7 +6,7 @@ import { branchAPI } from '../services/api';
 import type { ManagerReview, ReviewQuarter, ReviewStatus } from '../types/managerReview';
 import type { Branch } from '../types';
 import { Building2, Plus, Filter, Calendar, User, FileText, TrendingUp, Award, Trash2 } from 'lucide-react';
-import CreateReviewModal from '../components/manager-reviews/CreateReviewModal';
+import UnifiedAIChat from '../components/UnifiedAIChat';
 
 const ManagerReviews: React.FC = () => {
   const navigate = useNavigate();
@@ -14,7 +14,6 @@ const ManagerReviews: React.FC = () => {
   const [reviews, setReviews] = useState<ManagerReview[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreateModal, setShowCreateModal] = useState(false);
 
   // Filters
   const [filterYear, setFilterYear] = useState<number>(new Date().getFullYear());
@@ -200,7 +199,7 @@ const ManagerReviews: React.FC = () => {
 
             {/* Create Button */}
             <button
-              onClick={() => setShowCreateModal(true)}
+              onClick={() => navigate('/manager-reviews/new')}
               className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
               <Plus className="h-5 w-5" />
@@ -292,7 +291,7 @@ const ManagerReviews: React.FC = () => {
             <h3 className="text-lg font-medium text-gray-900 mb-2">אין הערכות</h3>
             <p className="text-gray-600 mb-6">התחל על ידי יצירת הערכה חדשה</p>
             <button
-              onClick={() => setShowCreateModal(true)}
+              onClick={() => navigate('/manager-reviews/new')}
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
               <Plus className="h-5 w-5" />
@@ -373,15 +372,8 @@ const ManagerReviews: React.FC = () => {
         )}
       </main>
 
-      {/* Create Modal */}
-      <CreateReviewModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onSuccess={() => {
-          loadReviews(); // Reload the list
-          setShowCreateModal(false);
-        }}
-      />
+      {/* Unified AI Chat */}
+      <UnifiedAIChat contextType="reviews" title="ניתוח AI - הערכות מנהלים" />
     </div>
   );
 };

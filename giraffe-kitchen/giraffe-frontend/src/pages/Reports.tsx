@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { aiAPI, checkAPI, branchAPI, dishAPI } from '../services/api';
-import { ArrowRight, TrendingUp, TrendingDown, AlertCircle, MessageSquare } from 'lucide-react';
+import { checkAPI, branchAPI, dishAPI } from '../services/api';
+import { ArrowRight, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
+import UnifiedAIChat from '../components/UnifiedAIChat';
 import type { Branch, Dish } from '../types';
 
 const Reports: React.FC = () => {
@@ -19,11 +20,6 @@ const Reports: React.FC = () => {
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
-  // Chat states
-  const [showChatbot, setShowChatbot] = useState(false);
-  const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
-  const [chatInput, setChatInput] = useState('');
 
   // Admin delete states
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -122,65 +118,6 @@ const Reports: React.FC = () => {
     if (rating >= 8.5) return 'text-green-600 bg-green-50';
     if (rating >= 7) return 'text-yellow-600 bg-yellow-50';
     return 'text-red-600 bg-red-50';
-  };
-
-  const getMockResponse = (question: string): string => {
-    const lowerQuestion = question.toLowerCase();
-
-    if (lowerQuestion.includes('מנה') || lowerQuestion.includes('מנות')) {
-      return 'המנות עם הציונים הנמוכים ביותר השבוע הן: צ\'אזה (6.8) וסלט דג לבן (6.5). מומלץ לתת תשומת לב לשיפור ההכנה והצגה של מנות אלו. ייתכן שיש צורך בהדרכת הטבחים או בשינוי המתכון.';
-    }
-
-    if (lowerQuestion.includes('טבח') || lowerQuestion.includes('שף')) {
-      return 'הטבחים המובילים השבוע: דוד (9.1) ושרה (8.9), שניהם מסניף חיפה. מומלץ לשתף את השיטות והטכניקות שלהם עם שאר הטבחים בכל הסניפים.';
-    }
-
-    if (lowerQuestion.includes('ממוצע') || lowerQuestion.includes('ציון')) {
-      return 'הממוצע הכללי עומד על 8.2, עם מגמת שיפור של 0.3 נקודות ביחס לשבוע הקודם. זוהי מגמה מצוינת! המשיכו בעבודה הטובה.';
-    }
-
-    if (lowerQuestion.includes('המלצ') || lowerQuestion.includes('שיפור')) {
-      return '3 המלצות מרכזיות: (1) הכשרה ממוקדת לטבחים בהכנת צ\'אזה וסלט דג לבן (2) שיתוף שיטות עבודה של הטבחים המובילים מחיפה (3) מעקב יומי אחר המנות החלשות לזיהוי מהיר של בעיות.';
-    }
-
-    return 'אני כאן כדי לעזור לך לנתח את נתוני בקרת האיכות. אתה יכול לשאול אותי על מנות ספציפיות, ביצועי טבחים, מגמות, או להתייעץ לגבי דרכי שיפור.';
-  };
-
-  const handleSendMessage = async () => {
-    if (!chatInput.trim()) return;
-
-    const userMessage = chatInput;
-    setChatInput('');
-    setChatMessages([...chatMessages, { role: 'user', content: userMessage }]);
-
-    try {
-      // קריאה אמיתית ל-Claude API
-      const branchId = !isHQ && user?.branch_id ? user.branch_id : undefined;
-      const response = await aiAPI.ask(userMessage, branchId);
-
-      setChatMessages(prev => [...prev, { role: 'assistant', content: response.answer }]);
-    } catch (error: any) {
-      console.error('AI API error:', error);
-      console.error('Error details:', error.response?.data);
-
-      // Show actual error message if available
-      const errorMessage = error.response?.data?.detail || error.message;
-
-      // If it's an API key error, show mock response
-      if (errorMessage?.includes('API key') || errorMessage?.includes('ANTHROPIC_API_KEY')) {
-        const mockAnswer = getMockResponse(userMessage);
-        setChatMessages(prev => [...prev, {
-          role: 'assistant',
-          content: mockAnswer + '\n\n_[הערה: זוהי תשובת דמו. כדי לקבל ניתוח AI מלא, נא להגדיר ANTHROPIC_API_KEY]_'
-        }]);
-      } else {
-        // Show actual error to user
-        setChatMessages(prev => [...prev, {
-          role: 'assistant',
-          content: `❌ שגיאה: ${errorMessage}\n\nאנא נסה שוב או פנה למנהל המערכת.`
-        }]);
-      }
-    }
   };
 
   const handleBulkDelete = async () => {
@@ -513,76 +450,8 @@ const Reports: React.FC = () => {
           </div>
         )}
 
-        {/* AI Chatbot Toggle Button */}
-        <button
-          onClick={() => setShowChatbot(!showChatbot)}
-          className="fixed bottom-6 left-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-all z-50 flex items-center gap-2"
-        >
-          <MessageSquare className="h-6 w-6" />
-          {!showChatbot && <span className="pr-2">שאל את הצ'אט</span>}
-        </button>
-
-        {/* AI Chatbot Window */}
-        {showChatbot && (
-          <div className="fixed bottom-24 left-6 w-96 bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-gray-200 z-50">
-            <div className="bg-green-500 text-white p-4 rounded-t-xl flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5" />
-                <h3 className="font-semibold">ניתוח AI - דוחות בדיקות</h3>
-              </div>
-              <button onClick={() => setShowChatbot(false)} className="text-white hover:text-gray-200">
-                ✕
-              </button>
-            </div>
-
-            <div className="h-96 overflow-y-auto p-4 space-y-3">
-              {chatMessages.length === 0 ? (
-                <div className="text-center text-gray-500 mt-8">
-                  <p className="mb-4">👋 שלום! אני כאן לעזור לך לנתח את הנתונים.</p>
-                  <p className="text-sm">נסה לשאול:</p>
-                  <div className="mt-2 space-y-2 text-sm">
-                    <p className="bg-gray-50 p-2 rounded">• איזו מנה הכי חלשה?</p>
-                    <p className="bg-gray-50 p-2 rounded">• מה הטרנד בשבוע האחרון?</p>
-                    <p className="bg-gray-50 p-2 rounded">• איך ביצועי הטבחים?</p>
-                  </div>
-                </div>
-              ) : (
-                chatMessages.map((msg, idx) => (
-                  <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div
-                      className={`max-w-xs p-3 rounded-lg ${
-                        msg.role === 'user'
-                          ? 'bg-green-500 text-white'
-                          : 'bg-gray-100 text-gray-900'
-                      }`}
-                    >
-                      {msg.content}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div className="p-4 border-t border-gray-200">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="שאל שאלה על הנתונים..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-                <button
-                  onClick={handleSendMessage}
-                  className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors"
-                >
-                  שלח
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Unified AI Chat */}
+        <UnifiedAIChat contextType="checks" title="ניתוח AI - דוחות בדיקות" />
 
         {/* Delete Modal */}
         {showDeleteModal && isAdmin && (

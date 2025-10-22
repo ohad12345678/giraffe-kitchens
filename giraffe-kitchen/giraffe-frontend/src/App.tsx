@@ -11,6 +11,7 @@ import NewSanitationAudit from './pages/NewSanitationAudit';
 import ViewSanitationAudit from './pages/ViewSanitationAudit';
 import AuditSummary from './pages/AuditSummary';
 import ManagerReviews from './pages/ManagerReviews';
+import CreateManagerReview from './pages/CreateManagerReview';
 import ViewManagerReview from './pages/ViewManagerReview';
 
 function App() {
@@ -93,6 +94,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ManagerReviews />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/manager-reviews/new"
+              element={
+                <ProtectedRoute>
+                  <CreateManagerReview />
                 </ProtectedRoute>
               }
             />

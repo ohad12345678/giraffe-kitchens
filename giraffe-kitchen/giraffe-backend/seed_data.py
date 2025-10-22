@@ -47,6 +47,7 @@ def seed_users(db):
         {"email": "aviv@giraffe.co.il", "name": "Aviv"},
         {"email": "alma@giraffe.co.il", "name": "Alma"},
         {"email": "talz@giraffe.co.il", "name": "Talz"},
+        {"email": "avital@giraffe.co.il", "name": "Avital"},
     ]
 
     for user_data in hq_users:
