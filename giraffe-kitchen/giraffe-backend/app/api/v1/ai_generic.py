@@ -11,7 +11,7 @@ import os
 
 from app.api.deps import get_current_user, get_db
 from app.models.user import User
-from app.models.dish_check import DishDishCheck
+from app.models.dish_check import DishCheck
 from app.models.branch import Branch
 from app.models.dish import Dish
 from app.models.chef import Chef
