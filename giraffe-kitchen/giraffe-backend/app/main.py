@@ -9,7 +9,19 @@ from app.db.base import Base, engine
 import os
 
 # Create database tables on startup
-os.makedirs(os.path.dirname(settings.DATABASE_URL.replace('sqlite:///', '')), exist_ok=True)
+# Handle both sqlite:///./file.db (3 slashes) and sqlite:////absolute/path (4 slashes)
+if settings.DATABASE_URL.startswith('sqlite'):
+    db_path = settings.DATABASE_URL.replace('sqlite:///', '')
+    # If it starts with /, it's an absolute path (4 slashes total)
+    if not db_path.startswith('/'):
+        db_path = './' + db_path
+
+    db_dir = os.path.dirname(db_path)
+    if db_dir:  # Only create if there's a directory component
+        os.makedirs(db_dir, exist_ok=True)
+        print(f"✅ Database directory created/verified: {db_dir}")
+    print(f"📁 Database file location: {db_path}")
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
