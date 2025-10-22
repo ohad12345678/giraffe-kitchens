@@ -76,3 +76,21 @@ def list_users(
     """List all users (for creating manager reviews)."""
     users = db.query(User).all()
     return users
+
+
+@router.get("/managers", response_model=List[UserResponse])
+def list_managers(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """List all branch managers - HQ ONLY"""
+    # Check if user is HQ
+    if current_user.role != "hq":
+        raise HTTPException(
+            status_code=403,
+            detail="Only HQ users can view list of managers"
+        )
+
+    # Get all users with BRANCH_MANAGER role
+    managers = db.query(User).filter(User.role == "branch_manager").all()
+    return managers
