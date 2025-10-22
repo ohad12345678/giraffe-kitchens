@@ -15,7 +15,8 @@ import {
   Send,
   TrendingUp,
   AlertCircle,
-  FileDown
+  FileDown,
+  Trash2
 } from 'lucide-react';
 
 const ViewManagerReview: React.FC = () => {
@@ -169,6 +170,24 @@ const ViewManagerReview: React.FC = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm('האם אתה בטוח שברצונך למחוק את ההערכה? פעולה זו אינה ניתנת לביטול.')) {
+      return;
+    }
+
+    try {
+      setSaving(true);
+      await managerReviewAPI.deleteReview(Number(id));
+      alert('ההערכה נמחקה בהצלחה');
+      navigate('/manager-reviews');
+    } catch (err: any) {
+      console.error('Failed to delete review:', err);
+      setError(err.response?.data?.detail || 'שגיאה במחיקת ההערכה');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const getScoreColor = (score: number | null) => {
     if (!score) return 'text-gray-400';
     if (score >= 85) return 'text-green-600';
@@ -274,6 +293,14 @@ const ViewManagerReview: React.FC = () => {
                   >
                     <Send className="h-4 w-4" />
                     שלח להערכה
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    disabled={saving}
+                    className="flex items-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 disabled:opacity-50"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    מחק
                   </button>
                 </>
               )}

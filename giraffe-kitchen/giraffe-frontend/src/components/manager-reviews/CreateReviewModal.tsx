@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import type { ReviewQuarter } from '../../types/managerReview';
 import { managerReviewAPI } from '../../services/managerReviewAPI';
@@ -22,6 +23,7 @@ interface CreateReviewModalProps {
 }
 
 const CreateReviewModal: React.FC<CreateReviewModalProps> = ({ isOpen, onClose, onSuccess }) => {
+  const navigate = useNavigate();
   const [branches, setBranches] = useState<Branch[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
@@ -71,7 +73,7 @@ const CreateReviewModal: React.FC<CreateReviewModalProps> = ({ isOpen, onClose, 
 
     try {
       setLoading(true);
-      await managerReviewAPI.createReview({
+      const newReview = await managerReviewAPI.createReview({
         manager_id: Number(selectedManager),
         branch_id: Number(selectedBranch),
         year,
@@ -81,6 +83,9 @@ const CreateReviewModal: React.FC<CreateReviewModalProps> = ({ isOpen, onClose, 
       onSuccess();
       onClose();
       resetForm();
+
+      // Navigate to the newly created review
+      navigate(`/manager-reviews/${newReview.id}`);
     } catch (err: any) {
       console.error('Failed to create review:', err);
       setError(err.response?.data?.detail || 'שגיאה ביצירת הערכה');

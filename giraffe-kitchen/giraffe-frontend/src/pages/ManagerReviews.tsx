@@ -5,7 +5,7 @@ import { managerReviewAPI } from '../services/managerReviewAPI';
 import { branchAPI } from '../services/api';
 import type { ManagerReview, ReviewQuarter, ReviewStatus } from '../types/managerReview';
 import type { Branch } from '../types';
-import { Building2, Plus, Filter, Calendar, User, FileText, TrendingUp, Award } from 'lucide-react';
+import { Building2, Plus, Filter, Calendar, User, FileText, TrendingUp, Award, Trash2 } from 'lucide-react';
 import CreateReviewModal from '../components/manager-reviews/CreateReviewModal';
 
 const ManagerReviews: React.FC = () => {
@@ -54,6 +54,22 @@ const ManagerReviews: React.FC = () => {
       console.error('Failed to load reviews:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (reviewId: number, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation to review detail
+
+    if (!window.confirm('האם אתה בטוח שברצונך למחוק את ההערכה? פעולה זו אינה ניתנת לביטול.')) {
+      return;
+    }
+
+    try {
+      await managerReviewAPI.deleteReview(reviewId);
+      loadReviews(); // Reload the list
+    } catch (error: any) {
+      console.error('Failed to delete review:', error);
+      alert(error.response?.data?.detail || 'שגיאה במחיקת ההערכה');
     }
   };
 
@@ -331,6 +347,17 @@ const ManagerReviews: React.FC = () => {
                       <div className="text-center px-4">
                         <p className="text-sm text-gray-400">טרם הוערך</p>
                       </div>
+                    )}
+
+                    {/* Delete Button - Only for drafts */}
+                    {review.status === 'draft' && (
+                      <button
+                        onClick={(e) => handleDelete(review.id, e)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="מחק הערכה"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
                     )}
                   </div>
                 </div>
