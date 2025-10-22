@@ -834,8 +834,9 @@ def get_review_notifications(
     else:
         current_quarter = ReviewQuarter.Q4
 
-    # Get all branch managers
-    managers = db.query(User).filter(User.role == "manager").all()
+    # Get all branch managers - using correct role name
+    from app.models.user import UserRole
+    managers = db.query(User).filter(User.role == UserRole.BRANCH_MANAGER).all()
 
     notifications = {
         "pending_reviews": [],  # Reviews in draft/submitted status
@@ -849,19 +850,27 @@ def get_review_notifications(
     ).all()
 
     for review in pending:
+        # Get manager name - handle both manager_name and manager relationship
+        if review.manager_name:
+            manager_name = review.manager_name
+        elif review.manager_id and review.manager:
+            manager_name = review.manager.full_name
+        else:
+            manager_name = "לא ידוע"
+
         notifications["pending_reviews"].append({
             "id": review.id,
-            "manager_name": review.manager.name,
-            "branch_name": review.branch.name,
-            "status": review.status,
+            "manager_name": manager_name,
+            "branch_name": review.branch.name if review.branch else "N/A",
+            "status": review.status.value if hasattr(review.status, 'value') else review.status,
             "year": review.year,
-            "quarter": review.quarter,
+            "quarter": review.quarter.value if hasattr(review.quarter, 'value') else review.quarter,
             "days_since_created": (today - review.created_at.date()).days if review.created_at else 0
         })
 
     # Check for missing reviews for current quarter
     for manager in managers:
-        # Check if review exists for current quarter
+        # Check if review exists for current quarter (by manager_id OR manager_name)
         existing_review = db.query(ManagerReview).filter(
             ManagerReview.manager_id == manager.id,
             ManagerReview.year == current_year,
@@ -871,10 +880,10 @@ def get_review_notifications(
         if not existing_review:
             notifications["missing_reviews"].append({
                 "manager_id": manager.id,
-                "manager_name": manager.name,
+                "manager_name": manager.full_name,
                 "branch_id": manager.branch_id,
                 "branch_name": manager.branch.name if manager.branch else "N/A",
-                "quarter": current_quarter,
+                "quarter": current_quarter.value if hasattr(current_quarter, 'value') else current_quarter,
                 "year": current_year
             })
 
@@ -911,10 +920,18 @@ def chat_with_ai_about_review(
         raise HTTPException(status_code=500, detail="AI service not configured")
 
     # Build context about the review
+    # Get manager name - handle both manager_name and manager relationship
+    if review.manager_name:
+        manager_name = review.manager_name
+    elif review.manager_id and review.manager:
+        manager_name = review.manager.full_name
+    else:
+        manager_name = "לא ידוע"
+
     context = f"""
 הנה מידע על הערכת הביצועים:
 
-**מנהל:** {review.manager.name}
+**מנהל:** {manager_name}
 **סניף:** {review.branch.name}
 **תקופה:** {review.quarter} {review.year}
 **סטטוס:** {review.status}
