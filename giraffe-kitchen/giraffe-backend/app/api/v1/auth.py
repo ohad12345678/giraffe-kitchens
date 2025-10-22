@@ -83,12 +83,19 @@ def list_managers(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """List all branch managers - HQ ONLY"""
-    # Check if user is HQ
-    if current_user.role != "hq":
+    """List all branch managers - AUTHORIZED USERS ONLY"""
+    # Check permissions - only specific HQ users can access manager reviews
+    AUTHORIZED_EMAILS = [
+        "ohadb@giraffe.co.il",
+        "nofar@giraffe.co.il",
+        "aviv@giraffe.co.il",
+        "avital@giraffe.co.il"
+    ]
+
+    if current_user.email not in AUTHORIZED_EMAILS:
         raise HTTPException(
             status_code=403,
-            detail="Only HQ users can view list of managers"
+            detail="You do not have permission to access manager reviews"
         )
 
     # Get all users with BRANCH_MANAGER role

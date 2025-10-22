@@ -21,6 +21,24 @@ from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/manager-reviews", tags=["manager-reviews"])
 
+# Authorized users for manager reviews - SPECIFIC HQ USERS ONLY
+# Only these 4 users can access manager performance reviews
+AUTHORIZED_EMAILS = [
+    "ohadb@giraffe.co.il",
+    "nofar@giraffe.co.il",
+    "aviv@giraffe.co.il",
+    "avital@giraffe.co.il"
+]
+
+def check_manager_review_permission(current_user: User):
+    """Check if user has permission to access manager reviews"""
+    if current_user.email not in AUTHORIZED_EMAILS:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to access manager reviews"
+        )
+    return True
+
 
 # ===== PYDANTIC SCHEMAS =====
 
@@ -233,14 +251,10 @@ def create_review(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Create a new manager review - HQ ONLY"""
+    """Create a new manager review - AUTHORIZED USERS ONLY"""
 
-    # Check if user is HQ
-    if current_user.role != "hq":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only HQ users can create manager reviews"
-        )
+    # Check permissions
+    check_manager_review_permission(current_user)
 
     # Validate manager exists
     manager = db.query(User).filter(User.id == request.manager_id).first()
@@ -319,14 +333,10 @@ def list_reviews(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """List manager reviews with optional filters - HQ ONLY"""
+    """List manager reviews with optional filters - AUTHORIZED USERS ONLY"""
 
-    # Check if user is HQ
-    if current_user.role != "hq":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only HQ users can view manager reviews"
-        )
+    # Check permissions
+    check_manager_review_permission(current_user)
 
     query = db.query(ManagerReview)
 
@@ -398,12 +408,8 @@ def get_review(
 ):
     """Get detailed review by ID - HQ ONLY"""
 
-    # Check if user is HQ
-    if current_user.role != "hq":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only HQ users can view manager reviews"
-        )
+    # Check permissions
+    check_manager_review_permission(current_user)
 
     review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
 
@@ -494,12 +500,8 @@ def update_review(
 ):
     """Update review scores and comments - HQ ONLY"""
 
-    # Check if user is HQ
-    if current_user.role != "hq":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only HQ users can update manager reviews"
-        )
+    # Check permissions
+    check_manager_review_permission(current_user)
 
     review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
 
@@ -596,12 +598,8 @@ def submit_review(
 ):
     """Submit review (change status to SUBMITTED) - HQ ONLY"""
 
-    # Check if user is HQ
-    if current_user.role != "hq":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only HQ users can submit manager reviews"
-        )
+    # Check permissions
+    check_manager_review_permission(current_user)
 
     review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
 
@@ -627,12 +625,8 @@ def complete_review(
 ):
     """Complete review (change status to COMPLETED) - HQ ONLY"""
 
-    # Check if user is HQ
-    if current_user.role != "hq":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only HQ users can complete manager reviews"
-        )
+    # Check permissions
+    check_manager_review_permission(current_user)
 
     review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
 
@@ -658,12 +652,8 @@ def delete_review(
 ):
     """Delete a review (only drafts) - HQ ONLY"""
 
-    # Check if user is HQ
-    if current_user.role != "hq":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only HQ users can delete manager reviews"
-        )
+    # Check permissions
+    check_manager_review_permission(current_user)
 
     review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
 
@@ -687,12 +677,8 @@ def get_manager_review_history(
 ):
     """Get review history for a specific manager (for trend charts) - HQ ONLY"""
 
-    # Check if user is HQ
-    if current_user.role != "hq":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only HQ users can view manager review history"
-        )
+    # Check permissions
+    check_manager_review_permission(current_user)
 
     reviews = db.query(ManagerReview).filter(
         ManagerReview.manager_id == manager_id,
@@ -737,12 +723,8 @@ def get_review_notifications(
 ):
     """Get notifications for pending reviews and reviews due - HQ ONLY"""
 
-    # Check if user is HQ
-    if current_user.role != "hq":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only HQ users can view review notifications"
-        )
+    # Check permissions
+    check_manager_review_permission(current_user)
 
     # Determine current quarter and year
     today = date.today()
@@ -822,12 +804,8 @@ def chat_with_ai_about_review(
 ):
     """Chat with AI about a specific manager review - HQ ONLY"""
 
-    # Check if user is HQ
-    if current_user.role != "hq":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only HQ users can use AI chat for manager reviews"
-        )
+    # Check permissions
+    check_manager_review_permission(current_user)
 
     # Get review
     review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
@@ -936,12 +914,8 @@ def generate_ai_summary(
     Generate automatic AI summary for a review - HQ ONLY
     Creates a structured summary with: strengths, areas for improvement, recommendations, overall summary
     """
-    # Check if user is HQ
-    if current_user.role != "hq":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only HQ users can generate AI summaries for manager reviews"
-        )
+    # Check permissions
+    check_manager_review_permission(current_user)
 
     # Get review
     review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
