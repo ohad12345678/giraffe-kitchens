@@ -164,7 +164,7 @@ const CreateManagerReview: React.FC = () => {
     setSaving(true);
     try {
       const reviewData = {
-        manager_id: selectedManager,
+        manager_name: managerName,
         branch_id: selectedBranch,
         year,
         quarter,
@@ -266,20 +266,15 @@ const CreateManagerReview: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  בחר מנהל <span className="text-red-500">*</span>
+                  שם מנהל <span className="text-red-500">*</span>
                 </label>
-                <select
-                  value={selectedManager || ''}
-                  onChange={(e) => setSelectedManager(e.target.value ? Number(e.target.value) : null)}
+                <input
+                  type="text"
+                  value={managerName}
+                  onChange={(e) => setManagerName(e.target.value)}
+                  placeholder="הקלד שם מנהל..."
                   className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">בחר מנהל...</option>
-                  {managers.map(manager => (
-                    <option key={manager.id} value={manager.id}>
-                      {getManagerDisplayName(manager)}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
 
               <div>

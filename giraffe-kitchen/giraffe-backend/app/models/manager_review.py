@@ -28,7 +28,8 @@ class ManagerReview(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # Who is being reviewed
-    manager_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    manager_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Optional - can be null if using manager_name
+    manager_name = Column(String(255), nullable=True)  # Free text manager name - alternative to manager_id
     branch_id = Column(Integer, ForeignKey("branches.id"), nullable=False)
 
     # Who is conducting the review

@@ -58,10 +58,38 @@ class DevelopmentGoal(BaseModel):
 
 class CreateReviewRequest(BaseModel):
     """Request to create a new manager review"""
-    manager_id: int
+    manager_name: str  # Free text manager name
     branch_id: int
     year: int
     quarter: ReviewQuarter
+    status: Optional[str] = "draft"  # Allow setting status on creation
+
+    # All score fields (optional on creation)
+    sanitation_score: Optional[float] = None
+    sanitation_comments: Optional[str] = None
+    inventory_score: Optional[float] = None
+    inventory_comments: Optional[str] = None
+    quality_score: Optional[float] = None
+    quality_comments: Optional[str] = None
+    maintenance_score: Optional[float] = None
+    maintenance_comments: Optional[str] = None
+
+    recruitment_score: Optional[float] = None
+    recruitment_comments: Optional[str] = None
+    scheduling_score: Optional[float] = None
+    scheduling_comments: Optional[str] = None
+    retention_score: Optional[float] = None
+    retention_comments: Optional[str] = None
+
+    sales_score: Optional[float] = None
+    sales_comments: Optional[str] = None
+    efficiency_score: Optional[float] = None
+    efficiency_comments: Optional[str] = None
+
+    leadership_score: Optional[float] = None
+    leadership_comments: Optional[str] = None
+
+    ai_summary: Optional[str] = None
 
 
 class UpdateReviewRequest(BaseModel):
@@ -256,19 +284,15 @@ def create_review(
     # Check permissions
     check_manager_review_permission(current_user)
 
-    # Validate manager exists
-    manager = db.query(User).filter(User.id == request.manager_id).first()
-    if not manager:
-        raise HTTPException(status_code=404, detail="Manager not found")
-
     # Validate branch exists
     branch = db.query(Branch).filter(Branch.id == request.branch_id).first()
     if not branch:
         raise HTTPException(status_code=404, detail="Branch not found")
 
-    # Check if review already exists for this period
+    # Check if review already exists for this period (check by manager_name + branch)
     existing = db.query(ManagerReview).filter(
-        ManagerReview.manager_id == request.manager_id,
+        ManagerReview.manager_name == request.manager_name,
+        ManagerReview.branch_id == request.branch_id,
         ManagerReview.year == request.year,
         ManagerReview.quarter == request.quarter
     ).first()
@@ -276,23 +300,76 @@ def create_review(
     if existing:
         raise HTTPException(
             status_code=400,
-            detail=f"Review already exists for {manager.full_name} - {request.quarter} {request.year}"
+            detail=f"Review already exists for {request.manager_name} - {request.quarter} {request.year}"
         )
 
     # Fetch auto data from system
     auto_data = fetch_auto_data(request.branch_id, request.year, request.quarter, db)
 
+    # Calculate category scores
+    operational_scores = [request.sanitation_score, request.inventory_score, request.quality_score, request.maintenance_score]
+    operational_weights = [10, 10, 10, 5]
+    operational_score = calculate_category_score(operational_scores, operational_weights)
+
+    people_scores = [request.recruitment_score, request.scheduling_score, request.retention_score]
+    people_weights = [10, 10, 10]
+    people_score = calculate_category_score(people_scores, people_weights)
+
+    business_scores = [request.sales_score, request.efficiency_score]
+    business_weights = [15, 10]
+    business_score = calculate_category_score(business_scores, business_weights)
+
+    leadership_score = request.leadership_score
+
     # Create review
     review = ManagerReview(
-        manager_id=request.manager_id,
+        manager_id=None,  # No manager_id when using free text
+        manager_name=request.manager_name,
         branch_id=request.branch_id,
         reviewer_id=current_user.id,
         year=request.year,
         quarter=request.quarter,
         review_date=date.today(),
-        status=ReviewStatus.DRAFT,
+        status=ReviewStatus(request.status) if request.status else ReviewStatus.DRAFT,
+
+        # Scores
+        sanitation_score=request.sanitation_score,
+        sanitation_comments=request.sanitation_comments,
+        inventory_score=request.inventory_score,
+        inventory_comments=request.inventory_comments,
+        quality_score=request.quality_score,
+        quality_comments=request.quality_comments,
+        maintenance_score=request.maintenance_score,
+        maintenance_comments=request.maintenance_comments,
+
+        recruitment_score=request.recruitment_score,
+        recruitment_comments=request.recruitment_comments,
+        scheduling_score=request.scheduling_score,
+        scheduling_comments=request.scheduling_comments,
+        retention_score=request.retention_score,
+        retention_comments=request.retention_comments,
+
+        sales_score=request.sales_score,
+        sales_comments=request.sales_comments,
+        efficiency_score=request.efficiency_score,
+        efficiency_comments=request.efficiency_comments,
+
+        leadership_score=request.leadership_score,
+        leadership_comments=request.leadership_comments,
+
+        # Category scores
+        operational_score=operational_score,
+        people_score=people_score,
+        business_score=business_score,
+
+        # AI summary
+        ai_summary=request.ai_summary,
+
         **auto_data
     )
+
+    # Calculate overall score
+    review.overall_score = calculate_weighted_score(review)
 
     db.add(review)
     db.commit()
@@ -301,8 +378,8 @@ def create_review(
     # Prepare response
     return ReviewResponse(
         id=review.id,
-        manager_id=review.manager_id,
-        manager_name=manager.full_name,
+        manager_id=review.manager_id if review.manager_id else 0,  # Return 0 if None
+        manager_name=review.manager_name,
         branch_id=review.branch_id,
         branch_name=branch.name,
         reviewer_id=review.reviewer_id,
@@ -365,14 +442,22 @@ def list_reviews(
     # Format responses
     responses = []
     for review in reviews:
-        manager = db.query(User).filter(User.id == review.manager_id).first()
+        # Use manager_name if available, otherwise try to get from User table
+        if review.manager_name:
+            manager_name = review.manager_name
+        elif review.manager_id:
+            manager = db.query(User).filter(User.id == review.manager_id).first()
+            manager_name = manager.full_name if manager else "Unknown"
+        else:
+            manager_name = "Unknown"
+
         branch = db.query(Branch).filter(Branch.id == review.branch_id).first()
         reviewer = db.query(User).filter(User.id == review.reviewer_id).first()
 
         responses.append(ReviewResponse(
             id=review.id,
-            manager_id=review.manager_id,
-            manager_name=manager.full_name if manager else "Unknown",
+            manager_id=review.manager_id if review.manager_id else 0,
+            manager_name=manager_name,
             branch_id=review.branch_id,
             branch_name=branch.name if branch else "Unknown",
             reviewer_id=review.reviewer_id,
@@ -421,13 +506,21 @@ def get_review(
         raise HTTPException(status_code=403, detail="Access denied")
 
     # Get related entities
-    manager = db.query(User).filter(User.id == review.manager_id).first()
     branch = db.query(Branch).filter(Branch.id == review.branch_id).first()
     reviewer = db.query(User).filter(User.id == review.reviewer_id).first()
 
+    # Handle manager - could be either manager_id or manager_name
+    if review.manager_name:
+        manager_info = {"id": review.manager_id if review.manager_id else 0, "name": review.manager_name}
+    elif review.manager_id:
+        manager = db.query(User).filter(User.id == review.manager_id).first()
+        manager_info = {"id": manager.id, "name": manager.full_name} if manager else None
+    else:
+        manager_info = None
+
     return {
         "id": review.id,
-        "manager": {"id": manager.id, "name": manager.full_name} if manager else None,
+        "manager": manager_info,
         "branch": {"id": branch.id, "name": branch.name} if branch else None,
         "reviewer": {"id": reviewer.id, "name": reviewer.full_name} if reviewer else None,
         "year": review.year,
