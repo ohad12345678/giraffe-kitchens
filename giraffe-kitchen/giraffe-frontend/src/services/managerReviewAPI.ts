@@ -121,6 +121,14 @@ export const managerReviewAPI = {
   },
 
   /**
+   * Generate AI summary for review
+   */
+  generateAISummary: async (reviewId: number): Promise<{ summary: string; message: string }> => {
+    const response = await api.post(`/api/v1/manager-reviews/${reviewId}/generate-summary`);
+    return response.data;
+  },
+
+  /**
    * Chat with AI about a specific review
    */
   chatWithAI: async (reviewId: number, messages: Array<{ role: string; content: string }>) => {

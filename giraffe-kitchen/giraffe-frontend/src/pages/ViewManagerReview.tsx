@@ -28,6 +28,7 @@ const ViewManagerReview: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [generatingSummary, setGeneratingSummary] = useState(false);
 
   // Helper function to get points for a subcategory
   const getSubcategoryPoints = (subcategoryId: string): string[] => {
@@ -197,6 +198,21 @@ const ViewManagerReview: React.FC = () => {
       setError(err.response?.data?.detail || 'שגיאה במחיקת ההערכה');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleGenerateSummary = async () => {
+    try {
+      setGeneratingSummary(true);
+      setError(null);
+      const result = await managerReviewAPI.generateAISummary(Number(id));
+      await loadReview(); // Reload to get updated summary
+      alert('✅ ' + result.message);
+    } catch (err: any) {
+      console.error('Failed to generate summary:', err);
+      setError(err.response?.data?.detail || 'שגיאה ביצירת סיכום AI');
+    } finally {
+      setGeneratingSummary(false);
     }
   };
 
@@ -549,6 +565,39 @@ const ViewManagerReview: React.FC = () => {
                 points={getSubcategoryPoints('leadership')}
               />
             </div>
+          </div>
+
+          {/* AI Summary Section */}
+          <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl shadow-sm border border-purple-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🤖</span>
+                <h2 className="text-lg font-semibold text-gray-900">סיכום AI אוטומטי</h2>
+              </div>
+              <button
+                onClick={handleGenerateSummary}
+                disabled={!review.overall_score || generatingSummary}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+              >
+                {generatingSummary ? '⏳ מייצר...' : (review.ai_summary ? 'עדכן סיכום' : 'צור סיכום')}
+              </button>
+            </div>
+
+            {review.ai_summary ? (
+              <div className="space-y-4">
+                {/* Display AI summary */}
+                <div className="bg-white rounded-lg p-4 border border-purple-100">
+                  <pre className="whitespace-pre-wrap text-sm text-gray-700 font-sans">
+                    {review.ai_summary}
+                  </pre>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <p className="mb-2">💡 לחץ על "צור סיכום" כדי לקבל ניתוח AI מקיף</p>
+                <p className="text-xs">הסיכום כולל: נקודות חוזק, נקודות לשיפור, המלצות לפיתוח וסיכום כללי</p>
+              </div>
+            )}
           </div>
 
           {/* Historical Trend Chart */}
