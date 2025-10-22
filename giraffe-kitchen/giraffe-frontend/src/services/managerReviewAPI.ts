@@ -13,18 +13,43 @@ import type {
   ReviewQuarter,
 } from '../types/managerReview';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Get API URL dynamically at runtime - purely runtime detection, no env vars
+const getAPIURL = (): string => {
+  // Runtime detection ONLY - check hostname
+  const hostname = window.location.hostname;
 
-// Create axios instance with auth
+  // ONLY localhost uses explicit port 8000
+  // Everything else (including Railway) uses relative URLs
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    console.log('💻 [Manager Reviews] Local development - using localhost:8000');
+    return 'http://localhost:8000';
+  }
+
+  // All production environments use relative URLs
+  console.log('🌐 [Manager Reviews] Production environment detected - using relative URLs');
+  console.log('Hostname:', hostname);
+  return '';
+};
+
+// Create axios instance without baseURL - we'll set it dynamically
 const api = axios.create({
-  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// Add auth token to requests
+// Intercept requests to set baseURL dynamically and add auth token
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  // Set baseURL dynamically at runtime
+  const baseURL = getAPIURL();
+  config.baseURL = baseURL;
+
+  // Add auth token (use 'access_token' to match main api.ts)
+  const token = localStorage.getItem('access_token');
+  console.log('🔑 [Manager Reviews] API Request to:', baseURL + config.url, '- Token:', token ? 'EXISTS' : 'MISSING');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+    console.log('🔑 [Manager Reviews] Authorization header set');
   }
   return config;
 });
