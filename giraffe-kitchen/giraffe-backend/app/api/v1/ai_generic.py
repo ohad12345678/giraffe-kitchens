@@ -155,7 +155,14 @@ def build_context(db: Session, user: User, context_type: str) -> str:
         reviews_info += f"- סה\"כ הערכות מנהלים: {reviews_count}\n"
         reviews_info += f"- 5 ההערכות האחרונות:\n"
         for review in recent_reviews:
-            manager_name = review.manager.full_name if review.manager else "לא ידוע"
+            # Handle both manager_name and manager relationship
+            if review.manager_name:
+                manager_name = review.manager_name
+            elif review.manager_id and review.manager:
+                manager_name = review.manager.full_name
+            else:
+                manager_name = "לא ידוע"
+
             branch_name = review.branch.name if review.branch else "לא ידוע"
             score = review.overall_score if review.overall_score else "טרם הוערך"
             reviews_info += f"  * {manager_name} (סניף {branch_name}): ציון {score} - {review.quarter} {review.year}\n"
