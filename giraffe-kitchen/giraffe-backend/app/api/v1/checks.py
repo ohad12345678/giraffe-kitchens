@@ -553,6 +553,11 @@ def get_dashboard_stats(
 
     # === 4. Best and Worst Branches for Sanitation (last 90 days) ===
     three_months_ago = today - timedelta(days=90)
+    # Convert dates to datetime for proper comparison with audit_date (which is DateTime)
+    from datetime import datetime
+    start_datetime = datetime.combine(three_months_ago, datetime.min.time())
+    end_datetime = datetime.combine(today, datetime.max.time())
+
     branch_stats_query = db.query(
         SanitationAudit.branch_id,
         Branch.name.label('branch_name'),
@@ -561,8 +566,8 @@ def get_dashboard_stats(
     ).join(
         Branch, SanitationAudit.branch_id == Branch.id
     ).filter(
-        SanitationAudit.audit_date >= three_months_ago,
-        SanitationAudit.audit_date <= today,
+        SanitationAudit.audit_date >= start_datetime,
+        SanitationAudit.audit_date <= end_datetime,
         SanitationAudit.status == AuditStatus.COMPLETED
     )
 
