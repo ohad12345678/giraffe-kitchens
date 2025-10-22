@@ -11,9 +11,10 @@ RUN npm ci
 # Copy frontend source
 COPY ./giraffe-frontend/ ./
 
-# Build frontend with empty API URL to use relative paths in production
-ENV VITE_API_URL=""
-RUN npm run build
+# Build frontend - uses runtime hostname detection (no env vars needed)
+# Add build timestamp to prevent caching
+ARG BUILD_DATE=unknown
+RUN echo "Build date: ${BUILD_DATE}" && npm run build
 
 # Stage 2: Build backend with frontend
 FROM python:3.9-slim
