@@ -45,7 +45,7 @@ def seed_users(db):
         {"email": "ohadb@giraffe.co.il", "name": "Ohad Banay"},
         {"email": "nofar@giraffe.co.il", "name": "Nofar"},
         {"email": "aviv@giraffe.co.il", "name": "Aviv"},
-        {"email": "alma@giraffe.co.il", "name": "Alma"},
+        {"email": "alma@giraffe.co.il", "name": "Almog"},
         {"email": "talz@giraffe.co.il", "name": "Talz"},
         {"email": "avital@giraffe.co.il", "name": "Avital"},
     ]
