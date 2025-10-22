@@ -854,3 +854,114 @@ def chat_with_ai_about_review(
     except Exception as e:
         print(f"AI Error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"AI service error: {str(e)}")
+
+
+@router.post("/{review_id}/generate-summary")
+def generate_ai_summary(
+    review_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Generate automatic AI summary for a review
+    Creates a structured summary with: strengths, areas for improvement, recommendations, overall summary
+    """
+    # Get review
+    review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
+    if not review:
+        raise HTTPException(status_code=404, detail="Review not found")
+
+    # Check if review has scores
+    if not review.overall_score:
+        raise HTTPException(status_code=400, detail="Cannot generate summary for review without scores. Please complete the review first.")
+
+    # Get manager and branch info
+    manager = db.query(User).filter(User.id == review.manager_id).first()
+    branch = db.query(Branch).filter(Branch.id == review.branch_id).first()
+
+    # Build context from review data
+    context = f"""אתה מנהל אזור/מנהל תפעול ברשת מסעדות ג'ירף. עליך לנתח את הערכת הביצועים של {manager.full_name} - מנהל סניף {branch.name} לתקופה {review.quarter} {review.year}.
+
+## נתוני ההערכה:
+
+**ציון כולל משוקלל:** {review.overall_score:.1f}/100
+
+### 1. ניהול תפעולי (35%) - ציון: {review.operational_score if review.operational_score else 'לא הוזן'}/100
+- תברואה ובטיחות מזון ({review.sanitation_score if review.sanitation_score else 'לא הוזן'}): {review.sanitation_comments or 'אין הערות'}
+- ניהול מלאי ושליטה בעלויות ({review.inventory_score if review.inventory_score else 'לא הוזן'}): {review.inventory_comments or 'אין הערות'}
+- איכות מוצר ושירות ({review.quality_score if review.quality_score else 'לא הוזן'}): {review.quality_comments or 'אין הערות'}
+- תחזוקה וסדר ({review.maintenance_score if review.maintenance_score else 'לא הוזן'}): {review.maintenance_comments or 'אין הערות'}
+
+### 2. ניהול אנשים (30%) - ציון: {review.people_score if review.people_score else 'לא הוזן'}/100
+- גיוס והכשרה ({review.recruitment_score if review.recruitment_score else 'לא הוזן'}): {review.recruitment_comments or 'אין הערות'}
+- ניהול משמרות ({review.scheduling_score if review.scheduling_score else 'לא הוזן'}): {review.scheduling_comments or 'אין הערות'}
+- אקלים ושימור עובדים ({review.retention_score if review.retention_score else 'לא הוזן'}): {review.retention_comments or 'אין הערות'}
+
+### 3. ביצועים עסקיים (25%) - ציון: {review.business_score if review.business_score else 'לא הוזן'}/100
+- מכירות ורווחיות ({review.sales_score if review.sales_score else 'לא הוזן'}): {review.sales_comments or 'אין הערות'}
+- יעילות תפעולית ({review.efficiency_score if review.efficiency_score else 'לא הוזן'}): {review.efficiency_comments or 'אין הערות'}
+
+### 4. מנהיגות (10%) - ציון: {review.leadership_score if review.leadership_score else 'לא הוזן'}/100
+- הערות: {review.leadership_comments or 'אין הערות'}
+
+**נתונים אוטומטיים מהמערכת:**
+- ממוצע תברואה: {review.auto_sanitation_avg:.1f if review.auto_sanitation_avg else 'לא זמין'} ({review.auto_sanitation_count or 0} ביקורות)
+- ממוצע בדיקות מנות: {review.auto_dish_checks_avg:.1f if review.auto_dish_checks_avg else 'לא זמין'} ({review.auto_dish_checks_count or 0} בדיקות)
+
+---
+
+צור סיכום מקיף עם 4 חלקים:
+
+## 🟢 נקודות חוזק
+[רשום 2-3 תחומים בהם המנהל מצטיין, עם דוגמאות ספציפיות]
+
+## 🟡 הזדמנויות לצמיחה
+[רשום 2-3 תחומים לשיפור, בצורה חיובית ובונה]
+
+## 💡 המלצות לפיתוח
+[רשום 2-3 צעדים ממשיים שהמנהל יכול לעשות כדי לשפר]
+
+## 📝 סיכום כללי
+[פיסקה אחת - סיכום מקיף ומאזן של הביצועים והפוטנציאל]
+
+חשוב:
+- היה ספציפי - השתמש בנתונים ובציונים
+- שמור על טון חיובי ובונה
+- הצע פתרונות מעשיים
+- דבר על "הזדמנויות" ולא "בעיות"
+"""
+
+    # Call Claude API
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="AI service not configured")
+
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+
+        response = client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=2000,
+            temperature=0.7,
+            messages=[
+                {
+                    "role": "user",
+                    "content": context
+                }
+            ]
+        )
+
+        summary = response.content[0].text
+
+        # Save summary to database
+        review.ai_summary = summary
+        db.commit()
+
+        return {
+            "message": "הסיכום נוצר בהצלחה!",
+            "summary": summary
+        }
+
+    except Exception as e:
+        print(f"AI Summary Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"AI service error: {str(e)}")
