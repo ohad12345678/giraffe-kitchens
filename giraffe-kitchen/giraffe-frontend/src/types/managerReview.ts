@@ -120,10 +120,38 @@ export interface DetailedReview {
 }
 
 export interface CreateReviewRequest {
-  manager_id: number;
+  manager_name: string;  // Free text manager name
   branch_id: number;
   year: number;
   quarter: ReviewQuarter;
+  status?: 'draft' | 'submitted';
+
+  // All score fields (optional on creation)
+  sanitation_score?: number | null;
+  sanitation_comments?: string | null;
+  inventory_score?: number | null;
+  inventory_comments?: string | null;
+  quality_score?: number | null;
+  quality_comments?: string | null;
+  maintenance_score?: number | null;
+  maintenance_comments?: string | null;
+
+  recruitment_score?: number | null;
+  recruitment_comments?: string | null;
+  scheduling_score?: number | null;
+  scheduling_comments?: string | null;
+  retention_score?: number | null;
+  retention_comments?: string | null;
+
+  sales_score?: number | null;
+  sales_comments?: string | null;
+  efficiency_score?: number | null;
+  efficiency_comments?: string | null;
+
+  leadership_score?: number | null;
+  leadership_comments?: string | null;
+
+  ai_summary?: string | null;
 }
 
 export interface UpdateReviewRequest {

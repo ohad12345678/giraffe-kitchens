@@ -21,13 +21,6 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
   disabled = false,
   points = [],
 }) => {
-  const getScoreColor = (s: number | null) => {
-    if (!s) return 'border-gray-300';
-    if (s >= 85) return 'border-green-500 bg-green-50';
-    if (s >= 70) return 'border-yellow-500 bg-yellow-50';
-    return 'border-red-500 bg-red-50';
-  };
-
   return (
     <div className="border border-gray-200 rounded-lg p-4">
       <div className="flex items-center justify-between mb-3">

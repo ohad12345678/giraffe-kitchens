@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { managerReviewAPI, branchAPI, userAPI } from '../services/managerReviewAPI';
+import { managerReviewAPI, branchAPI } from '../services/managerReviewAPI';
 import type { ReviewQuarter } from '../types/managerReview';
 import ScoreInput from '../components/manager-reviews/ScoreInput';
 import { REVIEW_CATEGORIES } from '../config/reviewCategories';
@@ -10,13 +10,6 @@ import {
   Send,
   Sparkles
 } from 'lucide-react';
-
-interface User {
-  id: number;
-  full_name: string;
-  email: string;
-  branch_id: number | null;
-}
 
 interface Branch {
   id: number;
