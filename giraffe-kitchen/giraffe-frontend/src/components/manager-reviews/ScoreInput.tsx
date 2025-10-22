@@ -8,6 +8,7 @@ interface ScoreInputProps {
   onScoreChange: (score: number | null) => void;
   onCommentsChange: (comments: string) => void;
   disabled?: boolean;
+  points?: string[]; // רשימת נקודות להערכה
 }
 
 const ScoreInput: React.FC<ScoreInputProps> = ({
@@ -18,6 +19,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
   onScoreChange,
   onCommentsChange,
   disabled = false,
+  points = [],
 }) => {
   const getScoreColor = (s: number | null) => {
     if (!s) return 'border-gray-300';
@@ -29,7 +31,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
   return (
     <div className="border border-gray-200 rounded-lg p-4">
       <div className="flex items-center justify-between mb-3">
-        <div>
+        <div className="flex-1">
           <h4 className="font-medium text-gray-900">{label}</h4>
           <p className="text-sm text-gray-500">משקל: {weight}</p>
         </div>
@@ -48,11 +50,26 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         </div>
       </div>
 
+      {/* רשימת נקודות להערכה */}
+      {points.length > 0 && (
+        <div className="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <p className="text-xs font-medium text-gray-700 mb-2">נקודות להערכה:</p>
+          <ul className="space-y-1">
+            {points.map((point, index) => (
+              <li key={index} className="text-xs text-gray-600 flex items-start gap-2">
+                <span className="text-gray-400 mt-0.5">•</span>
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <textarea
         value={comments}
         onChange={(e) => onCommentsChange(e.target.value)}
         placeholder="הערות והמלצות..."
-        rows={2}
+        rows={3}
         disabled={disabled}
         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
       />

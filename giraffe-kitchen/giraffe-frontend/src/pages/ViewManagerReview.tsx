@@ -6,6 +6,7 @@ import ScoreInput from '../components/manager-reviews/ScoreInput';
 import TrendChart from '../components/manager-reviews/TrendChart';
 import AIChat from '../components/manager-reviews/AIChat';
 import { exportReviewToPDF } from '../utils/pdfExport';
+import { REVIEW_CATEGORIES } from '../config/reviewCategories';
 import {
   ArrowLeft,
   Building2,
@@ -27,6 +28,17 @@ const ViewManagerReview: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Helper function to get points for a subcategory
+  const getSubcategoryPoints = (subcategoryId: string): string[] => {
+    for (const category of REVIEW_CATEGORIES) {
+      const subcategory = category.subcategories.find(sub => sub.id === subcategoryId);
+      if (subcategory) {
+        return subcategory.points;
+      }
+    }
+    return [];
+  };
 
   // Form state for all scores
   const [scores, setScores] = useState({
@@ -390,6 +402,7 @@ const ViewManagerReview: React.FC = () => {
                 onScoreChange={(s) => setScores({ ...scores, sanitation: { ...scores.sanitation, score: s } })}
                 onCommentsChange={(c) => setScores({ ...scores, sanitation: { ...scores.sanitation, comments: c } })}
                 disabled={!isEditable}
+                points={getSubcategoryPoints('sanitation')}
               />
               <ScoreInput
                 label="ניהול מלאי ושליטה בעלויות"
@@ -399,6 +412,7 @@ const ViewManagerReview: React.FC = () => {
                 onScoreChange={(s) => setScores({ ...scores, inventory: { ...scores.inventory, score: s } })}
                 onCommentsChange={(c) => setScores({ ...scores, inventory: { ...scores.inventory, comments: c } })}
                 disabled={!isEditable}
+                points={getSubcategoryPoints('inventory')}
               />
               <ScoreInput
                 label="איכות מוצר ושירות"
@@ -408,6 +422,7 @@ const ViewManagerReview: React.FC = () => {
                 onScoreChange={(s) => setScores({ ...scores, quality: { ...scores.quality, score: s } })}
                 onCommentsChange={(c) => setScores({ ...scores, quality: { ...scores.quality, comments: c } })}
                 disabled={!isEditable}
+                points={getSubcategoryPoints('quality')}
               />
               <ScoreInput
                 label="תחזוקה וסדר"
@@ -417,6 +432,7 @@ const ViewManagerReview: React.FC = () => {
                 onScoreChange={(s) => setScores({ ...scores, maintenance: { ...scores.maintenance, score: s } })}
                 onCommentsChange={(c) => setScores({ ...scores, maintenance: { ...scores.maintenance, comments: c } })}
                 disabled={!isEditable}
+                points={getSubcategoryPoints('maintenance')}
               />
             </div>
             {review.operational.score !== null && (
@@ -444,6 +460,7 @@ const ViewManagerReview: React.FC = () => {
                 onScoreChange={(s) => setScores({ ...scores, recruitment: { ...scores.recruitment, score: s } })}
                 onCommentsChange={(c) => setScores({ ...scores, recruitment: { ...scores.recruitment, comments: c } })}
                 disabled={!isEditable}
+                points={getSubcategoryPoints('recruitment')}
               />
               <ScoreInput
                 label="ניהול משמרות ותזמון"
@@ -453,6 +470,7 @@ const ViewManagerReview: React.FC = () => {
                 onScoreChange={(s) => setScores({ ...scores, scheduling: { ...scores.scheduling, score: s } })}
                 onCommentsChange={(c) => setScores({ ...scores, scheduling: { ...scores.scheduling, comments: c } })}
                 disabled={!isEditable}
+                points={getSubcategoryPoints('scheduling')}
               />
               <ScoreInput
                 label="אקלים ושימור עובדים"
@@ -462,6 +480,7 @@ const ViewManagerReview: React.FC = () => {
                 onScoreChange={(s) => setScores({ ...scores, retention: { ...scores.retention, score: s } })}
                 onCommentsChange={(c) => setScores({ ...scores, retention: { ...scores.retention, comments: c } })}
                 disabled={!isEditable}
+                points={getSubcategoryPoints('retention')}
               />
             </div>
             {review.people.score !== null && (
@@ -489,6 +508,7 @@ const ViewManagerReview: React.FC = () => {
                 onScoreChange={(s) => setScores({ ...scores, sales: { ...scores.sales, score: s } })}
                 onCommentsChange={(c) => setScores({ ...scores, sales: { ...scores.sales, comments: c } })}
                 disabled={!isEditable}
+                points={getSubcategoryPoints('sales')}
               />
               <ScoreInput
                 label="יעילות תפעולית"
@@ -498,6 +518,7 @@ const ViewManagerReview: React.FC = () => {
                 onScoreChange={(s) => setScores({ ...scores, efficiency: { ...scores.efficiency, score: s } })}
                 onCommentsChange={(c) => setScores({ ...scores, efficiency: { ...scores.efficiency, comments: c } })}
                 disabled={!isEditable}
+                points={getSubcategoryPoints('efficiency')}
               />
             </div>
             {review.business.score !== null && (
@@ -525,6 +546,7 @@ const ViewManagerReview: React.FC = () => {
                 onScoreChange={(s) => setScores({ ...scores, leadership: { ...scores.leadership, score: s } })}
                 onCommentsChange={(c) => setScores({ ...scores, leadership: { ...scores.leadership, comments: c } })}
                 disabled={!isEditable}
+                points={getSubcategoryPoints('leadership')}
               />
             </div>
           </div>
