@@ -233,7 +233,14 @@ def create_review(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Create a new manager review"""
+    """Create a new manager review - HQ ONLY"""
+
+    # Check if user is HQ
+    if current_user.role != "hq":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can create manager reviews"
+        )
 
     # Validate manager exists
     manager = db.query(User).filter(User.id == request.manager_id).first()
@@ -312,7 +319,14 @@ def list_reviews(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """List manager reviews with optional filters"""
+    """List manager reviews with optional filters - HQ ONLY"""
+
+    # Check if user is HQ
+    if current_user.role != "hq":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can view manager reviews"
+        )
 
     query = db.query(ManagerReview)
 
@@ -382,7 +396,14 @@ def get_review(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Get detailed review by ID"""
+    """Get detailed review by ID - HQ ONLY"""
+
+    # Check if user is HQ
+    if current_user.role != "hq":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can view manager reviews"
+        )
 
     review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
 
@@ -471,7 +492,14 @@ def update_review(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Update review scores and comments"""
+    """Update review scores and comments - HQ ONLY"""
+
+    # Check if user is HQ
+    if current_user.role != "hq":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can update manager reviews"
+        )
 
     review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
 
@@ -566,7 +594,14 @@ def submit_review(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Submit review (change status to SUBMITTED)"""
+    """Submit review (change status to SUBMITTED) - HQ ONLY"""
+
+    # Check if user is HQ
+    if current_user.role != "hq":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can submit manager reviews"
+        )
 
     review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
 
@@ -590,7 +625,14 @@ def complete_review(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Complete review (change status to COMPLETED)"""
+    """Complete review (change status to COMPLETED) - HQ ONLY"""
+
+    # Check if user is HQ
+    if current_user.role != "hq":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can complete manager reviews"
+        )
 
     review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
 
@@ -614,7 +656,14 @@ def delete_review(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Delete a review (only drafts)"""
+    """Delete a review (only drafts) - HQ ONLY"""
+
+    # Check if user is HQ
+    if current_user.role != "hq":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can delete manager reviews"
+        )
 
     review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
 
@@ -636,7 +685,14 @@ def get_manager_review_history(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Get review history for a specific manager (for trend charts)"""
+    """Get review history for a specific manager (for trend charts) - HQ ONLY"""
+
+    # Check if user is HQ
+    if current_user.role != "hq":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can view manager review history"
+        )
 
     reviews = db.query(ManagerReview).filter(
         ManagerReview.manager_id == manager_id,
@@ -679,7 +735,14 @@ def get_review_notifications(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Get notifications for pending reviews and reviews due"""
+    """Get notifications for pending reviews and reviews due - HQ ONLY"""
+
+    # Check if user is HQ
+    if current_user.role != "hq":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can view review notifications"
+        )
 
     # Determine current quarter and year
     today = date.today()
@@ -757,7 +820,14 @@ def chat_with_ai_about_review(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Chat with AI about a specific manager review"""
+    """Chat with AI about a specific manager review - HQ ONLY"""
+
+    # Check if user is HQ
+    if current_user.role != "hq":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can use AI chat for manager reviews"
+        )
 
     # Get review
     review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
@@ -863,9 +933,16 @@ def generate_ai_summary(
     db: Session = Depends(get_db)
 ):
     """
-    Generate automatic AI summary for a review
+    Generate automatic AI summary for a review - HQ ONLY
     Creates a structured summary with: strengths, areas for improvement, recommendations, overall summary
     """
+    # Check if user is HQ
+    if current_user.role != "hq":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HQ users can generate AI summaries for manager reviews"
+        )
+
     # Get review
     review = db.query(ManagerReview).filter(ManagerReview.id == review_id).first()
     if not review:
