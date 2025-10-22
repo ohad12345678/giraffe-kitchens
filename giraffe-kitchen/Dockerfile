@@ -1,5 +1,5 @@
 # Stage 1: Build frontend
-# Force rebuild - updated to use dynamic API URL detection
+# Force rebuild v2 - Railway hostname detection fix
 FROM node:20-alpine AS frontend-builder
 
 WORKDIR /frontend
