@@ -29,6 +29,20 @@ const CreateReviewModal: React.FC<CreateReviewModalProps> = ({ isOpen, onClose, 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Extract first name from full_name (e.g., "Manager - Giraffe רמת החייל" -> just the Hebrew name)
+  // Or extract from email (e.g., "harel@giraffe.co.il" -> "הראל")
+  const getManagerDisplayName = (user: User): string => {
+    // If full_name is just a simple Hebrew name, use it
+    if (user.full_name && !user.full_name.includes('Manager') && !user.full_name.includes('-')) {
+      return user.full_name;
+    }
+
+    // Otherwise, extract from email (before @)
+    const emailName = user.email.split('@')[0];
+    // Capitalize first letter for Hebrew names stored in email
+    return emailName.charAt(0).toUpperCase() + emailName.slice(1);
+  };
+
   // Form state
   const [selectedBranch, setSelectedBranch] = useState<number | ''>('');
   const [selectedManager, setSelectedManager] = useState<number | ''>('');
@@ -198,7 +212,7 @@ const CreateReviewModal: React.FC<CreateReviewModalProps> = ({ isOpen, onClose, 
               <option value="">בחר מנהל</option>
               {filteredManagers.map((user) => (
                 <option key={user.id} value={user.id}>
-                  {user.full_name}
+                  {getManagerDisplayName(user)}
                 </option>
               ))}
             </select>
