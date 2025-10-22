@@ -88,8 +88,13 @@ const CreateReviewModal: React.FC<CreateReviewModalProps> = ({ isOpen, onClose, 
 
     try {
       setLoading(true);
+
+      // Get the selected manager's name
+      const manager = users.find(u => u.id === Number(selectedManager));
+      const managerName = manager ? getManagerDisplayName(manager) : '';
+
       const newReview = await managerReviewAPI.createReview({
-        manager_id: Number(selectedManager),
+        manager_name: managerName,
         branch_id: Number(selectedBranch),
         year,
         quarter: quarter as ReviewQuarter,
