@@ -156,13 +156,19 @@ const Tasks: React.FC = () => {
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowRight className="h-5 w-5" />
-            <span>חזרה לדשבורד</span>
-          </button>
+          <div className="flex items-center justify-between">
+            {/* Left side - empty or future action buttons */}
+            <div></div>
+
+            {/* Right side - Back button (RTL layout) */}
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <span>חזרה לדשבורד</span>
+              <ArrowRight className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </header>
 
