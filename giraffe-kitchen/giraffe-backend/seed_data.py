@@ -63,12 +63,12 @@ def seed_users(db):
 
     # Create branch managers with real emails
     branch_managers = [
-        {"email": "harel@giraffe.co.il", "name": "Harel", "branch": "Giraffe חיפה"},
-        {"email": "hemi@giraffe.co.il", "name": "Hemi", "branch": "Giraffe רמת החייל"},
-        {"email": "pini@giraffe.co.il", "name": "Pini", "branch": "Giraffe לנדמרק"},
-        {"email": "ella@giraffe.co.il", "name": "Ella", "branch": "Giraffe נס ציונה"},
-        {"email": "ori@giraffe.co.il", "name": "Ori", "branch": "Giraffe פתח תקווה"},
-        {"email": "chen@giraffe.co.il", "name": "Chen", "branch": "Giraffe פתח תקווה"},
+        {"email": "harel@giraffe.co.il", "name": "הראל", "branch": "Giraffe חיפה"},
+        {"email": "hemi@giraffe.co.il", "name": "המי", "branch": "Giraffe רמת החייל"},
+        {"email": "pini@giraffe.co.il", "name": "פיני", "branch": "Giraffe לנדמרק"},
+        {"email": "ella@giraffe.co.il", "name": "אלה", "branch": "Giraffe נס ציונה"},
+        {"email": "ori@giraffe.co.il", "name": "אורי", "branch": "Giraffe פתח תקווה"},
+        {"email": "chen@giraffe.co.il", "name": "חן", "branch": "Giraffe פתח תקווה"},
     ]
 
     for manager_data in branch_managers:
