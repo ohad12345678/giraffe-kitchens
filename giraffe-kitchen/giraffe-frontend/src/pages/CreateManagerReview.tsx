@@ -29,9 +29,8 @@ const CreateManagerReview: React.FC = () => {
   const [generatingSummary, setGeneratingSummary] = useState(false);
 
   // Selection state
-  const [managers, setManagers] = useState<User[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
-  const [selectedManager, setSelectedManager] = useState<number | null>(null);
+  const [managerName, setManagerName] = useState<string>('');
   const [selectedBranch, setSelectedBranch] = useState<number | null>(null);
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [quarter, setQuarter] = useState<ReviewQuarter>('Q1');
@@ -75,24 +74,12 @@ const CreateManagerReview: React.FC = () => {
 
   const loadData = async () => {
     try {
-      const [managersData, branchesData] = await Promise.all([
-        userAPI.getManagers(),
-        branchAPI.getBranches()
-      ]);
-      setManagers(managersData);
+      const branchesData = await branchAPI.getBranches();
       setBranches(branchesData);
     } catch (error) {
       console.error('Failed to load data:', error);
       alert('שגיאה בטעינת נתונים');
     }
-  };
-
-  const getManagerDisplayName = (user: User): string => {
-    if (user.full_name && !user.full_name.includes('Manager') && !user.full_name.includes('-')) {
-      return user.full_name;
-    }
-    const emailName = user.email.split('@')[0];
-    return emailName.charAt(0).toUpperCase() + emailName.slice(1);
   };
 
   const handleGenerateSummary = async () => {
@@ -106,11 +93,10 @@ const CreateManagerReview: React.FC = () => {
     setGeneratingSummary(true);
     try {
       // Build context for AI
-      const manager = managers.find(m => m.id === selectedManager);
       const branch = branches.find(b => b.id === selectedBranch);
 
       const context = `אתה מנהל אזור/מנהל תפעול ברשת מסעדות ג'ירף.
-עליך לנתח את הערכת הביצועים של ${manager?.full_name || 'המנהל'} - מנהל סניף ${branch?.name || ''}
+עליך לנתח את הערכת הביצועים של ${managerName || 'המנהל'} - מנהל סניף ${branch?.name || ''}
 לתקופה ${quarter} ${year}.
 
 ## נתוני ההערכה:
@@ -165,8 +151,8 @@ const CreateManagerReview: React.FC = () => {
 
   const handleSave = async (submitStatus: 'draft' | 'submitted') => {
     // Validation
-    if (!selectedManager) {
-      alert('יש לבחור מנהל');
+    if (!managerName.trim()) {
+      alert('יש להזין שם מנהל');
       return;
     }
 
