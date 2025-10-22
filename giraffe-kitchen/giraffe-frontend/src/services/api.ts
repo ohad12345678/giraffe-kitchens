@@ -21,20 +21,16 @@ const getAPIURL = (): string => {
   // Runtime detection ONLY - check hostname
   const hostname = window.location.hostname;
 
-  // If on Railway production, use relative URLs
-  if (hostname.includes('railway.app') || hostname.includes('up.railway')) {
-    console.log('🚂 Railway production detected - using relative URLs');
-    return '';
-  }
-
-  // If localhost, use port 8000
+  // ONLY localhost uses explicit port 8000
+  // Everything else (including Railway) uses relative URLs
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     console.log('💻 Local development - using localhost:8000');
     return 'http://localhost:8000';
   }
 
-  // Default to relative URLs for any other domain
-  console.log('🌐 Unknown domain - using relative URLs');
+  // All production environments use relative URLs
+  console.log('🌐 Production environment detected - using relative URLs');
+  console.log('Hostname:', hostname);
   return '';
 };
 
