@@ -76,13 +76,6 @@ const CreateManagerReview: React.FC = () => {
   };
 
   const handleGenerateSummary = async () => {
-    // Check if all scores are filled
-    const allScoresFilled = Object.values(scores).every(s => s.score !== null);
-    if (!allScoresFilled) {
-      alert('יש למלא את כל הציונים לפני יצירת סיכום AI');
-      return;
-    }
-
     setGeneratingSummary(true);
     try {
       // Build context for AI
