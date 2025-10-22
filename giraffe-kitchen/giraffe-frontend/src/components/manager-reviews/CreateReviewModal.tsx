@@ -13,6 +13,7 @@ interface Branch {
 interface User {
   id: number;
   full_name: string;
+  email: string;
   branch_id: number | null;
 }
 
