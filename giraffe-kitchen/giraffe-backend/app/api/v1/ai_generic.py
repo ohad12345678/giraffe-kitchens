@@ -11,7 +11,7 @@ import os
 
 from app.api.deps import get_current_user, get_db
 from app.models.user import User
-from app.models.check import Check
+from app.models.dish_check import DishDishCheck
 from app.models.branch import Branch
 from app.models.dish import Dish
 from app.models.chef import Chef
@@ -116,10 +116,10 @@ def build_context(db: Session, user: User, context_type: str) -> str:
     """Build comprehensive context from all system data"""
     context_parts = []
 
-    # Checks data
+    # DishChecks data
     if context_type in ["all", "checks"]:
-        checks_count = db.query(Check).count()
-        recent_checks = db.query(Check).order_by(Check.check_date.desc()).limit(10).all()
+        checks_count = db.query(DishCheck).count()
+        recent_checks = db.query(DishCheck).order_by(DishCheck.check_date.desc()).limit(10).all()
 
         checks_info = f"\n### בדיקות איכות מזון\n"
         checks_info += f"- סה\"כ בדיקות במערכת: {checks_count}\n"
