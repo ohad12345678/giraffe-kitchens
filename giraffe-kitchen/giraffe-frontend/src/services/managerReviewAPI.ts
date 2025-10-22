@@ -155,4 +155,25 @@ export const managerReviewAPI = {
   },
 };
 
+// Additional APIs for manager reviews page
+export const userAPI = {
+  /**
+   * Get all managers (users with role BRANCH_MANAGER)
+   */
+  getManagers: async () => {
+    const response = await api.get('/api/v1/auth/managers');
+    return response.data;
+  },
+};
+
+export const branchAPI = {
+  /**
+   * Get all branches
+   */
+  getBranches: async () => {
+    const response = await api.get('/api/v1/branches/');
+    return response.data;
+  },
+};
+
 export default managerReviewAPI;
