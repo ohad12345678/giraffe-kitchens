@@ -9,7 +9,8 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, desc
 from typing import List, Optional
 from datetime import datetime
-from anthropic import Anthropic
+# AI functionality disabled - anthropic import removed
+# from anthropic import Anthropic
 import os
 
 from app.db.base import get_db
@@ -141,11 +142,12 @@ def generate_deficiencies_summary(audit: SanitationAudit, db: Session) -> str:
 בבקשה צור ניתוח מפורט ומקצועי של ביקורת התברואה לפי הפורמט המוגדר לעיל.
 """
 
-        # Try models with correct version names (not -latest)
+        # Try models (including haiku as fallback)
         models_to_try = [
-            "claude-3-sonnet-20240229",      # Good balance of speed and quality
-            "claude-3-haiku-20240307",       # Fastest and cheapest fallback
-            "claude-3-opus-20240229",        # Best quality but most expensive
+            "claude-3-5-sonnet-latest",
+            "claude-3-opus-latest",
+            "claude-3-sonnet-20240229",
+            "claude-3-haiku-20240307"  # Fallback model that works
         ]
 
         for model_name in models_to_try:
@@ -748,16 +750,17 @@ def get_recent_audits_for_branch(
     return result
 
 
-@router.post("/{audit_id}/generate-summary")
-def generate_ai_summary(
-    audit_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Generate AI summary with insights and comparison to previous audits."""
-    # Only HQ can generate summaries
-    if current_user.role != UserRole.HQ:
-        raise HTTPException(
+# AI functionality disabled - endpoint removed
+# @router.post("/{audit_id}/generate-summary")
+# def generate_ai_summary(
+#     audit_id: int,
+#     db: Session = Depends(get_db),
+#     current_user: User = Depends(get_current_user)
+# ):
+#     """Generate AI summary with insights and comparison to previous audits."""
+#     # Only HQ can generate summaries
+#     if current_user.role != UserRole.HQ:
+#         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only HQ users can generate summaries"
         )
