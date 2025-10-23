@@ -9,8 +9,7 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, desc
 from typing import List, Optional
 from datetime import datetime
-# AI functionality disabled - anthropic import removed
-# from anthropic import Anthropic
+from anthropic import Anthropic
 import os
 
 from app.db.base import get_db
@@ -750,17 +749,16 @@ def get_recent_audits_for_branch(
     return result
 
 
-# AI functionality disabled - endpoint removed
-# @router.post("/{audit_id}/generate-summary")
-# def generate_ai_summary(
-#     audit_id: int,
-#     db: Session = Depends(get_db),
-#     current_user: User = Depends(get_current_user)
-# ):
-#     """Generate AI summary with insights and comparison to previous audits."""
-#     # Only HQ can generate summaries
-#     if current_user.role != UserRole.HQ:
-#         raise HTTPException(
+@router.post("/{audit_id}/generate-summary")
+def generate_ai_summary(
+    audit_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Generate AI summary with insights and comparison to previous audits."""
+    # Only HQ can generate summaries
+    if current_user.role != UserRole.HQ:
+        raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only HQ users can generate summaries"
         )

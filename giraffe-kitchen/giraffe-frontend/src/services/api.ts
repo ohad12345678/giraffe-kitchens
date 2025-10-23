@@ -187,36 +187,6 @@ export const checkAPI = {
     const response = await api.delete('/api/v1/checks/bulk/delete', { params: filters });
     return response.data;
   },
-
-  getDashboardStats: async (): Promise<{
-    daily_checks: {
-      today_count: number;
-      today_avg_score: number;
-      last_week_count: number;
-      last_week_avg_score: number;
-      count_change: number;
-      count_change_percent: number;
-      avg_change: number;
-      avg_change_percent: number;
-    };
-    weekly_audits: {
-      this_week_count: number;
-      last_month_count: number;
-      change: number;
-      change_percent: number;
-    };
-    dishes: {
-      strongest: { name: string; score: number; check_count: number } | null;
-      weakest: { name: string; score: number; check_count: number } | null;
-    };
-    branches: {
-      best: { name: string; score: number; audit_count: number } | null;
-      worst: { name: string; score: number; audit_count: number } | null;
-    };
-  }> => {
-    const response = await api.get('/api/v1/checks/dashboard/stats');
-    return response.data;
-  },
 };
 
 // AI endpoints
