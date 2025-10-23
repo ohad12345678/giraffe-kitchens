@@ -141,12 +141,11 @@ def generate_deficiencies_summary(audit: SanitationAudit, db: Session) -> str:
 בבקשה צור ניתוח מפורט ומקצועי של ביקורת התברואה לפי הפורמט המוגדר לעיל.
 """
 
-        # Try models (including haiku as fallback)
+        # Try models with correct version names (not -latest)
         models_to_try = [
-            "claude-3-5-sonnet-latest",
-            "claude-3-opus-latest",
-            "claude-3-sonnet-20240229",
-            "claude-3-haiku-20240307"  # Fallback model that works
+            "claude-3-sonnet-20240229",      # Good balance of speed and quality
+            "claude-3-haiku-20240307",       # Fastest and cheapest fallback
+            "claude-3-opus-20240229",        # Best quality but most expensive
         ]
 
         for model_name in models_to_try:
