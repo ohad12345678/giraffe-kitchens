@@ -199,12 +199,11 @@ def ask_ai_analysis(
 אם אין מספיק נתונים, אמר זאת בבהירות."""
 
         # Call Claude API
-        # Try multiple models in case some are not available for this API key
+        # Try multiple models with correct version names (not -latest)
         models_to_try = [
-            "claude-3-5-sonnet-latest",
-            "claude-3-opus-latest",
-            "claude-3-sonnet-20240229",
-            "claude-3-haiku-20240307"
+            "claude-3-sonnet-20240229",      # Good balance of speed and quality
+            "claude-3-haiku-20240307",       # Fastest and cheapest fallback
+            "claude-3-opus-20240229",        # Best quality but most expensive
         ]
 
         last_error = None
@@ -378,12 +377,11 @@ def ask_sanitation_analysis(
 התמקד בהמלצות מעשיות לשיפור התברואה והבטיחות.
 אם אין מספיק נתונים, אמר זאת בבהירות."""
 
-        # Try multiple models
+        # Try multiple models with correct version names (not -latest)
         models_to_try = [
-            "claude-3-5-sonnet-latest",
-            "claude-3-opus-latest",
-            "claude-3-sonnet-20240229",
-            "claude-3-haiku-20240307"
+            "claude-3-sonnet-20240229",      # Good balance of speed and quality
+            "claude-3-haiku-20240307",       # Fastest and cheapest fallback
+            "claude-3-opus-20240229",        # Best quality but most expensive
         ]
 
         last_error = None
