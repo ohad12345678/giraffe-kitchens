@@ -994,7 +994,7 @@ def chat_with_ai_about_review(
             messages[0]["content"] = f"{context}\n\n{messages[0]['content']}"
 
         response = client.messages.create(
-            model="claude-3-5-sonnet-20240620",
+            model="claude-3-5-sonnet-20241022",
             max_tokens=2000,
             system=system_prompt,
             messages=messages
@@ -1101,7 +1101,7 @@ def generate_ai_summary(
         client = anthropic.Anthropic(api_key=api_key)
 
         response = client.messages.create(
-            model="claude-3-5-sonnet-20240620",
+            model="claude-3-5-sonnet-20241022",
             max_tokens=2000,
             temperature=0.7,
             messages=[

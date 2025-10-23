@@ -48,7 +48,7 @@ def ai_analyze(
         client = anthropic.Anthropic(api_key=api_key)
 
         response = client.messages.create(
-            model="claude-3-5-sonnet-20240620",
+            model="claude-3-5-sonnet-20241022",
             max_tokens=2000,
             temperature=0.7,
             messages=[{"role": "user", "content": request.context}]
@@ -97,7 +97,7 @@ def ai_chat(
         client = anthropic.Anthropic(api_key=api_key)
 
         response = client.messages.create(
-            model="claude-3-5-sonnet-20240620",
+            model="claude-3-5-sonnet-20241022",
             max_tokens=2000,
             temperature=0.7,
             messages=[{"role": "user", "content": full_prompt}]
