@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { aiAPI, checkAPI, branchAPI, dishAPI } from '../services/api';
-import { TrendingUp, TrendingDown, AlertCircle, MessageSquare } from 'lucide-react';
-import Layout from '../components/Layout';
+import { ArrowRight, TrendingUp, TrendingDown, AlertCircle, MessageSquare } from 'lucide-react';
 import type { Branch, Dish } from '../types';
 
 const Reports: React.FC = () => {
+  const navigate = useNavigate();
   const { user, isHQ } = useAuth();
 
   // Filter states
@@ -33,6 +34,10 @@ const Reports: React.FC = () => {
 
   // Check if current user is admin (ohadb@giraffe.co.il)
   const isAdmin = user?.email === 'ohadb@giraffe.co.il';
+
+  const handleBack = () => {
+    navigate('/dashboard');
+  };
 
   // Load branches and dishes on mount
   useEffect(() => {
@@ -265,8 +270,22 @@ const Reports: React.FC = () => {
   };
 
   return (
-    <Layout>
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <button
+            onClick={handleBack}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowRight className="h-5 w-5" />
+            <span>חזרה לדשבורד</span>
+          </button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">דוחות וניתוחים</h1>
           <p className="text-gray-600">ניתוח מעמיק של בדיקות האיכות במערכת</p>
@@ -631,8 +650,8 @@ const Reports: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
-    </Layout>
+      </main>
+    </div>
   );
 };
 

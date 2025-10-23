@@ -193,16 +193,12 @@ def get_analytics(
 
     # 1. KPIs
     total_checks = base_query.count()
-
-    # Use subquery to avoid loading all rows
-    check_ids_subquery = base_query.with_entities(DishCheck.id).subquery()
-
     avg_rating = db.query(func.avg(DishCheck.rating)).filter(
-        DishCheck.id.in_(check_ids_subquery)
+        DishCheck.id.in_([c.id for c in base_query.all()])
     ).scalar() or 0
 
     weak_dishes_count = db.query(func.count(func.distinct(DishCheck.dish_id))).filter(
-        DishCheck.id.in_(check_ids_subquery),
+        DishCheck.id.in_([c.id for c in base_query.all()]),
         DishCheck.rating < 7
     ).scalar() or 0
 
@@ -213,7 +209,7 @@ def get_analytics(
     ).outerjoin(
         Chef, DishCheck.chef_id == Chef.id
     ).filter(
-        DishCheck.id.in_(check_ids_subquery)
+        DishCheck.id.in_([c.id for c in base_query.all()])
     ).group_by(
         DishCheck.chef_id,
         func.coalesce(Chef.name, DishCheck.chef_name_manual)
@@ -231,7 +227,7 @@ def get_analytics(
     ).outerjoin(
         Dish, DishCheck.dish_id == Dish.id
     ).filter(
-        DishCheck.id.in_(check_ids_subquery)
+        DishCheck.id.in_([c.id for c in base_query.all()])
     ).group_by(
         DishCheck.dish_id,
         func.coalesce(Dish.name, DishCheck.dish_name_manual),
@@ -264,7 +260,7 @@ def get_analytics(
     ).outerjoin(
         Branch, Chef.branch_id == Branch.id
     ).filter(
-        DishCheck.id.in_(check_ids_subquery)
+        DishCheck.id.in_([c.id for c in base_query.all()])
     ).group_by(
         DishCheck.chef_id,
         func.coalesce(Chef.name, DishCheck.chef_name_manual),
@@ -290,7 +286,7 @@ def get_analytics(
         func.count(DishCheck.id).label('checks'),
         func.avg(DishCheck.rating).label('avg_rating')
     ).filter(
-        DishCheck.id.in_(check_ids_subquery)
+        DishCheck.id.in_([c.id for c in base_query.all()])
     ).group_by(DishCheck.check_date).order_by(DishCheck.check_date).all()
 
     daily_trend = [
@@ -428,100 +424,4 @@ def bulk_delete_checks(
         "status": "success",
         "message": f"Successfully deleted {count} check(s)",
         "deleted_count": count
-    }
-
-
-@router.get("/weekly-comparison")
-def get_weekly_comparison(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Get comparison of this week vs last week check counts."""
-    today = date.today()
-
-    # This week (Monday to Sunday)
-    this_week_start = today - timedelta(days=today.weekday())
-    this_week_end = this_week_start + timedelta(days=6)
-
-    # Last week
-    last_week_start = this_week_start - timedelta(days=7)
-    last_week_end = last_week_start + timedelta(days=6)
-
-    # Base query considering user role
-    def get_count(start: date, end: date) -> int:
-        query = db.query(func.count(DishCheck.id)).filter(
-            DishCheck.check_date >= start,
-            DishCheck.check_date <= end
-        )
-
-        # Branch managers see only their branch
-        if current_user.role.value == "branch_manager":
-            query = query.filter(DishCheck.branch_id == current_user.branch_id)
-
-        return query.scalar() or 0
-
-    this_week_count = get_count(this_week_start, this_week_end)
-    last_week_count = get_count(last_week_start, last_week_end)
-
-    return {
-        "this_week": this_week_count,
-        "last_week": last_week_count,
-        "change": this_week_count - last_week_count,
-        "change_percentage": round(((this_week_count - last_week_count) / last_week_count * 100), 1) if last_week_count > 0 else 0
-    }
-
-
-@router.get("/best-worst-dishes")
-def get_best_worst_dishes(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Get best and worst performing dishes this week."""
-    today = date.today()
-    week_start = today - timedelta(days=today.weekday())
-    week_end = week_start + timedelta(days=6)
-
-    # Build base query
-    base_query = db.query(
-        DishCheck.dish_id,
-        func.coalesce(Dish.name, DishCheck.dish_name_manual).label('dish_name'),
-        func.avg(DishCheck.rating).label('avg_score'),
-        func.count(DishCheck.id).label('check_count')
-    ).outerjoin(
-        Dish, DishCheck.dish_id == Dish.id
-    ).filter(
-        DishCheck.check_date >= week_start,
-        DishCheck.check_date <= week_end
-    )
-
-    # Branch managers see only their branch
-    if current_user.role.value == "branch_manager":
-        base_query = base_query.filter(DishCheck.branch_id == current_user.branch_id)
-
-    # Group by dish
-    grouped = base_query.group_by(
-        DishCheck.dish_id,
-        func.coalesce(Dish.name, DishCheck.dish_name_manual)
-    )
-
-    # Get best (highest avg)
-    best = grouped.order_by(func.avg(DishCheck.rating).desc()).first()
-
-    # Get worst (lowest avg)
-    worst = grouped.order_by(func.avg(DishCheck.rating).asc()).first()
-
-    return {
-        "best_dish": {
-            "dish_id": best.dish_id if best else None,
-            "name": best.dish_name if best else None,
-            "avg_score": round(float(best.avg_score), 1) if best else None,
-            "check_count": best.check_count if best else 0
-        } if best else None,
-        "worst_dish": {
-            "dish_id": worst.dish_id if worst else None,
-            "name": worst.dish_name if worst else None,
-            "avg_score": round(float(worst.avg_score), 1) if worst else None,
-            "check_count": worst.check_count if worst else 0
-        } if worst else None,
-        "message": "אין בדיקות השבוע" if not best and not worst else None
     }

@@ -1,39 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { checkAPI, sanitationAuditAPI } from '../services/api';
-import { TrendingUp, TrendingDown } from 'lucide-react';
-import Layout from '../components/Layout';
-
-// Hebrew name mappings for special users
-const HEBREW_NAMES: Record<string, string> = {
-  'aviv@giraffe.com': 'אביב',
-  'nofar@giraffe.com': 'נופר',
-  'ohad@giraffe.com': 'אוהד',
-  'avital@giraffe.co.il': 'אביטל',
-};
+import { checkAPI } from '../services/api';
+import { Building2, LogOut } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, logout, isHQ } = useAuth();
   const [loading, setLoading] = useState(true);
-
-  // Weekly comparison data
-  const [weeklyComparison, setWeeklyComparison] = useState<{
-    this_week: number;
-    last_week: number;
-    change: number;
-  } | null>(null);
-
-  // Branch rankings data
-  const [branchRankings, setBranchRankings] = useState<{
-    best_branch: { name: string; avg_score: number } | null;
-    worst_branch: { name: string; avg_score: number } | null;
-    message?: string;
-  } | null>(null);
-
-  // Best/worst dishes data
-  const [dishComparison, setDishComparison] = useState<{
-    best_dish: { name: string | null; avg_score: number | null } | null;
-    worst_dish: { name: string | null; avg_score: number | null } | null;
+  const [todayChecks, setTodayChecks] = useState<number>(0);
+  const [averageRating, setAverageRating] = useState<number>(0);
+  const [weakestDish, setWeakestDish] = useState<{
+    dish_name: string | null;
+    avg_score: number | null;
+    check_count: number;
     message?: string;
   } | null>(null);
 
@@ -45,16 +25,21 @@ const Dashboard: React.FC = () => {
     try {
       setLoading(true);
 
-      // Load all dashboard data in parallel
-      const [weeklyData, branchData, dishData] = await Promise.all([
-        checkAPI.getWeeklyComparison(),
-        sanitationAuditAPI.getBranchRankings(),
-        checkAPI.getBestWorstDishes(),
-      ]);
+      // Load today's analytics
+      const today = new Date().toISOString().split('T')[0];
+      const analyticsData = await checkAPI.getAnalytics({
+        start_date: today,
+        end_date: today,
+      });
 
-      setWeeklyComparison(weeklyData);
-      setBranchRankings(branchData);
-      setDishComparison(dishData);
+      setTodayChecks(analyticsData.kpis.total_checks);
+      setAverageRating(analyticsData.kpis.average_rating);
+
+      // Load weakest dish for the week
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const weakestDishData = await checkAPI.getWeakestDish();
+      setWeakestDish(weakestDishData);
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
     } finally {
@@ -62,152 +47,125 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Get Hebrew greeting name
-  const getGreetingName = () => {
-    if (user?.email && HEBREW_NAMES[user.email]) {
-      return HEBREW_NAMES[user.email];
-    }
-    return user?.full_name || user?.email || 'אורח';
-  };
-
   if (loading) {
     return (
-      <Layout>
-        <div className="flex items-center justify-center h-96">
-          <div className="text-xl text-gray-600">טוען...</div>
-        </div>
-      </Layout>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl text-gray-600">טוען...</div>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="max-w-6xl mx-auto">
-        {/* Greeting */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">שלום, {getGreetingName()}!</h1>
-          <p className="text-gray-600 mt-1">סקירת מערכת איכות מזון</p>
-        </div>
+    <div className="min-h-screen">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 bg-primary-500 rounded-lg flex items-center justify-center">
+                <Building2 className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Giraffe Kitchens</h1>
+                <p className="text-sm text-gray-600">מערכת בקרת איכות מזון</p>
+              </div>
+            </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1: Weekly Check Comparison */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-sm font-semibold text-gray-600 mb-4">בדיקות איכות מזון</h3>
-            <div className="space-y-4">
-              {/* This Week */}
-              <div className="border-b border-gray-200 pb-3">
-                <p className="text-xs text-gray-500 mb-1">השבוע</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  {weeklyComparison?.this_week || 0}
+            <div className="flex items-center gap-4">
+              <div className="text-left">
+                <p className="text-sm font-medium text-gray-900">{user?.email}</p>
+                <p className="text-xs text-gray-500">
+                  {isHQ ? 'משתמש מטה' : 'מנהל סניף'}
                 </p>
               </div>
-              {/* Last Week */}
-              <div className="pt-1">
-                <p className="text-xs text-gray-500 mb-1">שבוע שעבר</p>
-                <div className="flex items-center gap-2">
-                  <p className="text-2xl font-semibold text-gray-600">
-                    {weeklyComparison?.last_week || 0}
-                  </p>
-                  {weeklyComparison && weeklyComparison.change !== 0 && (
-                    <span
-                      className={`flex items-center gap-1 text-sm font-medium ${
-                        weeklyComparison.change > 0 ? 'text-green-600' : 'text-red-600'
-                      }`}
-                    >
-                      {weeklyComparison.change > 0 ? (
-                        <TrendingUp className="h-4 w-4" />
-                      ) : (
-                        <TrendingDown className="h-4 w-4" />
-                      )}
-                      {Math.abs(weeklyComparison.change)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 2: Branch Sanitation Rankings */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-sm font-semibold text-gray-600 mb-4">סניפים בתברואה - החודש</h3>
-            <div className="space-y-4">
-              {/* Best Branch */}
-              <div className="border-b border-gray-200 pb-3">
-                <p className="text-xs text-gray-500 mb-1">מצטיין</p>
-                {branchRankings?.best_branch ? (
-                  <>
-                    <p className="text-xl font-bold text-green-600">
-                      {branchRankings.best_branch.name}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      ציון: {branchRankings.best_branch.avg_score}
-                    </p>
-                  </>
-                ) : (
-                  <p className="text-sm text-gray-400">{branchRankings?.message || 'אין נתונים'}</p>
-                )}
-              </div>
-              {/* Worst Branch */}
-              <div className="pt-1">
-                <p className="text-xs text-gray-500 mb-1">לשיפור</p>
-                {branchRankings?.worst_branch ? (
-                  <>
-                    <p className="text-lg font-semibold text-orange-600">
-                      {branchRankings.worst_branch.name}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      ציון: {branchRankings.worst_branch.avg_score}
-                    </p>
-                  </>
-                ) : (
-                  <p className="text-sm text-gray-400">אין נתונים נוספים</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Card 3: Best/Worst Dishes */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-sm font-semibold text-gray-600 mb-4">מנות השבוע</h3>
-            <div className="space-y-4">
-              {/* Best Dish */}
-              <div className="border-b border-gray-200 pb-3">
-                <p className="text-xs text-gray-500 mb-1">מנה חזקה</p>
-                {dishComparison?.best_dish?.name ? (
-                  <>
-                    <p className="text-xl font-bold text-green-600">
-                      {dishComparison.best_dish.name}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      ממוצע: {dishComparison.best_dish.avg_score?.toFixed(1)}
-                    </p>
-                  </>
-                ) : (
-                  <p className="text-sm text-gray-400">{dishComparison?.message || 'אין נתונים'}</p>
-                )}
-              </div>
-              {/* Worst Dish */}
-              <div className="pt-1">
-                <p className="text-xs text-gray-500 mb-1">מנה חלשה</p>
-                {dishComparison?.worst_dish?.name ? (
-                  <>
-                    <p className="text-lg font-semibold text-red-600">
-                      {dishComparison.worst_dish.name}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      ממוצע: {dishComparison.worst_dish.avg_score?.toFixed(1)}
-                    </p>
-                  </>
-                ) : (
-                  <p className="text-sm text-gray-400">אין נתונים נוספים</p>
-                )}
-              </div>
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                התנתק
+              </button>
             </div>
           </div>
         </div>
-      </div>
-    </Layout>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div className="text-center">
+              <p className="text-sm font-medium text-gray-600">בדיקות היום</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{todayChecks}</p>
+            </div>
+          </div>
+
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div className="text-center">
+              <p className="text-sm font-medium text-gray-600">ממוצע ציונים</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">
+                {averageRating > 0 ? averageRating.toFixed(1) : '0.0'}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="text-center">
+              <p className="text-sm font-medium text-gray-600">מנה חלשה השבוע</p>
+              {weakestDish?.dish_name ? (
+                <>
+                  <p className="text-2xl font-bold text-red-600 mt-2">{weakestDish.dish_name}</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    ממוצע: {weakestDish.avg_score?.toFixed(1)} | {weakestDish.check_count} בדיקות
+                  </p>
+                </>
+              ) : (
+                <p className="text-lg text-gray-400 mt-2">{weakestDish?.message || 'טוען...'}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 relative z-10">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">פעולות מהירות</h2>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => navigate('/new-check')}
+              className="p-4 border-2 border-primary-200 rounded-lg hover:bg-primary-50 transition-colors text-center"
+            >
+              <span className="font-medium text-gray-900">בדיקת מנות</span>
+            </button>
+
+            {/* Tasks button - HQ only */}
+            {isHQ && (
+              <button
+                onClick={() => navigate('/tasks')}
+                className="p-4 border-2 border-purple-200 rounded-lg hover:bg-purple-50 transition-colors text-center"
+              >
+                <span className="font-medium text-gray-900">משימות</span>
+              </button>
+            )}
+
+            {/* Sanitation Audits button */}
+            <button
+              onClick={() => navigate('/sanitation-audits')}
+              className="p-4 border-2 border-green-200 rounded-lg hover:bg-green-50 transition-colors text-center"
+            >
+              <span className="font-medium text-gray-900">ביקורת תברואה</span>
+            </button>
+
+            <button
+              onClick={() => navigate('/reports')}
+              className="p-4 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center"
+            >
+              <span className="font-medium text-gray-900">דוחות</span>
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
   );
 };
 
