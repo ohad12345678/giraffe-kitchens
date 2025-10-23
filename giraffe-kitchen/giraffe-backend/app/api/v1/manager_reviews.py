@@ -9,9 +9,9 @@ from typing import List, Optional
 from datetime import datetime, date, timedelta
 from pydantic import BaseModel, Field
 import anthropic
-import os
 
 from app.db.base import get_db
+from app.core.config import settings
 from app.models.manager_review import ManagerReview, ReviewStatus, ReviewQuarter
 from app.models.user import User
 from app.models.branch import Branch
@@ -915,7 +915,7 @@ def chat_with_ai_about_review(
         raise HTTPException(status_code=404, detail="Review not found")
 
     # Get API key
-    api_key = os.getenv("ANTHROPIC_API_KEY")
+    api_key = settings.ANTHROPIC_API_KEY
     if not api_key:
         raise HTTPException(status_code=500, detail="AI service not configured")
 
@@ -1093,7 +1093,7 @@ def generate_ai_summary(
 """
 
     # Call Claude API
-    api_key = os.getenv("ANTHROPIC_API_KEY")
+    api_key = settings.ANTHROPIC_API_KEY
     if not api_key:
         raise HTTPException(status_code=500, detail="AI service not configured")
 

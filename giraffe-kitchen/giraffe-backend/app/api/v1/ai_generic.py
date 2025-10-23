@@ -7,10 +7,10 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional
 import anthropic
-import os
 
 from app.api.deps import get_current_user, get_db
 from app.models.user import User
+from app.core.config import settings
 from app.models.dish_check import DishCheck
 from app.models.branch import Branch
 from app.models.dish import Dish
@@ -40,7 +40,7 @@ def ai_analyze(
     Generic AI analysis endpoint
     Takes any context and returns AI analysis
     """
-    api_key = os.getenv("ANTHROPIC_API_KEY")
+    api_key = settings.ANTHROPIC_API_KEY
     if not api_key:
         raise HTTPException(status_code=500, detail="ANTHROPIC_API_KEY not configured")
 
@@ -73,7 +73,7 @@ def ai_chat(
     Unified AI chat endpoint
     Provides access to all system data for intelligent responses
     """
-    api_key = os.getenv("ANTHROPIC_API_KEY")
+    api_key = settings.ANTHROPIC_API_KEY
     if not api_key:
         raise HTTPException(status_code=500, detail="ANTHROPIC_API_KEY not configured")
 
