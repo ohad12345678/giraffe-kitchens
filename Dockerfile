@@ -42,8 +42,8 @@ COPY --from=frontend-builder /frontend/dist /app/static
 # Create directory for database
 RUN mkdir -p /data
 
-# Expose port (Railway uses PORT env variable)
-EXPOSE 8080
+# Expose port
+EXPOSE 8000
 
 # Run the application with startup script using bash
 CMD ["bash", "start.sh"]

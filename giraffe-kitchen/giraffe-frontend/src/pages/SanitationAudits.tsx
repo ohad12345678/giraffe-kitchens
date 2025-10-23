@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { sanitationAuditAPI } from '../services/api';
+import { sanitationAuditAPI, aiAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowRight } from 'lucide-react';
-import UnifiedAIChat from '../components/UnifiedAIChat';
+import { ArrowRight, MessageCircle } from 'lucide-react';
 import type { SanitationAuditSummary } from '../types';
 
 export default function SanitationAudits() {
@@ -12,6 +11,12 @@ export default function SanitationAudits() {
   const [audits, setAudits] = useState<SanitationAuditSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // AI Chat State
+  const [showAIChat, setShowAIChat] = useState(false);
+  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     loadAudits();
@@ -59,6 +64,35 @@ export default function SanitationAudits() {
     });
   };
 
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || aiLoading) return;
+
+    const userMessage = inputMessage;
+    setInputMessage('');
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setAiLoading(true);
+
+    try {
+      const response = await aiAPI.askSanitation({
+        question: userMessage,
+        date_range: 'month'
+      });
+
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: response.answer
+      }]);
+    } catch (error: any) {
+      console.error('AI request failed:', error);
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `❌ שגיאה: ${error.response?.data?.detail || 'אנא נסה שוב או פנה למנהל המערכת.'}`
+      }]);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -80,19 +114,13 @@ export default function SanitationAudits() {
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            {/* Left side - empty or future action buttons */}
-            <div></div>
-
-            {/* Right side - Back button (RTL layout) */}
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <span>חזרה לדשבורד</span>
-              <ArrowRight className="h-5 w-5" />
-            </button>
-          </div>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowRight className="h-5 w-5" />
+            <span>חזרה לדשבורד</span>
+          </button>
         </div>
       </header>
 
@@ -215,8 +243,84 @@ export default function SanitationAudits() {
         </div>
       </main>
 
-      {/* Unified AI Chat */}
-      <UnifiedAIChat contextType="sanitation" title="ניתוח AI - ביקורות תברואה" />
+      {/* AI Chat Button - בצבע ירוק בהיר */}
+      <button
+        onClick={() => setShowAIChat(!showAIChat)}
+        className="fixed bottom-6 left-6 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-all z-50 flex items-center gap-2"
+      >
+        <MessageCircle className="h-6 w-6" />
+        {!showAIChat && <span className="pr-2">שאל את הצ'אט</span>}
+      </button>
+
+      {/* AI Chat Window */}
+      {showAIChat && (
+        <div className="fixed bottom-24 left-6 w-96 bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-gray-200 z-50">
+          <div className="bg-green-500 text-white p-4 rounded-t-xl flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" />
+              <h3 className="font-semibold">ניתוח AI - ביקורות תברואה</h3>
+            </div>
+            <button
+              onClick={() => setShowAIChat(false)}
+              className="text-white hover:text-gray-200"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="h-96 overflow-y-auto p-4 space-y-3">
+            {messages.length === 0 ? (
+              <div className="text-center text-gray-500 mt-8">
+                <p className="mb-4">👋 שלום! אני כאן לעזור לך לנתח ביקורות תברואה.</p>
+                <p className="text-sm">נסה לשאול:</p>
+                <div className="mt-2 space-y-2 text-sm">
+                  <p className="bg-gray-50 p-2 rounded">• מה הבעיות השכיחות?</p>
+                  <p className="bg-gray-50 p-2 rounded">• איך הציונים בחודש האחרון?</p>
+                  <p className="bg-gray-50 p-2 rounded">• מה לשפר בתברואה?</p>
+                </div>
+              </div>
+            ) : (
+              messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-xs p-3 rounded-lg ${
+                      msg.role === 'user'
+                        ? 'bg-green-500 text-white'
+                        : 'bg-gray-100 text-gray-900'
+                    }`}
+                  >
+                    {msg.content}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="p-4 border-t border-gray-200">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                placeholder="שאל שאלה על ביקורות התברואה..."
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                disabled={aiLoading}
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={aiLoading}
+                className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
+              >
+                {aiLoading ? 'שולח...' : 'שלח'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -4,24 +4,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.routing import APIRoute
 from app.core.config import settings
-from app.api.v1 import auth, branches, dishes, chefs, checks, ai, ai_generic, daily_tasks, sanitation_audits, manager_reviews
+from app.api.v1 import auth, branches, dishes, chefs, checks, ai, daily_tasks, sanitation_audits
 from app.db.base import Base, engine
 import os
 
 # Create database tables on startup
-# Handle both sqlite:///./file.db (3 slashes) and sqlite:////absolute/path (4 slashes)
-if settings.DATABASE_URL.startswith('sqlite'):
-    db_path = settings.DATABASE_URL.replace('sqlite:///', '')
-    # If it starts with /, it's an absolute path (4 slashes total)
-    if not db_path.startswith('/'):
-        db_path = './' + db_path
-
-    db_dir = os.path.dirname(db_path)
-    if db_dir:  # Only create if there's a directory component
-        os.makedirs(db_dir, exist_ok=True)
-        print(f"✅ Database directory created/verified: {db_dir}")
-    print(f"📁 Database file location: {db_path}")
-
+os.makedirs(os.path.dirname(settings.DATABASE_URL.replace('sqlite:///', '')), exist_ok=True)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -48,10 +36,8 @@ app.include_router(dishes.router, prefix="/api/v1/dishes", tags=["Dishes"])
 app.include_router(chefs.router, prefix="/api/v1/chefs", tags=["Chefs"])
 app.include_router(checks.router, prefix="/api/v1/checks", tags=["Dish Checks"])
 app.include_router(ai.router, prefix="/api/v1/ai", tags=["AI Analysis"])
-app.include_router(ai_generic.router, prefix="/api/v1/ai", tags=["AI Generic"])
 app.include_router(daily_tasks.router, prefix="/api/v1/tasks", tags=["Daily Tasks"])
 app.include_router(sanitation_audits.router, prefix="/api/v1/sanitation-audits", tags=["Sanitation Audits"])
-app.include_router(manager_reviews.router, prefix="/api/v1", tags=["Manager Reviews"])
 
 
 @app.get("/health")

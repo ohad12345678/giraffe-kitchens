@@ -28,5 +28,3 @@ class User(Base):
     # Relationships
     branch = relationship("Branch", back_populates="users")
     dish_checks = relationship("DishCheck", back_populates="created_by_user")
-    reviews_received = relationship("ManagerReview", foreign_keys="ManagerReview.manager_id", back_populates="manager")
-    reviews_conducted = relationship("ManagerReview", foreign_keys="ManagerReview.reviewer_id", back_populates="reviewer")

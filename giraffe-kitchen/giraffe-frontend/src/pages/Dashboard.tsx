@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { checkAPI } from '../services/api';
 import { Building2, LogOut, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import NotificationBadge from '../components/manager-reviews/NotificationBadge';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -64,9 +63,6 @@ const Dashboard: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-4">
-              {/* Manager Reviews Notifications */}
-              <NotificationBadge />
-
               <div className="text-left">
                 <p className="text-sm font-medium text-gray-900">{user?.email}</p>
                 <p className="text-xs text-gray-500">
@@ -88,7 +84,7 @@ const Dashboard: React.FC = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Dashboard Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
 
           {/* Card 1: Daily Checks + Average Score */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
@@ -187,35 +183,27 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Card 4: Best & Worst Branches for Sanitation (HQ only) - Combined */}
-          {isHQ && (stats?.branches.best || stats?.branches.worst) && (
+          {/* Card 4: Best Branch for Sanitation (HQ only) */}
+          {isHQ && stats?.branches.best && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-              <h3 className="text-sm font-medium text-gray-600 mb-4">סניפים - תברואה (90 יום)</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {/* Best Branch */}
-                {stats?.branches.best && (
-                  <div className="text-center p-3 bg-green-50 rounded-lg border border-green-100">
-                    <p className="text-xs text-gray-500 mb-2">סניף מצטיין 🏆</p>
-                    <p className="text-lg font-bold text-green-600">{stats.branches.best.name}</p>
-                    <p className="text-sm text-gray-600 mt-1">
-                      ציון: {stats.branches.best.score}
-                    </p>
-                    <p className="text-xs text-gray-500">{stats.branches.best.audit_count} ביקורות</p>
-                  </div>
-                )}
+              <h3 className="text-sm font-medium text-gray-600 mb-4">סניף מצטיין בתברואה 🏆</h3>
+              <p className="text-2xl font-bold text-green-600">{stats.branches.best.name}</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.branches.best.score}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                ממוצע מ-{stats.branches.best.audit_count} ביקורות (90 יום)
+              </p>
+            </div>
+          )}
 
-                {/* Worst Branch */}
-                {stats?.branches.worst && (
-                  <div className="text-center p-3 bg-red-50 rounded-lg border border-red-100">
-                    <p className="text-xs text-gray-500 mb-2">דורש שיפור ⚠️</p>
-                    <p className="text-lg font-bold text-red-600">{stats.branches.worst.name}</p>
-                    <p className="text-sm text-gray-600 mt-1">
-                      ציון: {stats.branches.worst.score}
-                    </p>
-                    <p className="text-xs text-gray-500">{stats.branches.worst.audit_count} ביקורות</p>
-                  </div>
-                )}
-              </div>
+          {/* Card 5: Worst Branch for Sanitation (HQ only) */}
+          {isHQ && stats?.branches.worst && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+              <h3 className="text-sm font-medium text-gray-600 mb-4">סניף דורש שיפור בתברואה ⚠️</h3>
+              <p className="text-2xl font-bold text-red-600">{stats.branches.worst.name}</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.branches.worst.score}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                ממוצע מ-{stats.branches.worst.audit_count} ביקורות (90 יום)
+              </p>
             </div>
           )}
         </div>
@@ -252,13 +240,6 @@ const Dashboard: React.FC = () => {
               className="p-4 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center"
             >
               <span className="font-medium text-gray-900">דוחות</span>
-            </button>
-
-            <button
-              onClick={() => navigate('/manager-reviews')}
-              className="p-4 border-2 border-orange-200 rounded-lg hover:bg-orange-50 transition-colors text-center"
-            >
-              <span className="font-medium text-gray-900">הערכות מנהלים</span>
             </button>
           </div>
         </div>

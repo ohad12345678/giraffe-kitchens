@@ -553,11 +553,6 @@ def get_dashboard_stats(
 
     # === 4. Best and Worst Branches for Sanitation (last 90 days) ===
     three_months_ago = today - timedelta(days=90)
-    # Convert dates to datetime for proper comparison with audit_date (which is DateTime)
-    from datetime import datetime
-    start_datetime = datetime.combine(three_months_ago, datetime.min.time())
-    end_datetime = datetime.combine(today, datetime.max.time())
-
     branch_stats_query = db.query(
         SanitationAudit.branch_id,
         Branch.name.label('branch_name'),
@@ -566,8 +561,8 @@ def get_dashboard_stats(
     ).join(
         Branch, SanitationAudit.branch_id == Branch.id
     ).filter(
-        SanitationAudit.audit_date >= start_datetime,
-        SanitationAudit.audit_date <= end_datetime,
+        SanitationAudit.audit_date >= three_months_ago,
+        SanitationAudit.audit_date <= today,
         SanitationAudit.status == AuditStatus.COMPLETED
     )
 
@@ -583,8 +578,7 @@ def get_dashboard_stats(
     best_branch = None
     worst_branch = None
 
-    # Only show best/worst if HQ and there are at least 2 branches
-    if branch_stats and current_user.role.value != "branch_manager" and len(branch_stats) >= 2:
+    if branch_stats and current_user.role.value != "branch_manager":  # Only show if HQ
         sorted_branches = sorted(branch_stats, key=lambda x: x.avg_score)
         worst = sorted_branches[0]
         best = sorted_branches[-1]
@@ -625,10 +619,5 @@ def get_dashboard_stats(
         "branches": {
             "best": best_branch,
             "worst": worst_branch
-        },
-        "debug_branch_stats": {
-            "total_branches": len(branch_stats) if branch_stats else 0,
-            "user_role": current_user.role.value,
-            "raw_stats": [{"branch": b.branch_name, "score": float(b.avg_score), "count": b.audit_count} for b in branch_stats] if branch_stats else []
         }
     }

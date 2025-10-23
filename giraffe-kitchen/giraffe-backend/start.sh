@@ -2,13 +2,6 @@
 
 echo "Starting deployment..."
 
-# Check if forced database recreation is requested
-if [ "$FORCE_RECREATE_DB" = "true" ]; then
-    echo "🗑️  FORCE_RECREATE_DB=true detected - deleting database..."
-    rm -f /data/giraffe_kitchens.db /data/giraffe_kitchens.db-shm /data/giraffe_kitchens.db-wal
-    echo "✅ Database deleted! Will recreate with correct schema..."
-fi
-
 # Run database migrations (don't fail on error)
 echo "Running database migrations..."
 alembic upgrade head || echo "⚠️  Migration failed or already up to date"

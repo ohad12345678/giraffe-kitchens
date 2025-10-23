@@ -5,7 +5,6 @@ from app.models.chef import Chef
 from app.models.dish_check import DishCheck
 from app.models.daily_task import DailyTask, TaskAssignment, TaskType, TaskFrequency
 from app.models.sanitation_audit import SanitationAudit, SanitationAuditCategory, AuditStatus
-from app.models.manager_review import ManagerReview, ReviewStatus, ReviewQuarter
 
 __all__ = [
     "User",
@@ -19,8 +18,5 @@ __all__ = [
     "TaskFrequency",
     "SanitationAudit",
     "SanitationAuditCategory",
-    "AuditStatus",
-    "ManagerReview",
-    "ReviewStatus",
-    "ReviewQuarter"
+    "AuditStatus"
 ]

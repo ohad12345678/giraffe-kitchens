@@ -16,40 +16,24 @@ import type {
   BranchAuditStats
 } from '../types';
 
-// Get API URL dynamically at runtime - purely runtime detection, no env vars
-const getAPIURL = (): string => {
-  // Runtime detection ONLY - check hostname
-  const hostname = window.location.hostname;
+// Use relative URL in production (when VITE_API_URL is empty string)
+// Use localhost in development (when VITE_API_URL is undefined)
+const API_URL = import.meta.env.VITE_API_URL === undefined
+  ? 'http://localhost:8000'  // Development
+  : import.meta.env.VITE_API_URL;  // Production (can be empty string for relative URLs)
 
-  // ONLY localhost uses explicit port 8000
-  // Everything else (including Railway) uses relative URLs
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    console.log('💻 Local development - using localhost:8000');
-    return 'http://localhost:8000';
-  }
-
-  // All production environments use relative URLs
-  console.log('🌐 Production environment detected - using relative URLs');
-  console.log('Hostname:', hostname);
-  return '';
-};
-
-// Create axios instance without baseURL - we'll set it dynamically
+// Create axios instance
 const api = axios.create({
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Intercept requests to set baseURL dynamically and add auth token
+// Add auth token to requests
 api.interceptors.request.use((config) => {
-  // Set baseURL dynamically at runtime
-  const baseURL = getAPIURL();
-  config.baseURL = baseURL;
-
-  // Add auth token
   const token = localStorage.getItem('access_token');
-  console.log('🔑 API Request to:', baseURL + config.url, '- Token:', token ? 'EXISTS' : 'MISSING');
+  console.log('🔑 API Request to:', config.url, '- Token:', token ? 'EXISTS' : 'MISSING');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
     console.log('🔑 Authorization header set');
@@ -91,19 +75,6 @@ export const branchAPI = {
 
   get: async (id: number): Promise<Branch> => {
     const response = await api.get<Branch>(`/api/v1/branches/${id}`);
-    return response.data;
-  },
-
-  getBranches: async (): Promise<Branch[]> => {
-    const response = await api.get<Branch[]>('/api/v1/branches/');
-    return response.data;
-  },
-};
-
-// User endpoints
-export const userAPI = {
-  list: async (): Promise<User[]> => {
-    const response = await api.get<User[]>('/api/v1/auth/users');
     return response.data;
   },
 };
