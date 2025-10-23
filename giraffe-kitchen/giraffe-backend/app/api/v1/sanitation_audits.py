@@ -821,3 +821,70 @@ def generate_ai_summary(
         "current_score": audit.total_score,
         "previous_scores": [c['score'] for c in comparison_data]
     }
+
+
+@router.get("/branch-rankings")
+def get_branch_rankings(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get best and worst performing branches based on sanitation audit scores this month.
+    Returns the branch with highest average score and lowest average score.
+    """
+    from datetime import date
+    from dateutil.relativedelta import relativedelta
+
+    # Calculate this month's date range
+    today = date.today()
+    month_start = today.replace(day=1)
+
+    # Build query for this month's audits
+    query = db.query(
+        Branch.id.label('branch_id'),
+        Branch.name.label('branch_name'),
+        func.avg(SanitationAudit.total_score).label('avg_score'),
+        func.count(SanitationAudit.id).label('audit_count')
+    ).join(
+        SanitationAudit, Branch.id == SanitationAudit.branch_id
+    ).filter(
+        SanitationAudit.audit_date >= month_start,
+        SanitationAudit.status == AuditStatus.COMPLETED
+    ).group_by(
+        Branch.id, Branch.name
+    )
+
+    # Branch managers see only their branch
+    if current_user.role.value == "branch_manager":
+        query = query.filter(Branch.id == current_user.branch_id)
+
+    # Get all branches sorted
+    all_branches = query.all()
+
+    if not all_branches:
+        return {
+            "best_branch": None,
+            "worst_branch": None,
+            "message": "אין ביקורות תברואה החודש"
+        }
+
+    # Sort by average score
+    sorted_branches = sorted(all_branches, key=lambda x: x.avg_score, reverse=True)
+
+    best = sorted_branches[0]
+    worst = sorted_branches[-1]
+
+    return {
+        "best_branch": {
+            "branch_id": best.branch_id,
+            "name": best.branch_name,
+            "avg_score": round(float(best.avg_score), 1),
+            "audit_count": best.audit_count
+        },
+        "worst_branch": {
+            "branch_id": worst.branch_id,
+            "name": worst.branch_name,
+            "avg_score": round(float(worst.avg_score), 1),
+            "audit_count": worst.audit_count
+        } if len(sorted_branches) > 1 else None
+    }

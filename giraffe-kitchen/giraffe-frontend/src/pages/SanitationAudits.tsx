@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sanitationAuditAPI, aiAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowRight, MessageCircle } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
+import Layout from '../components/Layout';
 import type { SanitationAuditSummary } from '../types';
 
 export default function SanitationAudits() {
@@ -110,22 +111,8 @@ export default function SanitationAudits() {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowRight className="h-5 w-5" />
-            <span>חזרה לדשבורד</span>
-          </button>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Layout>
+      <div className="max-w-7xl mx-auto">
         <div className="space-y-6">
           {/* Header */}
           <div className="flex justify-between items-center">
@@ -321,6 +308,7 @@ export default function SanitationAudits() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </Layout>
   );
 }

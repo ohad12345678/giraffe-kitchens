@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Star } from 'lucide-react';
 import { chefAPI, dishAPI, checkAPI, branchAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import Layout from '../components/Layout';
 import type { Chef, Dish, Branch } from '../types';
 
 const NewCheck: React.FC = () => {
@@ -134,17 +135,19 @@ const NewCheck: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl text-gray-600">טוען...</div>
-      </div>
+      <Layout>
+        <div className="flex items-center justify-center h-96">
+          <div className="text-xl text-gray-600">טוען...</div>
+        </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <Layout>
+      <div className="max-w-3xl mx-auto">
+        {/* Back Button */}
+        <div className="mb-6">
           <button
             onClick={handleCancel}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
@@ -153,10 +156,6 @@ const NewCheck: React.FC = () => {
             <span>חזרה לדשבורד</span>
           </button>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">בדיקת איכות מנה</h1>
           <p className="text-gray-600 mb-8">מלא את הפרטים הבאים כדי לתעד בדיקת איכות</p>
@@ -336,8 +335,8 @@ const NewCheck: React.FC = () => {
             💡 <strong>טיפ:</strong> נסה לבדוק מנות באופן קבוע לאורך כל היום כדי לקבל תמונה מלאה של איכות המטבח.
           </p>
         </div>
-      </main>
-    </div>
+      </div>
+    </Layout>
   );
 };
 

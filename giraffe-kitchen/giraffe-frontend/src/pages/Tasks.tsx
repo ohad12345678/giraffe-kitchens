@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { tasksAPI, branchAPI, dishAPI } from '../services/api';
-import { ArrowRight, CheckCircle, Circle } from 'lucide-react';
+import { CheckCircle, Circle } from 'lucide-react';
+import Layout from '../components/Layout';
 import type { DailyTask, TaskAssignment, CreateTaskData, Branch, Dish, TaskType, TaskFrequency } from '../types';
 
 const Tasks: React.FC = () => {
-  const navigate = useNavigate();
   const { isHQ } = useAuth();
   const [activeTab, setActiveTab] = useState<'create' | 'manage' | 'track'>('create');
 
@@ -152,22 +151,8 @@ const Tasks: React.FC = () => {
   const stats = getCompletionStats();
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowRight className="h-5 w-5" />
-            <span>חזרה לדשבורד</span>
-          </button>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Layout>
+      <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">ניהול משימות יומיות</h1>
           <p className="text-gray-600">צור והקצה משימות לכל הסניפים</p>
@@ -551,8 +536,8 @@ const Tasks: React.FC = () => {
             </div>
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </Layout>
   );
 };
 

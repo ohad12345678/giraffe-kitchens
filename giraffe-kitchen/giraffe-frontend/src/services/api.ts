@@ -178,6 +178,35 @@ export const checkAPI = {
     return response.data;
   },
 
+  getWeeklyComparison: async (): Promise<{
+    this_week: number;
+    last_week: number;
+    change: number;
+    change_percentage: number;
+  }> => {
+    const response = await api.get('/api/v1/checks/weekly-comparison');
+    return response.data;
+  },
+
+  getBestWorstDishes: async (): Promise<{
+    best_dish: {
+      dish_id: number | null;
+      name: string | null;
+      avg_score: number | null;
+      check_count: number;
+    } | null;
+    worst_dish: {
+      dish_id: number | null;
+      name: string | null;
+      avg_score: number | null;
+      check_count: number;
+    } | null;
+    message?: string;
+  }> => {
+    const response = await api.get('/api/v1/checks/best-worst-dishes');
+    return response.data;
+  },
+
   bulkDelete: async (filters?: {
     start_date?: string;
     end_date?: string;
@@ -334,6 +363,26 @@ export const sanitationAuditAPI = {
   // Get branch statistics
   getBranchStats: async (branchId: number): Promise<BranchAuditStats> => {
     const response = await api.get<BranchAuditStats>(`/api/v1/sanitation-audits/stats/branch/${branchId}`);
+    return response.data;
+  },
+
+  // Get branch rankings (best and worst performing branches this month)
+  getBranchRankings: async (): Promise<{
+    best_branch: {
+      branch_id: number;
+      name: string;
+      avg_score: number;
+      audit_count: number;
+    } | null;
+    worst_branch: {
+      branch_id: number;
+      name: string;
+      avg_score: number;
+      audit_count: number;
+    } | null;
+    message?: string;
+  }> => {
+    const response = await api.get('/api/v1/sanitation-audits/branch-rankings');
     return response.data;
   },
 };
