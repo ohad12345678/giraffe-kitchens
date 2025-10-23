@@ -193,12 +193,16 @@ def get_analytics(
 
     # 1. KPIs
     total_checks = base_query.count()
+
+    # Use subquery to avoid loading all rows
+    check_ids_subquery = base_query.with_entities(DishCheck.id).subquery()
+
     avg_rating = db.query(func.avg(DishCheck.rating)).filter(
-        DishCheck.id.in_([c.id for c in base_query.all()])
+        DishCheck.id.in_(check_ids_subquery)
     ).scalar() or 0
 
     weak_dishes_count = db.query(func.count(func.distinct(DishCheck.dish_id))).filter(
-        DishCheck.id.in_([c.id for c in base_query.all()]),
+        DishCheck.id.in_(check_ids_subquery),
         DishCheck.rating < 7
     ).scalar() or 0
 
@@ -209,7 +213,7 @@ def get_analytics(
     ).outerjoin(
         Chef, DishCheck.chef_id == Chef.id
     ).filter(
-        DishCheck.id.in_([c.id for c in base_query.all()])
+        DishCheck.id.in_(check_ids_subquery)
     ).group_by(
         DishCheck.chef_id,
         func.coalesce(Chef.name, DishCheck.chef_name_manual)
@@ -227,7 +231,7 @@ def get_analytics(
     ).outerjoin(
         Dish, DishCheck.dish_id == Dish.id
     ).filter(
-        DishCheck.id.in_([c.id for c in base_query.all()])
+        DishCheck.id.in_(check_ids_subquery)
     ).group_by(
         DishCheck.dish_id,
         func.coalesce(Dish.name, DishCheck.dish_name_manual),
@@ -260,7 +264,7 @@ def get_analytics(
     ).outerjoin(
         Branch, Chef.branch_id == Branch.id
     ).filter(
-        DishCheck.id.in_([c.id for c in base_query.all()])
+        DishCheck.id.in_(check_ids_subquery)
     ).group_by(
         DishCheck.chef_id,
         func.coalesce(Chef.name, DishCheck.chef_name_manual),
@@ -286,7 +290,7 @@ def get_analytics(
         func.count(DishCheck.id).label('checks'),
         func.avg(DishCheck.rating).label('avg_rating')
     ).filter(
-        DishCheck.id.in_([c.id for c in base_query.all()])
+        DishCheck.id.in_(check_ids_subquery)
     ).group_by(DishCheck.check_date).order_by(DishCheck.check_date).all()
 
     daily_trend = [
