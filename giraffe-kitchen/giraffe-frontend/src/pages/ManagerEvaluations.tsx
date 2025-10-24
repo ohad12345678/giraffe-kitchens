@@ -182,7 +182,7 @@ export default function ManagerEvaluations() {
               onClick={() => navigate('/manager-evaluations/new')}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              <PlusIcon className="h-5 w-5" />
+              <Plus className="h-5 w-5" />
               הערכה חדשה
             </button>
           )}
@@ -228,7 +228,7 @@ export default function ManagerEvaluations() {
         {/* Evaluations List */}
         {evaluations.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-8 text-center">
-            <DocumentTextIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500">
               {isHQ
                 ? 'לא נמצאו הערכות. לחץ על "הערכה חדשה" כדי להתחיל'
@@ -273,7 +273,7 @@ export default function ManagerEvaluations() {
                     <tr key={evaluation.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <UserCircleIcon className="h-5 w-5 text-gray-400 ml-2" />
+                          <Users className="h-5 w-5 text-gray-400 ml-2" />
                           <span className="text-sm font-medium text-gray-900">
                             {evaluation.manager_name}
                           </span>
@@ -281,7 +281,7 @@ export default function ManagerEvaluations() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <BuildingOfficeIcon className="h-5 w-5 text-gray-400 ml-2" />
+                          <Building2 className="h-5 w-5 text-gray-400 ml-2" />
                           <span className="text-sm text-gray-900">
                             {evaluation.branch_name}
                           </span>
@@ -294,7 +294,7 @@ export default function ManagerEvaluations() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center">
-                          <ChartBarIcon className="h-5 w-5 text-gray-400 ml-2" />
+                          <BarChart3 className="h-5 w-5 text-gray-400 ml-2" />
                           <span className="text-sm font-bold text-gray-900">
                             {evaluation.total_score.toFixed(1)}
                           </span>
@@ -312,7 +312,7 @@ export default function ManagerEvaluations() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <div className="flex items-center">
-                          <CalendarIcon className="h-4 w-4 text-gray-400 ml-2" />
+                          <Calendar className="h-4 w-4 text-gray-400 ml-2" />
                           {formatDate(evaluation.created_at)}
                         </div>
                       </td>
@@ -322,7 +322,7 @@ export default function ManagerEvaluations() {
                             to={`/manager-evaluations/${evaluation.id}`}
                             className="text-blue-600 hover:text-blue-900"
                           >
-                            <EyeIcon className="h-5 w-5" />
+                            <Eye className="h-5 w-5" />
                           </Link>
 
                           {isHQ && evaluation.status !== 'approved' && (
@@ -330,7 +330,7 @@ export default function ManagerEvaluations() {
                               onClick={() => handleDelete(evaluation.id)}
                               className="text-red-600 hover:text-red-900"
                             >
-                              <TrashIcon className="h-5 w-5" />
+                              <Trash2 className="h-5 w-5" />
                             </button>
                           )}
 
@@ -348,7 +348,7 @@ export default function ManagerEvaluations() {
                               className="text-green-600 hover:text-green-900"
                               title="אשר הערכה"
                             >
-                              <CheckBadgeIcon className="h-5 w-5" />
+                              <CheckCircle className="h-5 w-5" />
                             </button>
                           )}
                         </div>
