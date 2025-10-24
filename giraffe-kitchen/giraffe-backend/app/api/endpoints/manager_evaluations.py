@@ -8,7 +8,7 @@ from datetime import datetime, date
 import json
 import os
 
-from app.db.database import get_db
+from app.db.base import get_db
 from app.models import (
     ManagerEvaluation,
     EvaluationCategory,

@@ -13,7 +13,11 @@ import type {
   CreateSanitationAudit,
   SanitationAuditCategoryUpdate,
   NetworkAuditStats,
-  BranchAuditStats
+  BranchAuditStats,
+  ManagerEvaluation,
+  ManagerEvaluationSummary,
+  CreateManagerEvaluationFormData,
+  EvaluationStatus
 } from '../types';
 
 // Use relative URL in production (when VITE_API_URL is empty string)
@@ -334,6 +338,65 @@ export const sanitationAuditAPI = {
   // Get branch statistics
   getBranchStats: async (branchId: number): Promise<BranchAuditStats> => {
     const response = await api.get<BranchAuditStats>(`/api/v1/sanitation-audits/stats/branch/${branchId}`);
+    return response.data;
+  },
+};
+
+// Manager Evaluation endpoints
+export const managerEvaluationAPI = {
+  // List all evaluations
+  list: async (filters?: {
+    branch_id?: number;
+    manager_id?: number;
+    status?: EvaluationStatus;
+  }): Promise<ManagerEvaluationSummary[]> => {
+    const response = await api.get<ManagerEvaluationSummary[]>('/api/v1/manager-evaluations/', {
+      params: filters,
+    });
+    return response.data;
+  },
+
+  // Get specific evaluation
+  get: async (id: number): Promise<ManagerEvaluation> => {
+    const response = await api.get<ManagerEvaluation>(`/api/v1/manager-evaluations/${id}`);
+    return response.data;
+  },
+
+  // Create new evaluation (HQ only)
+  create: async (data: CreateManagerEvaluationFormData): Promise<ManagerEvaluation> => {
+    const response = await api.post<ManagerEvaluation>('/api/v1/manager-evaluations/', data);
+    return response.data;
+  },
+
+  // Update evaluation
+  update: async (id: number, data: Partial<ManagerEvaluation>): Promise<ManagerEvaluation> => {
+    const response = await api.put<ManagerEvaluation>(`/api/v1/manager-evaluations/${id}`, data);
+    return response.data;
+  },
+
+  // Generate AI analysis
+  generateAnalysis: async (evaluationId: number, regenerate: boolean = false): Promise<{
+    evaluation_id: number;
+    ai_analysis: string;
+    generated_at: string;
+    status: string;
+  }> => {
+    const response = await api.post(`/api/v1/manager-evaluations/${evaluationId}/generate-analysis`, {
+      evaluation_id: evaluationId,
+      regenerate,
+    });
+    return response.data;
+  },
+
+  // Approve evaluation (HQ only)
+  approve: async (id: number): Promise<{ message: string; evaluation_id: number }> => {
+    const response = await api.post(`/api/v1/manager-evaluations/${id}/approve`);
+    return response.data;
+  },
+
+  // Delete evaluation (HQ only)
+  delete: async (id: number): Promise<{ message: string }> => {
+    const response = await api.delete(`/api/v1/manager-evaluations/${id}`);
     return response.data;
   },
 };

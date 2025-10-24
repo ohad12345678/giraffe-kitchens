@@ -190,3 +190,163 @@ export interface NetworkAuditStats {
   branch_stats: BranchAuditStats[];
   common_issues_network: string[];
 }
+
+// Manager Evaluation types
+export type EvaluationStatus = 'draft' | 'in_progress' | 'completed' | 'reviewed' | 'approved';
+export type PerformanceLevel = 'outstanding' | 'exceeds_expectations' | 'meets_expectations' | 'needs_improvement' | 'does_not_meet';
+
+export interface DevelopmentGoal {
+  goal: string;
+  measurable: string;
+  actions: string[];
+  support_needed: string;
+  deadline: string;
+  milestone_date?: string;
+}
+
+export interface DetailedScores {
+  operational: Record<string, number>;
+  people: Record<string, number>;
+  business: Record<string, number>;
+  leadership: Record<string, number>;
+}
+
+export interface ManagerEvaluationSummary {
+  id: number;
+  branch_id: number;
+  branch_name: string;
+  manager_id: number;
+  manager_name: string;
+  evaluator_name: string;
+  evaluation_date: string;
+  evaluation_period_start: string;
+  evaluation_period_end: string;
+  total_score: number;
+  performance_level: PerformanceLevel | null;
+  status: EvaluationStatus;
+  created_at: string;
+}
+
+export interface ManagerEvaluation {
+  id: number;
+  branch_id: number;
+  manager_id: number;
+  evaluator_id: number;
+  evaluation_period_start: string;
+  evaluation_period_end: string;
+  evaluation_date: string;
+  manager_name: string;
+  evaluator_name: string;
+  evaluator_role: string;
+
+  total_score: number;
+  performance_level: PerformanceLevel | null;
+
+  operational_management_score: number | null;
+  people_management_score: number | null;
+  business_performance_score: number | null;
+  leadership_score: number | null;
+
+  detailed_scores: DetailedScores | null;
+  network_average_comparison: Record<string, any> | null;
+
+  executive_summary: string | null;
+  strengths_summary: string | null;
+  improvement_areas_summary: string | null;
+
+  development_goals: DevelopmentGoal[] | null;
+  required_training: string[] | null;
+
+  promotion_potential: 'ready_now' | '1_year' | '2_years' | 'not_ready' | null;
+  management_notes: string | null;
+
+  next_period_goals: Record<string, any> | null;
+
+  ai_analysis: string | null;
+  ai_analysis_generated_at: string | null;
+
+  status: EvaluationStatus;
+
+  manager_acknowledged: boolean;
+  manager_acknowledged_at: string | null;
+  manager_comments: string | null;
+
+  approved_by_id: number | null;
+  approved_at: string | null;
+
+  created_at: string;
+  updated_at: string;
+
+  categories?: EvaluationCategory[];
+}
+
+export interface EvaluationCategory {
+  id: number;
+  evaluation_id: number;
+  category_name: string;
+  category_key: string;
+  subcategory_name: string | null;
+  subcategory_key: string | null;
+  score: number;
+  weight: number;
+  specific_achievements: string | null;
+  improvement_areas: string | null;
+  metrics: Record<string, any> | null;
+  action_items: string[] | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateManagerEvaluationFormData {
+  manager_id: number;
+  manager_name: string;
+  branch_id: number;
+  evaluation_period_start: string;
+  evaluation_period_end: string;
+
+  // Operational Management (35%)
+  sanitation_safety_score: number;
+  sanitation_notes?: string;
+  inventory_costs_score: number;
+  waste_percentage?: number;
+  inventory_notes?: string;
+  product_quality_score: number;
+  mystery_shopper_score?: number;
+  quality_notes?: string;
+  maintenance_score: number;
+  maintenance_notes?: string;
+
+  // People Management (30%)
+  recruitment_training_score: number;
+  recruitment_notes?: string;
+  scheduling_score: number;
+  scheduling_notes?: string;
+  retention_climate_score: number;
+  turnover_rate?: number;
+  retention_notes?: string;
+
+  // Business Performance (25%)
+  sales_profitability_score: number;
+  sales_growth?: number;
+  sales_notes?: string;
+  operational_efficiency_score: number;
+  labor_cost_percentage?: number;
+  efficiency_notes?: string;
+
+  // Leadership (10%)
+  initiative_score: number;
+  problem_solving_score: number;
+  communication_score: number;
+  development_score: number;
+  values_alignment_score: number;
+  leadership_notes?: string;
+
+  // Overall assessment
+  strengths_summary?: string;
+  improvement_areas_summary?: string;
+  development_goals?: DevelopmentGoal[];
+
+  // Management recommendations
+  promotion_potential?: 'ready_now' | '1_year' | '2_years' | 'not_ready';
+  management_notes?: string;
+}
