@@ -4,17 +4,16 @@ import { managerEvaluationAPI, branchAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import type { ManagerEvaluationSummary, Branch, EvaluationStatus } from '../types';
 import {
-  UserCircleIcon,
-  BuildingOfficeIcon,
-  CalendarIcon,
-  ChartBarIcon,
-  PlusIcon,
-  EyeIcon,
-  TrashIcon,
-  CheckBadgeIcon,
-  ClockIcon,
-  DocumentTextIcon
-} from '@heroicons/react/24/outline';
+  Users,
+  Building2,
+  Calendar,
+  BarChart3,
+  Plus,
+  Eye,
+  Trash2,
+  CheckCircle,
+  FileText
+} from 'lucide-react';
 
 export default function ManagerEvaluations() {
   const navigate = useNavigate();
