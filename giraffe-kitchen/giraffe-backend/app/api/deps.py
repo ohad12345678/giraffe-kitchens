@@ -60,7 +60,3 @@ def get_accessible_branch_ids(current_user: User = Depends(get_current_user)):
     if current_user.role == UserRole.HQ:
         return None  # HQ can access all branches
     return [current_user.branch_id]  # Branch manager can only access their branch
-
-
-# Alias for manager_evaluations endpoint
-get_current_hq_user = require_hq_role
