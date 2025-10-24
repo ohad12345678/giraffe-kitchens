@@ -156,6 +156,14 @@ const Dashboard: React.FC = () => {
               <span className="font-medium text-gray-900">ביקורת תברואה</span>
             </button>
 
+            {/* Manager Evaluations button */}
+            <button
+              onClick={() => navigate('/manager-evaluations')}
+              className="p-4 border-2 border-purple-200 rounded-lg hover:bg-purple-50 transition-colors text-center"
+            >
+              <span className="font-medium text-gray-900">הערכות מנהלים</span>
+            </button>
+
             <button
               onClick={() => navigate('/reports')}
               className="p-4 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center"
