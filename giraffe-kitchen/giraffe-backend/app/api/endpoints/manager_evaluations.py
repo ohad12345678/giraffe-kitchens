@@ -29,7 +29,9 @@ from app.schemas.manager_evaluation import (
     EvaluationCategoryInDB
 )
 from app.api.deps import get_current_user, get_current_hq_user
-from app.services.openai_service import OpenAIService
+from anthropic import Anthropic
+from app.core.config import settings
+from app.api.v1.sanitation_audits import load_prompt_template
 
 router = APIRouter()
 
@@ -406,7 +408,7 @@ def update_evaluation(
 
 
 @router.post("/{evaluation_id}/generate-analysis", response_model=GenerateAIAnalysisResponse)
-async def generate_ai_analysis(
+def generate_ai_analysis(
     evaluation_id: int,
     request: GenerateAIAnalysisRequest,
     current_user: User = Depends(get_current_hq_user),
@@ -522,8 +524,11 @@ async def generate_ai_analysis(
     if evaluation.improvement_areas_summary:
         evaluation_text += f"\n\nתחומים לשיפור (מתוך ההערכה):\n{evaluation.improvement_areas_summary}\n"
 
-    # Generate analysis using OpenAI
-    openai_service = OpenAIService()
+    # Generate analysis using Claude
+    api_key = settings.ANTHROPIC_API_KEY
+
+    if not api_key:
+        raise HTTPException(status_code=500, detail="לא הוגדר מפתח API עבור Claude")
 
     # Combine template with evaluation data
     full_prompt = prompt_template.replace(
@@ -532,11 +537,41 @@ async def generate_ai_analysis(
     )
 
     try:
-        analysis = await openai_service.generate_text(
-            prompt=full_prompt,
-            max_tokens=3000,
-            temperature=0.7
-        )
+        # Create Claude client
+        client = Anthropic(api_key=api_key, timeout=60.0)
+
+        # Try different models
+        models_to_try = [
+            "claude-3-5-sonnet-latest",
+            "claude-3-opus-latest",
+            "claude-3-sonnet-20240229",
+            "claude-3-haiku-20240307"  # Fallback model
+        ]
+
+        analysis = None
+        for model_name in models_to_try:
+            try:
+                print(f"🤖 Generating manager evaluation analysis with {model_name}")
+                message = client.messages.create(
+                    model=model_name,
+                    max_tokens=4096,
+                    system=full_prompt,
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": "נתח את ההערכה וצור דוח מפורט לפי התבנית"
+                        }
+                    ]
+                )
+                analysis = message.content[0].text
+                print(f"✅ Successfully generated analysis with {model_name}")
+                break
+            except Exception as model_error:
+                print(f"❌ Failed with {model_name}: {str(model_error)}")
+                continue
+
+        if not analysis:
+            raise Exception("Failed to generate analysis with all available models")
 
         # Save analysis to database
         evaluation.ai_analysis = analysis
