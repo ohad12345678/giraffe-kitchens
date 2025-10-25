@@ -229,7 +229,8 @@ export default function ViewManagerEvaluation() {
                   <div
                     className="text-gray-700 whitespace-pre-wrap"
                     dangerouslySetInnerHTML={{
-                      __html: evaluation.ai_summary.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                      __html: evaluation.ai_summary
+                        .replace(/\*\*(.*?)\*\*/g, '<u>$1</u>')
                     }}
                   />
                 </div>
