@@ -112,8 +112,7 @@ def ask_ai_analysis(
         DishCheck.id.in_([c.id for c in query.all()])
     ).group_by(
         DishCheck.dish_id,
-        Dish.name,
-        DishCheck.dish_name_manual
+        func.coalesce(Dish.name, DishCheck.dish_name_manual)
     ).having(
         func.avg(DishCheck.rating) < 7
     ).order_by(
@@ -132,8 +131,7 @@ def ask_ai_analysis(
         DishCheck.id.in_([c.id for c in query.all()])
     ).group_by(
         DishCheck.chef_id,
-        Chef.name,
-        DishCheck.chef_name_manual
+        func.coalesce(Chef.name, DishCheck.chef_name_manual)
     ).order_by(
         func.avg(DishCheck.rating).desc()
     ).limit(3).all()
