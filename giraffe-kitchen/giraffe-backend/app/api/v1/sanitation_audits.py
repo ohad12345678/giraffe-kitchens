@@ -821,3 +821,65 @@ def generate_ai_summary(
         "current_score": audit.total_score,
         "previous_scores": [c['score'] for c in comparison_data]
     }
+
+
+@router.get("/dashboard-stats")
+def get_sanitation_dashboard_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get sanitation statistics for dashboard - best and worst branches by avg score in last month."""
+    from datetime import datetime, timedelta
+
+    # Calculate date range - last month
+    today = datetime.now().date()
+    month_ago = today - timedelta(days=30)
+
+    # Build base query
+    query = db.query(SanitationAudit).filter(
+        SanitationAudit.audit_date >= month_ago,
+        SanitationAudit.audit_date <= today
+    )
+
+    # Branch managers see only their branch
+    if current_user.role.value == "branch_manager":
+        query = query.filter(SanitationAudit.branch_id == current_user.branch_id)
+
+    # Get average scores by branch
+    branch_stats = db.query(
+        Branch.id,
+        Branch.name,
+        func.avg(SanitationAudit.total_score).label('avg_score'),
+        func.count(SanitationAudit.id).label('audit_count')
+    ).join(
+        SanitationAudit, Branch.id == SanitationAudit.branch_id
+    ).filter(
+        SanitationAudit.audit_date >= month_ago,
+        SanitationAudit.audit_date <= today
+    )
+
+    if current_user.role.value == "branch_manager":
+        branch_stats = branch_stats.filter(Branch.id == current_user.branch_id)
+
+    branch_stats = branch_stats.group_by(Branch.id, Branch.name).all()
+
+    best_branch = None
+    worst_branch = None
+
+    if branch_stats:
+        sorted_branches = sorted(branch_stats, key=lambda x: x.avg_score, reverse=True)
+        best_branch = {
+            "name": sorted_branches[0].name,
+            "score": round(float(sorted_branches[0].avg_score), 1),
+            "audit_count": sorted_branches[0].audit_count
+        }
+        worst_branch = {
+            "name": sorted_branches[-1].name,
+            "score": round(float(sorted_branches[-1].avg_score), 1),
+            "audit_count": sorted_branches[-1].audit_count
+        }
+
+    return {
+        "best_branch": best_branch,
+        "worst_branch": worst_branch
+    }

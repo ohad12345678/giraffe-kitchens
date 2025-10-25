@@ -178,6 +178,16 @@ export const checkAPI = {
     return response.data;
   },
 
+  getDashboardStats: async (): Promise<{
+    best_dish: { name: string; score: number; check_count: number } | null;
+    worst_dish: { name: string; score: number; check_count: number } | null;
+    this_week_checks: number;
+    last_week_checks: number;
+  }> => {
+    const response = await api.get('/api/v1/checks/dashboard-stats');
+    return response.data;
+  },
+
   bulkDelete: async (filters?: {
     start_date?: string;
     end_date?: string;
@@ -334,6 +344,15 @@ export const sanitationAuditAPI = {
   // Get branch statistics
   getBranchStats: async (branchId: number): Promise<BranchAuditStats> => {
     const response = await api.get<BranchAuditStats>(`/api/v1/sanitation-audits/stats/branch/${branchId}`);
+    return response.data;
+  },
+
+  // Get dashboard statistics
+  getDashboardStats: async (): Promise<{
+    best_branch: { name: string; score: number; audit_count: number } | null;
+    worst_branch: { name: string; score: number; audit_count: number } | null;
+  }> => {
+    const response = await api.get('/api/v1/sanitation-audits/dashboard-stats');
     return response.data;
   },
 };

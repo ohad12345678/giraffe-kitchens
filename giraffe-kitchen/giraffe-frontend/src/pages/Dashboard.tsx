@@ -1,20 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { checkAPI } from '../services/api';
-import { Building2, LogOut } from 'lucide-react';
+import { checkAPI, sanitationAuditAPI } from '../services/api';
+import { Building2, LogOut, TrendingUp, TrendingDown } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout, isHQ } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [todayChecks, setTodayChecks] = useState<number>(0);
-  const [averageRating, setAverageRating] = useState<number>(0);
-  const [weakestDish, setWeakestDish] = useState<{
-    dish_name: string | null;
-    avg_score: number | null;
-    check_count: number;
-    message?: string;
+
+  // New dashboard stats
+  const [dishStats, setDishStats] = useState<{
+    best_dish: { name: string; score: number; check_count: number } | null;
+    worst_dish: { name: string; score: number; check_count: number } | null;
+    this_week_checks: number;
+    last_week_checks: number;
+  } | null>(null);
+
+  const [sanitationStats, setSanitationStats] = useState<{
+    best_branch: { name: string; score: number; audit_count: number } | null;
+    worst_branch: { name: string; score: number; audit_count: number } | null;
   } | null>(null);
 
   useEffect(() => {
@@ -25,21 +30,13 @@ const Dashboard: React.FC = () => {
     try {
       setLoading(true);
 
-      // Load today's analytics
-      const today = new Date().toISOString().split('T')[0];
-      const analyticsData = await checkAPI.getAnalytics({
-        start_date: today,
-        end_date: today,
-      });
+      // Load dish stats (quality checks)
+      const dishData = await checkAPI.getDashboardStats();
+      setDishStats(dishData);
 
-      setTodayChecks(analyticsData.kpis.total_checks);
-      setAverageRating(analyticsData.kpis.average_rating);
-
-      // Load weakest dish for the week
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      const weakestDishData = await checkAPI.getWeakestDish();
-      setWeakestDish(weakestDishData);
+      // Load sanitation stats
+      const sanitData = await sanitationAuditAPI.getDashboardStats();
+      setSanitationStats(sanitData);
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
     } finally {
@@ -94,35 +91,113 @@ const Dashboard: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Box 1: Best & Worst Dishes (Week) */}
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-600">בדיקות היום</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{todayChecks}</p>
+            <h3 className="text-sm font-medium text-gray-600 mb-4 text-center">מנות - שבוע אחרון</h3>
+            <div className="space-y-4">
+              {/* Best Dish */}
+              <div className="flex items-start gap-2">
+                <TrendingUp className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-700">הכי טוב</p>
+                  {dishStats?.best_dish ? (
+                    <>
+                      <p className="text-lg font-bold text-green-600">{dishStats.best_dish.name}</p>
+                      <p className="text-xs text-gray-500">
+                        ציון: {dishStats.best_dish.score} | {dishStats.best_dish.check_count} בדיקות
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-gray-400">אין נתונים</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200"></div>
+
+              {/* Worst Dish */}
+              <div className="flex items-start gap-2">
+                <TrendingDown className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-700">דורש שיפור</p>
+                  {dishStats?.worst_dish ? (
+                    <>
+                      <p className="text-lg font-bold text-red-600">{dishStats.worst_dish.name}</p>
+                      <p className="text-xs text-gray-500">
+                        ציון: {dishStats.worst_dish.score} | {dishStats.worst_dish.check_count} בדיקות
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-gray-400">אין נתונים</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
+          {/* Box 2: Best & Worst Branches Sanitation (Month) */}
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-600">ממוצע ציונים</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
-                {averageRating > 0 ? averageRating.toFixed(1) : '0.0'}
-              </p>
+            <h3 className="text-sm font-medium text-gray-600 mb-4 text-center">תברואה - חודש אחרון</h3>
+            <div className="space-y-4">
+              {/* Best Branch */}
+              <div className="flex items-start gap-2">
+                <TrendingUp className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-700">הכי טוב</p>
+                  {sanitationStats?.best_branch ? (
+                    <>
+                      <p className="text-lg font-bold text-green-600">{sanitationStats.best_branch.name}</p>
+                      <p className="text-xs text-gray-500">
+                        ציון: {sanitationStats.best_branch.score} | {sanitationStats.best_branch.audit_count} ביקורות
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-gray-400">אין נתונים</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200"></div>
+
+              {/* Worst Branch */}
+              <div className="flex items-start gap-2">
+                <TrendingDown className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-700">דורש שיפור</p>
+                  {sanitationStats?.worst_branch ? (
+                    <>
+                      <p className="text-lg font-bold text-red-600">{sanitationStats.worst_branch.name}</p>
+                      <p className="text-xs text-gray-500">
+                        ציון: {sanitationStats.worst_branch.score} | {sanitationStats.worst_branch.audit_count} ביקורות
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-gray-400">אין נתונים</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-600">מנה חלשה השבוע</p>
-              {weakestDish?.dish_name ? (
-                <>
-                  <p className="text-2xl font-bold text-red-600 mt-2">{weakestDish.dish_name}</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    ממוצע: {weakestDish.avg_score?.toFixed(1)} | {weakestDish.check_count} בדיקות
-                  </p>
-                </>
-              ) : (
-                <p className="text-lg text-gray-400 mt-2">{weakestDish?.message || 'טוען...'}</p>
-              )}
+          {/* Box 3: Quality Checks This Week vs Last Week */}
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <h3 className="text-sm font-medium text-gray-600 mb-4 text-center">בדיקות איכות</h3>
+            <div className="space-y-4">
+              {/* This Week */}
+              <div>
+                <p className="text-sm font-medium text-gray-700">השבוע</p>
+                <p className="text-3xl font-bold text-gray-900">{dishStats?.this_week_checks || 0}</p>
+                <p className="text-xs text-gray-500">בדיקות מנות</p>
+              </div>
+
+              <div className="border-t border-gray-200"></div>
+
+              {/* Last Week */}
+              <div>
+                <p className="text-sm font-medium text-gray-700">שבוע שעבר</p>
+                <p className="text-3xl font-bold text-gray-600">{dishStats?.last_week_checks || 0}</p>
+                <p className="text-xs text-gray-500">בדיקות מנות</p>
+              </div>
             </div>
           </div>
         </div>
@@ -162,6 +237,16 @@ const Dashboard: React.FC = () => {
             >
               <span className="font-medium text-gray-900">דוחות</span>
             </button>
+
+            {/* Manager Evaluations button - HQ only for authorized users */}
+            {isHQ && (
+              <button
+                onClick={() => navigate('/manager-evaluations')}
+                className="p-4 border-2 border-blue-200 rounded-lg hover:bg-blue-50 transition-colors text-center"
+              >
+                <span className="font-medium text-gray-900">הערכות מנהלים</span>
+              </button>
+            )}
           </div>
         </div>
       </main>
