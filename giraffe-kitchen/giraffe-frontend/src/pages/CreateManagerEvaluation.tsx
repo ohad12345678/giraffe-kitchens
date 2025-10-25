@@ -103,9 +103,11 @@ export default function CreateManagerEvaluation() {
     try {
       const created = await managerEvaluationAPI.create(evaluationData);
       setSavedEvaluationId(created.id);
-      setAiSummary(created.ai_summary || '');
-      setOverallScore(created.overall_score);
       setEvaluationSaved(true);
+
+      // AI summary is generated automatically by backend (like sanitation audits)
+      setAiSummary(created.ai_summary || 'מייצר סיכום...');
+      setOverallScore(created.overall_score);
     } catch (err: any) {
       console.error('Failed to create evaluation:', err);
       setError(err.response?.data?.detail || 'שגיאה ביצירת הערכה');

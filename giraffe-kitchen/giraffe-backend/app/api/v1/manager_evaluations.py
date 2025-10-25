@@ -96,10 +96,11 @@ def calculate_evaluation_score(evaluation: ManagerEvaluation, db: Session) -> No
     db.commit()
 
 
-def generate_ai_summary(evaluation: ManagerEvaluation, db: Session) -> None:
+def generate_ai_summary(evaluation: ManagerEvaluation, db: Session) -> str:
     """
     Generate AI summary for a manager evaluation.
-    Similar to sanitation audits - called automatically on creation.
+    EXACTLY like sanitation audits generate_deficiencies_summary.
+    Returns the summary string.
     """
     from anthropic import Anthropic
     from app.core.config import settings
@@ -110,8 +111,9 @@ def generate_ai_summary(evaluation: ManagerEvaluation, db: Session) -> None:
     # Load prompt template
     prompt_template = load_prompt_template("manager_evaluation_analysis")
     if not prompt_template:
-        print("⚠️  Could not load prompt template, skipping AI summary")
-        return
+        print("⚠️  Could not load prompt template")
+        # Return fallback
+        return "סיכום לא זמין"
 
     # Build context
     categories_text = "\n".join([
@@ -143,13 +145,13 @@ def generate_ai_summary(evaluation: ManagerEvaluation, db: Session) -> None:
     try:
         # Check API key
         if not settings.ANTHROPIC_API_KEY:
-            print("⚠️  ANTHROPIC_API_KEY not configured, skipping AI summary")
-            return
+            print("⚠️  ANTHROPIC_API_KEY not configured")
+            return "סיכום AI לא זמין - מפתח API חסר"
 
         # Create Anthropic client
         client = Anthropic(api_key=settings.ANTHROPIC_API_KEY, timeout=60.0)
 
-        # Try models in order
+        # Try models in order (EXACTLY like sanitation audits)
         models_to_try = [
             "claude-3-5-sonnet-latest",
             "claude-3-opus-latest",
@@ -159,29 +161,34 @@ def generate_ai_summary(evaluation: ManagerEvaluation, db: Session) -> None:
 
         for model_name in models_to_try:
             try:
-                print(f"🤖 Generating AI summary with {model_name}...")
+                print(f"🤖 Generating evaluation summary with {model_name}")
                 message = client.messages.create(
                     model=model_name,
                     max_tokens=4096,
                     system=system_prompt,
-                    messages=[{"role": "user", "content": "נא לספק ניתוח מקצועי ומקיף של ההערכה."}]
+                    messages=[{"role": "user", "content": "צור ניתוח מפורט של הערכת המנהל"}]
                 )
 
-                ai_summary = message.content[0].text
-                evaluation.ai_summary = ai_summary
-                db.commit()
+                summary = message.content[0].text
                 print(f"✅ AI summary generated successfully with {model_name}")
-                return
+                return summary
 
             except Exception as model_error:
                 print(f"❌ Model {model_name} failed: {str(model_error)}")
                 continue
 
-        print("⚠️  All AI models failed, evaluation created without summary")
+        # If all models failed, fall back to simple summary
+        raise Exception("All AI models failed")
 
     except Exception as e:
-        print(f"❌ Error generating AI summary: {str(e)}")
-        # Don't raise - allow evaluation to be created without summary
+        print(f"⚠️  AI summary generation failed: {str(e)}, using fallback")
+        # Fallback to simple text summary (like sanitation audits)
+        weak_categories = [
+            f"{cat.category_name}: {cat.rating}/10{f' - {cat.comments}' if cat.comments else ''}"
+            for cat in evaluation.categories
+            if cat.rating < 7
+        ]
+        return "\n".join(weak_categories) if weak_categories else "כל הקטגוריות בטווח טוב"
 
 
 @router.get("/", response_model=List[ManagerEvaluationSummary])
@@ -248,19 +255,20 @@ def create_manager_evaluation(
             detail="Branch not found"
         )
 
-    # Create evaluation
+    # Create evaluation (EXACTLY like sanitation audits)
     new_evaluation = ManagerEvaluation(
         branch_id=evaluation_data.branch_id,
         manager_name=evaluation_data.manager_name,
         evaluation_date=evaluation_data.evaluation_date,
         general_comments=evaluation_data.general_comments,
-        created_by=current_user.id
+        created_by=current_user.id,
+        status="draft"  # Start as draft (like audits start as in_progress)
     )
 
     db.add(new_evaluation)
-    db.flush()  # Get the ID
+    db.flush()  # Get audit.id before adding categories
 
-    # Create categories
+    # Add categories
     for category_data in evaluation_data.categories:
         category = ManagerEvaluationCategory(
             evaluation_id=new_evaluation.id,
@@ -270,16 +278,15 @@ def create_manager_evaluation(
         )
         db.add(category)
 
+    # Calculate score and generate summary (EXACTLY like sanitation audits)
+    db.flush()
+    db.refresh(new_evaluation)  # Load relationships
+    calculate_evaluation_score(new_evaluation, db)
+    new_evaluation.ai_summary = generate_ai_summary(new_evaluation, db)
+
     db.commit()
     db.refresh(new_evaluation)
 
-    # Calculate overall score (weighted average)
-    calculate_evaluation_score(new_evaluation, db)
-
-    # Generate AI summary automatically (like sanitation audits)
-    generate_ai_summary(new_evaluation, db)
-
-    db.refresh(new_evaluation)
     return new_evaluation
 
 

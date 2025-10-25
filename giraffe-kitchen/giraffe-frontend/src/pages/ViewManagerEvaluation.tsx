@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { managerEvaluationAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowRight, Trash2, Sparkles, CheckCircle, Clock, Eye } from 'lucide-react';
+import { ArrowRight, Trash2, Sparkles, CheckCircle, Clock, Eye, Pencil } from 'lucide-react';
 import type { ManagerEvaluation } from '../types';
 
 export default function ViewManagerEvaluation() {
@@ -140,13 +140,22 @@ export default function ViewManagerEvaluation() {
               <span>חזרה להערכות</span>
             </button>
 
-            <button
-              onClick={handleDelete}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-            >
-              <Trash2 className="h-5 w-5" />
-              מחק
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate(`/manager-evaluations/${id}/edit`)}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                <Pencil className="h-5 w-5" />
+                ערוך
+              </button>
+              <button
+                onClick={handleDelete}
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                <Trash2 className="h-5 w-5" />
+                מחק
+              </button>
+            </div>
           </div>
         </div>
       </header>
