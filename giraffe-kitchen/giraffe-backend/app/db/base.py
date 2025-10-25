@@ -6,7 +6,7 @@ from app.core.config import settings
 import os
 
 # Determine if we're using PostgreSQL or SQLite
-is_postgresql = 'postgresql' in settings.DATABASE_URL
+is_postgresql = 'postgresql' in settings.DATABASE_URL or 'postgres' in settings.DATABASE_URL
 is_production = os.getenv('ENV', 'development') == 'production'
 
 # Configure engine based on database type
