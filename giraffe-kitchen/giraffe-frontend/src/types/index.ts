@@ -190,3 +190,45 @@ export interface NetworkAuditStats {
   branch_stats: BranchAuditStats[];
   common_issues_network: string[];
 }
+
+// Manager Evaluations
+export interface ManagerEvaluationCategory {
+  id?: number;
+  category_name: string;
+  rating: number;
+  comments: string | null;
+}
+
+export interface ManagerEvaluation {
+  id: number;
+  branch_id: number;
+  created_by: number;
+  manager_name: string;
+  evaluation_date: string;
+  overall_rating: number | null;
+  general_comments: string | null;
+  ai_summary: string | null;
+  created_at: string;
+  updated_at: string | null;
+  categories: ManagerEvaluationCategory[];
+}
+
+export interface ManagerEvaluationSummary {
+  id: number;
+  branch_id: number;
+  branch_name: string;
+  manager_name: string;
+  evaluation_date: string;
+  overall_rating: number | null;
+  created_by_name: string;
+  created_at: string;
+}
+
+export interface CreateManagerEvaluation {
+  branch_id: number;
+  manager_name: string;
+  evaluation_date: string;
+  overall_rating: number | null;
+  general_comments: string | null;
+  categories: Omit<ManagerEvaluationCategory, 'id'>[];
+}

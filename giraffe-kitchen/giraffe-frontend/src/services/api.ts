@@ -13,7 +13,10 @@ import type {
   CreateSanitationAudit,
   SanitationAuditCategoryUpdate,
   NetworkAuditStats,
-  BranchAuditStats
+  BranchAuditStats,
+  ManagerEvaluation,
+  ManagerEvaluationSummary,
+  CreateManagerEvaluation
 } from '../types';
 
 // Use relative URL in production (when VITE_API_URL is empty string)
@@ -334,6 +337,70 @@ export const sanitationAuditAPI = {
   // Get branch statistics
   getBranchStats: async (branchId: number): Promise<BranchAuditStats> => {
     const response = await api.get<BranchAuditStats>(`/api/v1/sanitation-audits/stats/branch/${branchId}`);
+    return response.data;
+  },
+};
+
+// Manager Evaluation endpoints
+export const managerEvaluationAPI = {
+  // List all evaluations
+  list: async (filters?: {
+    branch_id?: number;
+    start_date?: string;
+    end_date?: string;
+  }): Promise<ManagerEvaluationSummary[]> => {
+    const response = await api.get<ManagerEvaluationSummary[]>('/api/v1/manager-evaluations/', {
+      params: filters,
+    });
+    return response.data;
+  },
+
+  // Get specific evaluation by ID
+  get: async (id: number): Promise<ManagerEvaluation> => {
+    const response = await api.get<ManagerEvaluation>(`/api/v1/manager-evaluations/${id}`);
+    return response.data;
+  },
+
+  // Create new evaluation
+  create: async (data: CreateManagerEvaluation): Promise<ManagerEvaluation> => {
+    const response = await api.post<ManagerEvaluation>('/api/v1/manager-evaluations/', data);
+    return response.data;
+  },
+
+  // Update evaluation
+  update: async (id: number, data: {
+    manager_name?: string;
+    evaluation_date?: string;
+    overall_rating?: number;
+    general_comments?: string;
+    ai_summary?: string;
+  }): Promise<ManagerEvaluation> => {
+    const response = await api.put<ManagerEvaluation>(`/api/v1/manager-evaluations/${id}`, data);
+    return response.data;
+  },
+
+  // Delete evaluation
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/api/v1/manager-evaluations/${id}`);
+  },
+
+  // Generate AI summary
+  generateSummary: async (id: number): Promise<ManagerEvaluation> => {
+    const response = await api.post<ManagerEvaluation>(`/api/v1/manager-evaluations/${id}/generate-summary`);
+    return response.data;
+  },
+
+  // Chat about evaluation
+  chat: async (evaluationId: number, question: string): Promise<{
+    evaluation_id: number;
+    question: string;
+    answer: string;
+    generated_at: string;
+  }> => {
+    const response = await api.post('/api/v1/manager-evaluations/chat', {
+      evaluation_id: evaluationId,
+      question: question,
+    });
     return response.data;
   },
 };
