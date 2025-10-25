@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { managerEvaluationAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowRight, Trash2, MessageCircle, Send, Sparkles } from 'lucide-react';
+import { ArrowRight, Trash2, Sparkles } from 'lucide-react';
 import type { ManagerEvaluation } from '../types';
 
 export default function ViewManagerEvaluation() {
@@ -12,14 +12,7 @@ export default function ViewManagerEvaluation() {
   const [evaluation, setEvaluation] = useState<ManagerEvaluation | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // AI Chat State
-  const [showAIChat, setShowAIChat] = useState(false);
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [aiLoading, setAiLoading] = useState(false);
   const [generatingSummary, setGeneratingSummary] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Authorized emails
   const AUTHORIZED_EMAILS = [
@@ -40,12 +33,6 @@ export default function ViewManagerEvaluation() {
       loadEvaluation(Number(id));
     }
   }, [id]);
-
-  useEffect(() => {
-    if (showAIChat) {
-      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages, showAIChat]);
 
   const loadEvaluation = async (evaluationId: number) => {
     try {
@@ -88,32 +75,6 @@ export default function ViewManagerEvaluation() {
       alert(err.response?.data?.detail || 'שגיאה ביצירת סיכום AI');
     } finally {
       setGeneratingSummary(false);
-    }
-  };
-
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim() || aiLoading || !id) return;
-
-    const userMessage = inputMessage;
-    setInputMessage('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
-    setAiLoading(true);
-
-    try {
-      const response = await managerEvaluationAPI.chat(Number(id), userMessage);
-
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: response.answer
-      }]);
-    } catch (error: any) {
-      console.error('AI request failed:', error);
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: `❌ שגיאה: ${error.response?.data?.detail || 'אנא נסה שוב.'}`
-      }]);
-    } finally {
-      setAiLoading(false);
     }
   };
 
@@ -169,16 +130,7 @@ export default function ViewManagerEvaluation() {
               <span>חזרה להערכות</span>
             </button>
 
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setShowAIChat(!showAIChat)}
-                className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-              >
-                <MessageCircle className="h-5 w-5" />
-                {showAIChat ? 'סגור צ\'אט' : 'שאל שאלה'}
-              </button>
-
-              <button
+            <button
                 onClick={handleDelete}
                 className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
               >
@@ -191,10 +143,8 @@ export default function ViewManagerEvaluation() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-6">
             {/* Header Card */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -272,79 +222,6 @@ export default function ViewManagerEvaluation() {
               )}
             </div>
           </div>
-
-          {/* Right Column - AI Chatbox */}
-          {showAIChat && (
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden sticky top-24">
-                <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-4">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <MessageCircle className="h-5 w-5" />
-                    שאל על ההערכה
-                  </h3>
-                </div>
-
-                {/* Messages */}
-                <div className="h-96 overflow-y-auto p-4 space-y-4">
-                  {messages.length === 0 && (
-                    <div className="text-gray-500 text-sm text-center mt-8">
-                      <p>שאל שאלות על ההערכה, קבל המלצות ותובנות</p>
-                      <p className="mt-2 text-xs">לדוגמה: "מה נקודות החוזק של המנהל?"</p>
-                    </div>
-                  )}
-
-                  {messages.map((message, index) => (
-                    <div
-                      key={index}
-                      className={`flex ${message.role === 'user' ? 'justify-start' : 'justify-end'}`}
-                    >
-                      <div
-                        className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                          message.role === 'user'
-                            ? 'bg-gray-100 text-gray-900'
-                            : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
-                        }`}
-                      >
-                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                      </div>
-                    </div>
-                  ))}
-
-                  {aiLoading && (
-                    <div className="flex justify-end">
-                      <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg px-4 py-2">
-                        <p className="text-sm">מחשב תשובה...</p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div ref={chatEndRef} />
-                </div>
-
-                {/* Input */}
-                <div className="border-t border-gray-200 p-4">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                      placeholder="שאל שאלה..."
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      disabled={aiLoading}
-                    />
-                    <button
-                      onClick={handleSendMessage}
-                      disabled={aiLoading || !inputMessage.trim()}
-                      className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white p-2 rounded-lg transition-colors"
-                    >
-                      <Send className="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </main>
     </div>
