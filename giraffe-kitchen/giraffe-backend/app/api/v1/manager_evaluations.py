@@ -252,7 +252,7 @@ def generate_ai_summary(
     context = f"""
 דוח הערכת מנהל עבור {evaluation.manager_name} מסניף {branch.name if branch else 'לא ידוע'}
 תאריך הערכה: {evaluation.evaluation_date.strftime('%d/%m/%Y')}
-דירוג כללי: {evaluation.overall_rating}/10 if evaluation.overall_rating else 'לא צוין'}
+דירוג כללי: {evaluation.overall_rating}/10 {'' if evaluation.overall_rating else 'לא צוין'}
 
 קטגוריות הערכה:
 {categories_text}
@@ -336,14 +336,14 @@ def chat_about_evaluation(
     context = f"""
 דוח הערכת מנהל עבור {evaluation.manager_name} מסניף {branch.name if branch else 'לא ידוע'}
 תאריך הערכה: {evaluation.evaluation_date.strftime('%d/%m/%Y')}
-דירוג כללי: {evaluation.overall_rating}/10 if evaluation.overall_rating else 'לא צוין'}
+דירוג כללי: {evaluation.overall_rating}/10 {'' if evaluation.overall_rating else 'לא צוין'}
 
 קטגוריות הערכה:
 {categories_text}
 
 הערות כלליות: {evaluation.general_comments or 'אין'}
 
-{"סיכום AI: " + evaluation.ai_summary if evaluation.ai_summary else ""}
+{'סיכום AI: ' + evaluation.ai_summary if evaluation.ai_summary else ''}
 """
 
     # Import AI service
