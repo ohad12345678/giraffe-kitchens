@@ -205,7 +205,6 @@ export interface ManagerEvaluation {
   created_by: number;
   manager_name: string;
   evaluation_date: string;
-  overall_rating: number | null;
   general_comments: string | null;
   ai_summary: string | null;
   created_at: string;
@@ -219,7 +218,6 @@ export interface ManagerEvaluationSummary {
   branch_name: string;
   manager_name: string;
   evaluation_date: string;
-  overall_rating: number | null;
   created_by_name: string;
   created_at: string;
 }
@@ -228,7 +226,6 @@ export interface CreateManagerEvaluation {
   branch_id: number;
   manager_name: string;
   evaluation_date: string;
-  overall_rating: number | null;
   general_comments: string | null;
   categories: Omit<ManagerEvaluationCategory, 'id'>[];
 }

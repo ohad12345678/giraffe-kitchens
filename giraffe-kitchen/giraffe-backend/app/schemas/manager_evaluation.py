@@ -39,7 +39,6 @@ class ManagerEvaluationBase(BaseModel):
     branch_id: int
     manager_name: str = Field(..., description="Name of the manager being evaluated (manual entry)")
     evaluation_date: date
-    overall_rating: Optional[float] = Field(None, ge=0, le=10, description="Overall rating (0-10)")
     general_comments: Optional[str] = Field(None, description="General comments about the manager")
 
 
@@ -52,7 +51,6 @@ class ManagerEvaluationUpdate(BaseModel):
     """Schema for updating an existing evaluation."""
     manager_name: Optional[str] = None
     evaluation_date: Optional[date] = None
-    overall_rating: Optional[float] = Field(None, ge=0, le=10)
     general_comments: Optional[str] = None
     ai_summary: Optional[str] = None
 
@@ -79,7 +77,6 @@ class ManagerEvaluationSummary(BaseModel):
     branch_name: str
     manager_name: str
     evaluation_date: date
-    overall_rating: Optional[float] = None
     created_by_name: str
     created_at: datetime
 

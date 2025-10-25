@@ -17,7 +17,6 @@ export default function CreateManagerEvaluation() {
   const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null);
   const [managerName, setManagerName] = useState('');
   const [evaluationDate, setEvaluationDate] = useState(new Date().toISOString().split('T')[0]);
-  const [overallRating, setOverallRating] = useState<number | null>(null);
   const [generalComments, setGeneralComments] = useState('');
 
   // Categories state
@@ -91,7 +90,6 @@ export default function CreateManagerEvaluation() {
       branch_id: selectedBranchId,
       manager_name: managerName.trim(),
       evaluation_date: evaluationDate,
-      overall_rating: overallRating,
       general_comments: generalComments.trim() || null,
       categories: categories,
     };
@@ -201,23 +199,6 @@ export default function CreateManagerEvaluation() {
                   onChange={(e) => setEvaluationDate(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
-                />
-              </div>
-
-              {/* Overall Rating */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  דירוג כללי (0-10)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  max="10"
-                  step="0.1"
-                  value={overallRating || ''}
-                  onChange={(e) => setOverallRating(e.target.value ? Number(e.target.value) : null)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="אופציונלי"
                 />
               </div>
 

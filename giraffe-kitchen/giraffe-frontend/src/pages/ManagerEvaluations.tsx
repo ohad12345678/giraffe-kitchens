@@ -45,13 +45,6 @@ export default function ManagerEvaluations() {
     }
   };
 
-  const getRatingColor = (rating: number | null) => {
-    if (!rating) return 'text-gray-400';
-    if (rating >= 8) return 'text-green-600';
-    if (rating >= 6) return 'text-yellow-600';
-    return 'text-red-600';
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('he-IL', {
       year: 'numeric',
@@ -112,19 +105,10 @@ export default function ManagerEvaluations() {
 
           {/* Stats Summary */}
           {evaluations.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-white p-4 rounded-lg shadow">
                 <div className="text-sm text-gray-500">סה"כ הערכות</div>
                 <div className="text-2xl font-bold">{evaluations.length}</div>
-              </div>
-              <div className="bg-white p-4 rounded-lg shadow">
-                <div className="text-sm text-gray-500">ממוצע דירוג</div>
-                <div className="text-2xl font-bold">
-                  {evaluations
-                    .filter(e => e.overall_rating !== null)
-                    .reduce((acc, e) => acc + (e.overall_rating || 0), 0) /
-                    evaluations.filter(e => e.overall_rating !== null).length || 0}
-                </div>
               </div>
               <div className="bg-white p-4 rounded-lg shadow">
                 <div className="text-sm text-gray-500">סניפים</div>
@@ -163,9 +147,6 @@ export default function ManagerEvaluations() {
                         תאריך הערכה
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        דירוג כללי
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         מעריך
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -192,19 +173,6 @@ export default function ManagerEvaluations() {
                           <div className="text-sm text-gray-500">
                             {formatDate(evaluation.evaluation_date)}
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {evaluation.overall_rating !== null ? (
-                            <div
-                              className={`text-sm font-bold ${getRatingColor(
-                                evaluation.overall_rating
-                              )}`}
-                            >
-                              {evaluation.overall_rating}/10
-                            </div>
-                          ) : (
-                            <div className="text-sm text-gray-400">לא צוין</div>
-                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-500">

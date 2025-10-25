@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc, func
 from typing import List, Optional
 from datetime import date, datetime
+import os
 
 from app.db.base import get_db
 from app.api.deps import get_current_user
@@ -49,6 +50,19 @@ def check_manager_evaluation_access(current_user: User):
         )
 
 
+def load_prompt_template(prompt_name: str) -> Optional[str]:
+    """Load a prompt template from the prompts directory."""
+    prompts_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'prompts')
+    prompt_path = os.path.join(prompts_dir, f"{prompt_name}.txt")
+
+    try:
+        with open(prompt_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        print(f"⚠️  Prompt file not found: {prompt_path}")
+        return None
+
+
 @router.get("/", response_model=List[ManagerEvaluationSummary])
 def list_manager_evaluations(
     branch_id: Optional[int] = Query(None, description="Filter by branch"),
@@ -87,7 +101,6 @@ def list_manager_evaluations(
             branch_name=branch.name if branch else "Unknown",
             manager_name=evaluation.manager_name,
             evaluation_date=evaluation.evaluation_date,
-            overall_rating=evaluation.overall_rating,
             created_by_name=creator.full_name if creator else "Unknown",
             created_at=evaluation.created_at
         ))
@@ -117,7 +130,6 @@ def create_manager_evaluation(
         branch_id=evaluation_data.branch_id,
         manager_name=evaluation_data.manager_name,
         evaluation_date=evaluation_data.evaluation_date,
-        overall_rating=evaluation_data.overall_rating,
         general_comments=evaluation_data.general_comments,
         created_by=current_user.id
     )
@@ -243,6 +255,14 @@ def generate_ai_summary(
     # Get branch info
     branch = db.query(Branch).filter(Branch.id == evaluation.branch_id).first()
 
+    # Load prompt template
+    prompt_template = load_prompt_template("manager_evaluation_analysis")
+    if not prompt_template:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Prompt template not found"
+        )
+
     # Build context for AI
     categories_text = "\n".join([
         f"- {cat.category_name}: {cat.rating}/10{f' - {cat.comments}' if cat.comments else ''}"
@@ -252,7 +272,6 @@ def generate_ai_summary(
     context = f"""
 דוח הערכת מנהל עבור {evaluation.manager_name} מסניף {branch.name if branch else 'לא ידוע'}
 תאריך הערכה: {evaluation.evaluation_date.strftime('%d/%m/%Y')}
-דירוג כללי: {evaluation.overall_rating}/10 {'' if evaluation.overall_rating else 'לא צוין'}
 
 קטגוריות הערכה:
 {categories_text}
@@ -265,27 +284,15 @@ def generate_ai_summary(
     from app.core.config import settings
 
     # Build AI prompt
-    system_prompt = f"""אתה יועץ ארגוני מנוסה המתמחה בהערכת מנהלי מסעדות. נא לספק סיכום מקצועי ומעמיק של ההערכה הבאה:
+    system_prompt = f"""{prompt_template}
+
+---
+
+להלן מידע על הערכת המנהל:
 
 {context}
 
-הנחיות לניתוח:
-
-1. **סיכום ביצועים**: התחל בסיכום כללי של ביצועי המנהל, תוך התייחסות לנקודות החוזק העיקריות והתחומים הדורשים שיפור.
-
-2. **ניתוח לפי קטגוריות**:
-   - **תפעול**: האם המסעדה מנוהלת בצורה יעילה? איכות השירות, ניהול מלאי, תהליכים.
-   - **ניהול אנשים**: יכולת ניהול צוות, מוטיבציה, פתרון קונפליקטים, פיתוח עובדים.
-   - **ביצועים עסקיים**: עמידה ביעדים, ניהול תקציב, רווחיות.
-   - **מנהיגות**: חזון, יוזמה, יכולת השפעה, קבלת החלטות.
-
-3. **המלצות לפיתוח**: ספק 3-5 המלצות ממוקדות ומעשיות לשיפור, מסודרות לפי עדיפות.
-
-4. **תוכנית פעולה**: הצע צעדים קונקרטיים שהמנהל יכול לנקוט ב-30, 60 ו-90 הימים הקרובים.
-
-5. **סיכום**: סיים במשפט תמציתי המסכם את הפוטנציאל של המנהל ואת כיוון ההתפתחות המומלץ.
-
-נא לכתוב בעברית ברורה ומקצועית, תוך שימוש בנקודות ומבנה ברור."""
+נא לנתח את ההערכה לפי המבנה שהוגדר לעיל."""
 
     try:
         # Check API key
@@ -374,7 +381,6 @@ def chat_about_evaluation(
     context = f"""
 דוח הערכת מנהל עבור {evaluation.manager_name} מסניף {branch.name if branch else 'לא ידוע'}
 תאריך הערכה: {evaluation.evaluation_date.strftime('%d/%m/%Y')}
-דירוג כללי: {evaluation.overall_rating}/10 {'' if evaluation.overall_rating else 'לא צוין'}
 
 קטגוריות הערכה:
 {categories_text}

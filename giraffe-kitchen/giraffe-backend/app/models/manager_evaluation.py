@@ -20,7 +20,6 @@ class ManagerEvaluation(Base):
 
     # Report metadata
     evaluation_date = Column(Date, nullable=False)
-    overall_rating = Column(Float, nullable=True)  # Optional overall score
     general_comments = Column(Text, nullable=True)
 
     # AI-generated summary

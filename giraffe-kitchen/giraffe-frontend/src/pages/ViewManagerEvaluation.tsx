@@ -205,15 +205,7 @@ export default function ViewManagerEvaluation() {
               </p>
 
               {/* Rating Display */}
-              <div className="grid grid-cols-2 gap-4">
-                {evaluation.overall_rating !== null && (
-                  <div className="bg-blue-50 rounded-lg p-4">
-                    <div className="text-sm text-gray-600 mb-1">דירוג כללי</div>
-                    <div className={`text-4xl font-bold ${getRatingColor(evaluation.overall_rating)}`}>
-                      {evaluation.overall_rating}/10
-                    </div>
-                  </div>
-                )}
+              <div className="grid grid-cols-1 gap-4">
                 <div className="bg-purple-50 rounded-lg p-4">
                   <div className="text-sm text-gray-600 mb-1">ממוצע קטגוריות</div>
                   <div className={`text-4xl font-bold ${getRatingColor(averageRating)}`}>
