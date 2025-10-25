@@ -62,11 +62,16 @@ def ask_ai_analysis(
     """
 
     # Authorization check
-    if current_user.role.value == "branch_manager" and request.branch_id != current_user.branch_id:
+    if current_user.role.value == "BRANCH_MANAGER" and request.branch_id != current_user.branch_id:
         raise HTTPException(status_code=403, detail="Not authorized to access this branch data")
 
-    # Get API key from settings or environment
-    api_key = settings.ANTHROPIC_API_KEY or os.getenv('ANTHROPIC_API_KEY')
+    # Get API key from settings
+    api_key = settings.ANTHROPIC_API_KEY
+    if not api_key:
+        raise HTTPException(
+            status_code=500,
+            detail="Claude API key not configured. Please set ANTHROPIC_API_KEY environment variable."
+        )
 
     # Fetch actual data from database based on filters
     # Calculate date range
@@ -89,7 +94,7 @@ def ask_ai_analysis(
     )
 
     # Branch managers see only their branch
-    if current_user.role.value == "branch_manager":
+    if current_user.role.value == "BRANCH_MANAGER":
         query = query.filter(DishCheck.branch_id == current_user.branch_id)
     elif request.branch_id:
         query = query.filter(DishCheck.branch_id == request.branch_id)
@@ -145,7 +150,7 @@ def ask_ai_analysis(
         DishCheck.check_date < start_date
     )
 
-    if current_user.role.value == "branch_manager":
+    if current_user.role.value == "BRANCH_MANAGER":
         previous_query = previous_query.filter(DishCheck.branch_id == current_user.branch_id)
     elif request.branch_id:
         previous_query = previous_query.filter(DishCheck.branch_id == request.branch_id)
@@ -174,24 +179,6 @@ def ask_ai_analysis(
         "trend": trend,
         "date_range": f"{start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}"
     }
-
-    # If no API key, provide helpful mock response
-    if not api_key:
-        mock_answer = f"""בהתבסס על הנתונים שלך:
-📊 תקופה: {real_context['date_range']}
-📋 סך בדיקות: {real_context['total_checks']}
-⭐ ממוצע ציונים: {real_context['average_rating']}
-📈 מגמה: {real_context['trend']}
-
-מנות חלשות: {', '.join(real_context['weak_dishes'][:3]) if real_context['weak_dishes'] else 'אין'}
-טבחים מובילים: {', '.join(real_context['top_chefs'][:3]) if real_context['top_chefs'] else 'אין נתונים'}
-
-(שירות AI אינו מוגדר. להפעלת Claude AI, הגדר ANTHROPIC_API_KEY)"""
-
-        return AIQueryResponse(
-            answer=mock_answer,
-            context_used=real_context
-        )
 
     # Create Claude client with timeout
     try:
@@ -271,11 +258,16 @@ def ask_sanitation_analysis(
     """
 
     # Authorization check
-    if current_user.role.value == "branch_manager" and request.branch_id != current_user.branch_id:
+    if current_user.role.value == "BRANCH_MANAGER" and request.branch_id != current_user.branch_id:
         raise HTTPException(status_code=403, detail="Not authorized to access this branch data")
 
-    # Get API key from settings or environment
-    api_key = settings.ANTHROPIC_API_KEY or os.getenv('ANTHROPIC_API_KEY')
+    # Get API key from settings
+    api_key = settings.ANTHROPIC_API_KEY
+    if not api_key:
+        raise HTTPException(
+            status_code=500,
+            detail="Claude API key not configured. Please set ANTHROPIC_API_KEY environment variable."
+        )
 
     # Fetch sanitation audit data from database
     # Calculate date range
@@ -298,7 +290,7 @@ def ask_sanitation_analysis(
     )
 
     # Branch managers see only their branch
-    if current_user.role.value == "branch_manager":
+    if current_user.role.value == "BRANCH_MANAGER":
         query = query.filter(SanitationAudit.branch_id == current_user.branch_id)
     elif request.branch_id:
         query = query.filter(SanitationAudit.branch_id == request.branch_id)
