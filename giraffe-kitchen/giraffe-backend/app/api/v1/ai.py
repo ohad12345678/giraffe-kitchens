@@ -191,6 +191,7 @@ def ask_ai_analysis(
     real_context = {
         "total_checks": total_checks,
         "average_rating": round(float(avg_rating), 1) if avg_rating else 0,
+        "all_dishes": all_dishes_list if all_dishes_list else ["אין נתונים"],
         "weak_dishes": weak_dishes_list if weak_dishes_list else ["אין מנות חלשות"],
         "top_chefs": top_chefs_list if top_chefs_list else ["אין נתונים"],
         "trend": trend,
@@ -207,7 +208,8 @@ def ask_ai_analysis(
 הנתונים הנוכחיים (תקופה: {real_context['date_range']}):
 - סך בדיקות: {real_context['total_checks']}
 - ממוצע ציונים: {real_context['average_rating']}
-- מנות חלשות: {', '.join(real_context['weak_dishes'])}
+- כל המנות (מסודרות לפי ציון): {', '.join(real_context['all_dishes'][:10])}
+- מנות חלשות (מתחת ל-7): {', '.join(real_context['weak_dishes'])}
 - טבחים מובילים: {', '.join(real_context['top_chefs'])}
 - מגמה: {real_context['trend']}
 
