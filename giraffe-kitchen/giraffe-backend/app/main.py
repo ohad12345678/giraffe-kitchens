@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.routing import APIRoute
 from app.core.config import settings
-from app.api.v1 import auth, branches, dishes, chefs, checks, ai, daily_tasks, sanitation_audits, manager_evaluations
+from app.api.v1 import auth, branches, dishes, chefs, checks, ai, daily_tasks, sanitation_audits, users
 from app.db.base import Base, engine
 import os
 
@@ -46,7 +46,7 @@ app.include_router(checks.router, prefix="/api/v1/checks", tags=["Dish Checks"])
 app.include_router(ai.router, prefix="/api/v1/ai", tags=["AI Analysis"])
 app.include_router(daily_tasks.router, prefix="/api/v1/tasks", tags=["Daily Tasks"])
 app.include_router(sanitation_audits.router, prefix="/api/v1/sanitation-audits", tags=["Sanitation Audits"])
-app.include_router(manager_evaluations.router, prefix="/api/v1/manager-evaluations", tags=["Manager Evaluations"])
+app.include_router(users.router, prefix="/api/v1/users", tags=["User Management"])
 
 
 @app.get("/health")

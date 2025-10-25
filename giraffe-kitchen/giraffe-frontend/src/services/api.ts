@@ -93,6 +93,21 @@ export const dishAPI = {
     const response = await api.get<Dish>(`/api/v1/dishes/${id}`);
     return response.data;
   },
+
+  create: async (data: { name: string; category: string | null }): Promise<Dish> => {
+    const response = await api.post<Dish>('/api/v1/dishes/', data);
+    return response.data;
+  },
+
+  update: async (id: number, data: { name: string; category: string | null }): Promise<Dish> => {
+    const response = await api.put<Dish>(`/api/v1/dishes/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: number): Promise<{ status: string; message: string }> => {
+    const response = await api.delete(`/api/v1/dishes/${id}`);
+    return response.data;
+  },
 };
 
 // Chef endpoints
@@ -100,6 +115,21 @@ export const chefAPI = {
   list: async (branchId?: number): Promise<Chef[]> => {
     const params = branchId ? { branch_id: branchId } : {};
     const response = await api.get<Chef[]>('/api/v1/chefs/', { params });
+    return response.data;
+  },
+
+  create: async (data: { name: string; branch_id: number }): Promise<Chef> => {
+    const response = await api.post<Chef>('/api/v1/chefs/', data);
+    return response.data;
+  },
+
+  update: async (id: number, data: { name: string; branch_id: number }): Promise<Chef> => {
+    const response = await api.put<Chef>(`/api/v1/chefs/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: number): Promise<{ status: string; message: string }> => {
+    const response = await api.delete(`/api/v1/chefs/${id}`);
     return response.data;
   },
 };
@@ -178,6 +208,16 @@ export const checkAPI = {
 
   delete: async (checkId: number): Promise<{ status: string; message: string }> => {
     const response = await api.delete(`/api/v1/checks/${checkId}`);
+    return response.data;
+  },
+
+  getDashboardStats: async (): Promise<{
+    best_dish: { name: string; score: number; check_count: number } | null;
+    worst_dish: { name: string; score: number; check_count: number } | null;
+    this_week_checks: number;
+    last_week_checks: number;
+  }> => {
+    const response = await api.get('/api/v1/checks/dashboard-stats');
     return response.data;
   },
 
@@ -342,6 +382,75 @@ export const sanitationAuditAPI = {
   // Get branch statistics
   getBranchStats: async (branchId: number): Promise<BranchAuditStats> => {
     const response = await api.get<BranchAuditStats>(`/api/v1/sanitation-audits/stats/branch/${branchId}`);
+    return response.data;
+  },
+
+  // Get dashboard statistics
+  getDashboardStats: async (): Promise<{
+    best_branch: { name: string; score: number; audit_count: number } | null;
+    worst_branch: { name: string; score: number; audit_count: number } | null;
+  }> => {
+    const response = await api.get('/api/v1/sanitation-audits/dashboard-stats');
+    return response.data;
+  },
+};
+
+// User Management endpoints (Admin only - ohadb@giraffe.co.il)
+export const userAPI = {
+  list: async (): Promise<{
+    id: number;
+    email: string;
+    role: string;
+    branch_id: number | null;
+    created_at: string | null;
+  }[]> => {
+    const response = await api.get('/api/v1/users/');
+    return response.data;
+  },
+
+  create: async (data: {
+    email: string;
+    password: string;
+    role: string;
+    branch_id: number | null;
+  }): Promise<{
+    id: number;
+    email: string;
+    role: string;
+    branch_id: number | null;
+    created_at: string | null;
+  }> => {
+    const response = await api.post('/api/v1/users/', data);
+    return response.data;
+  },
+
+  update: async (
+    id: number,
+    data: {
+      email?: string;
+      role?: string;
+      branch_id?: number | null;
+    }
+  ): Promise<{
+    id: number;
+    email: string;
+    role: string;
+    branch_id: number | null;
+    created_at: string | null;
+  }> => {
+    const response = await api.put(`/api/v1/users/${id}`, data);
+    return response.data;
+  },
+
+  changePassword: async (id: number, newPassword: string): Promise<{ status: string }> => {
+    const response = await api.put(`/api/v1/users/${id}/password`, {
+      new_password: newPassword,
+    });
+    return response.data;
+  },
+
+  delete: async (id: number): Promise<{ status: string }> => {
+    const response = await api.delete(`/api/v1/users/${id}`);
     return response.data;
   },
 };
