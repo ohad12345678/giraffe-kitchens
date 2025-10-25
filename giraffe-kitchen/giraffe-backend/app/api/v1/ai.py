@@ -462,7 +462,7 @@ def ask_manager_evaluations_analysis(
     ]
 
     # Authorization check - must be HQ user with authorized email
-    if current_user.role.value != "HQ":
+    if current_user.role.value != "hq":
         raise HTTPException(status_code=403, detail="Only HQ users can access manager evaluations")
 
     if current_user.email not in AUTHORIZED_EMAILS:
