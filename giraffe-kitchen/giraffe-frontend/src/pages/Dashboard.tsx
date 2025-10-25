@@ -156,6 +156,16 @@ const Dashboard: React.FC = () => {
               <span className="font-medium text-gray-900">ביקורת תברואה</span>
             </button>
 
+            {/* Manager Evaluations button - only for authorized HQ users */}
+            {isHQ && user?.email && ['nofar@giraffe.co.il', 'aviv@giraffe.co.il', 'ohadb@giraffe.co.il', 'avital@giraffe.co.il'].includes(user.email) && (
+              <button
+                onClick={() => navigate('/manager-evaluations')}
+                className="p-4 border-2 border-indigo-200 rounded-lg hover:bg-indigo-50 transition-colors text-center"
+              >
+                <span className="font-medium text-gray-900">הערכות מנהלים</span>
+              </button>
+            )}
+
             <button
               onClick={() => navigate('/reports')}
               className="p-4 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center"

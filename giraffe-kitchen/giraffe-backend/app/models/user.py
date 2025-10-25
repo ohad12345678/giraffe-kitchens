@@ -28,3 +28,4 @@ class User(Base):
     # Relationships
     branch = relationship("Branch", back_populates="users")
     dish_checks = relationship("DishCheck", back_populates="created_by_user")
+    manager_evaluations = relationship("ManagerEvaluation", back_populates="created_by_user")
