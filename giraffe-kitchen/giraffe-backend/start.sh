@@ -10,14 +10,28 @@ if ! alembic upgrade head 2>&1; then
     alembic stamp head || echo "⚠️  Could not stamp, continuing anyway..."
 fi
 
-# Force create missing tables (for manager_evaluations)
-echo "Ensuring all tables exist..."
+# Force recreate manager_evaluations tables (fix incomplete migration)
+echo "Fixing manager_evaluations tables..."
 python -c "
-from app.db.base import Base, engine
+from app.db.base import engine
+from sqlalchemy import text
+
+# Drop existing incomplete tables
+with engine.connect() as conn:
+    try:
+        conn.execute(text('DROP TABLE IF EXISTS manager_evaluation_categories'))
+        conn.execute(text('DROP TABLE IF EXISTS manager_evaluations'))
+        conn.commit()
+        print('🗑️  Dropped existing manager_evaluations tables')
+    except Exception as e:
+        print(f'⚠️  Could not drop tables: {e}')
+
+# Recreate tables with correct schema
+from app.db.base import Base
 from app.models import ManagerEvaluation, ManagerEvaluationCategory
 Base.metadata.create_all(bind=engine)
-print('✅ Tables created/verified')
-" || echo "⚠️  Table creation skipped"
+print('✅ Manager evaluation tables recreated')
+" || echo "⚠️  Table recreation skipped"
 
 # Seed initial data if needed (don't fail if already seeded)
 echo "Seeding initial data..."
