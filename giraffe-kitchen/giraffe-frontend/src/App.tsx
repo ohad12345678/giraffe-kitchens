@@ -12,6 +12,7 @@ import ViewSanitationAudit from './pages/ViewSanitationAudit';
 import AuditSummary from './pages/AuditSummary';
 import ManagerEvaluations from './pages/ManagerEvaluations';
 import CreateManagerEvaluation from './pages/CreateManagerEvaluation';
+import EditManagerEvaluation from './pages/EditManagerEvaluation';
 import ViewManagerEvaluation from './pages/ViewManagerEvaluation';
 
 function App() {
@@ -102,6 +103,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CreateManagerEvaluation />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/manager-evaluations/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <EditManagerEvaluation />
                 </ProtectedRoute>
               }
             />
