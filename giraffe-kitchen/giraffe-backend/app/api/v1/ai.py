@@ -102,19 +102,18 @@ def ask_ai_analysis(
     # Get total checks
     total_checks = query.count()
 
-    # Get average rating
-    avg_rating = db.query(func.avg(DishCheck.rating)).filter(
-        DishCheck.id.in_([c.id for c in query.all()])
-    ).scalar() or 0
+    # Get average rating - use subquery instead of .all()
+    avg_rating = query.with_entities(func.avg(DishCheck.rating)).scalar() or 0
 
-    # Get weak dishes (rating < 7)
+    # Get weak dishes (rating < 7) - no need to fetch all checks
     weak_dishes_query = db.query(
         func.coalesce(Dish.name, DishCheck.dish_name_manual).label('name'),
         func.avg(DishCheck.rating).label('avg_score')
-    ).outerjoin(
+    ).select_from(DishCheck).outerjoin(
         Dish, DishCheck.dish_id == Dish.id
     ).filter(
-        DishCheck.id.in_([c.id for c in query.all()])
+        DishCheck.check_date >= start_date,
+        DishCheck.check_date <= end_date
     ).group_by(
         DishCheck.dish_id,
         func.coalesce(Dish.name, DishCheck.dish_name_manual)
@@ -126,14 +125,34 @@ def ask_ai_analysis(
 
     weak_dishes_list = [f"{d.name} ({round(float(d.avg_score), 1)})" for d in weak_dishes_query]
 
-    # Get top chefs
+    # Get ALL dishes with ratings (not just weak ones)
+    all_dishes_query = db.query(
+        func.coalesce(Dish.name, DishCheck.dish_name_manual).label('name'),
+        func.avg(DishCheck.rating).label('avg_score'),
+        func.count(DishCheck.id).label('check_count')
+    ).select_from(DishCheck).outerjoin(
+        Dish, DishCheck.dish_id == Dish.id
+    ).filter(
+        DishCheck.check_date >= start_date,
+        DishCheck.check_date <= end_date
+    ).group_by(
+        DishCheck.dish_id,
+        func.coalesce(Dish.name, DishCheck.dish_name_manual)
+    ).order_by(
+        func.avg(DishCheck.rating).desc()
+    ).all()
+
+    all_dishes_list = [f"{d.name} ({round(float(d.avg_score), 1)}, {d.check_count} בדיקות)" for d in all_dishes_query]
+
+    # Get top chefs - no need to fetch all checks
     top_chefs_query = db.query(
         func.coalesce(Chef.name, DishCheck.chef_name_manual).label('name'),
         func.avg(DishCheck.rating).label('avg_score')
-    ).outerjoin(
+    ).select_from(DishCheck).outerjoin(
         Chef, DishCheck.chef_id == Chef.id
     ).filter(
-        DishCheck.id.in_([c.id for c in query.all()])
+        DishCheck.check_date >= start_date,
+        DishCheck.check_date <= end_date
     ).group_by(
         DishCheck.chef_id,
         func.coalesce(Chef.name, DishCheck.chef_name_manual)
@@ -155,9 +174,7 @@ def ask_ai_analysis(
     elif request.branch_id:
         previous_query = previous_query.filter(DishCheck.branch_id == request.branch_id)
 
-    previous_avg = db.query(func.avg(DishCheck.rating)).filter(
-        DishCheck.id.in_([c.id for c in previous_query.all()])
-    ).scalar() or 0
+    previous_avg = previous_query.with_entities(func.avg(DishCheck.rating)).scalar() or 0
 
     if previous_avg > 0:
         trend_diff = round(float(avg_rating - previous_avg), 1)
@@ -174,6 +191,7 @@ def ask_ai_analysis(
     real_context = {
         "total_checks": total_checks,
         "average_rating": round(float(avg_rating), 1) if avg_rating else 0,
+        "all_dishes": all_dishes_list if all_dishes_list else ["אין נתונים"],
         "weak_dishes": weak_dishes_list if weak_dishes_list else ["אין מנות חלשות"],
         "top_chefs": top_chefs_list if top_chefs_list else ["אין נתונים"],
         "trend": trend,
@@ -190,7 +208,8 @@ def ask_ai_analysis(
 הנתונים הנוכחיים (תקופה: {real_context['date_range']}):
 - סך בדיקות: {real_context['total_checks']}
 - ממוצע ציונים: {real_context['average_rating']}
-- מנות חלשות: {', '.join(real_context['weak_dishes'])}
+- כל המנות (מסודרות לפי ציון): {', '.join(real_context['all_dishes'][:10])}
+- מנות חלשות (מתחת ל-7): {', '.join(real_context['weak_dishes'])}
 - טבחים מובילים: {', '.join(real_context['top_chefs'])}
 - מגמה: {real_context['trend']}
 

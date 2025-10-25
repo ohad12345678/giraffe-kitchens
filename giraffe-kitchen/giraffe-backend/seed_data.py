@@ -45,8 +45,9 @@ def seed_users(db):
         {"email": "ohadb@giraffe.co.il", "name": "Ohad Banay"},
         {"email": "nofar@giraffe.co.il", "name": "Nofar"},
         {"email": "aviv@giraffe.co.il", "name": "Aviv"},
-        {"email": "alma@giraffe.co.il", "name": "Alma"},
+        {"email": "almog@giraffe.co.il", "name": "Almog"},
         {"email": "talz@giraffe.co.il", "name": "Talz"},
+        {"email": "avital@giraffe.co.il", "name": "Avital"},
     ]
 
     for user_data in hq_users:
@@ -243,8 +244,9 @@ def main():
         print("  - ohadb@giraffe.co.il")
         print("  - nofar@giraffe.co.il")
         print("  - aviv@giraffe.co.il")
-        print("  - alma@giraffe.co.il")
+        print("  - almog@giraffe.co.il")
         print("  - talz@giraffe.co.il")
+        print("  - avital@giraffe.co.il")
         print("\n🏢 Branch Managers (all password: 123):")
         print("  - harel@giraffe.co.il (חיפה)")
         print("  - hemi@giraffe.co.il (רמת החייל)")
