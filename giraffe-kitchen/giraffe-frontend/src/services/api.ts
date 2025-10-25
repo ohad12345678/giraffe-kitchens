@@ -90,6 +90,21 @@ export const dishAPI = {
     const response = await api.get<Dish>(`/api/v1/dishes/${id}`);
     return response.data;
   },
+
+  create: async (data: { name: string; category: string | null }): Promise<Dish> => {
+    const response = await api.post<Dish>('/api/v1/dishes/', data);
+    return response.data;
+  },
+
+  update: async (id: number, data: { name: string; category: string | null }): Promise<Dish> => {
+    const response = await api.put<Dish>(`/api/v1/dishes/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: number): Promise<{ status: string; message: string }> => {
+    const response = await api.delete(`/api/v1/dishes/${id}`);
+    return response.data;
+  },
 };
 
 // Chef endpoints
@@ -97,6 +112,21 @@ export const chefAPI = {
   list: async (branchId?: number): Promise<Chef[]> => {
     const params = branchId ? { branch_id: branchId } : {};
     const response = await api.get<Chef[]>('/api/v1/chefs/', { params });
+    return response.data;
+  },
+
+  create: async (data: { name: string; branch_id: number }): Promise<Chef> => {
+    const response = await api.post<Chef>('/api/v1/chefs/', data);
+    return response.data;
+  },
+
+  update: async (id: number, data: { name: string; branch_id: number }): Promise<Chef> => {
+    const response = await api.put<Chef>(`/api/v1/chefs/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: number): Promise<{ status: string; message: string }> => {
+    const response = await api.delete(`/api/v1/chefs/${id}`);
     return response.data;
   },
 };

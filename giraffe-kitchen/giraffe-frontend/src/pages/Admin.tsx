@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userAPI, branchAPI } from '../services/api';
+import DishesTab from '../components/DishesTab';
+import ChefsTab from '../components/ChefsTab';
 
 interface User {
   id: number;
@@ -306,8 +308,14 @@ function Admin() {
           </div>
         )}
 
+        {/* Dishes Tab */}
+        {activeTab === 'dishes' && <DishesTab />}
+
+        {/* Chefs Tab */}
+        {activeTab === 'chefs' && <ChefsTab />}
+
         {/* Other Tabs - Coming Soon */}
-        {activeTab !== 'users' && (
+        {(activeTab === 'branches' || activeTab === 'settings') && (
           <div className="bg-white rounded-xl shadow-sm p-12 text-center">
             <h3 className="text-2xl font-bold text-gray-400 mb-2">בקרוב</h3>
             <p className="text-gray-500">תכונה זו תהיה זמינה בקרוב</p>
