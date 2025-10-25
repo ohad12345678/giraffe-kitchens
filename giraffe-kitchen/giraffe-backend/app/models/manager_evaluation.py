@@ -1,7 +1,15 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float, Text, Date
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float, Text, Date, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.base import Base
+import enum
+
+
+class EvaluationStatus(str, enum.Enum):
+    """Status of a manager evaluation."""
+    DRAFT = "draft"
+    COMPLETED = "completed"
+    REVIEWED = "reviewed"
 
 
 class ManagerEvaluation(Base):
@@ -19,8 +27,10 @@ class ManagerEvaluation(Base):
     manager_name = Column(String, nullable=False)
 
     # Report metadata
-    evaluation_date = Column(Date, nullable=False)
+    evaluation_date = Column(DateTime(timezone=True), nullable=False)
+    overall_score = Column(Float, nullable=True)  # Calculated weighted average
     general_comments = Column(Text, nullable=True)
+    status = Column(Enum(EvaluationStatus), default=EvaluationStatus.DRAFT, nullable=False)
 
     # AI-generated summary
     ai_summary = Column(Text, nullable=True)

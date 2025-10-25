@@ -192,6 +192,8 @@ export interface NetworkAuditStats {
 }
 
 // Manager Evaluations
+export type EvaluationStatus = 'draft' | 'completed' | 'reviewed';
+
 export interface ManagerEvaluationCategory {
   id?: number;
   category_name: string;
@@ -205,6 +207,8 @@ export interface ManagerEvaluation {
   created_by: number;
   manager_name: string;
   evaluation_date: string;
+  overall_score: number | null;
+  status: EvaluationStatus;
   general_comments: string | null;
   ai_summary: string | null;
   created_at: string;
@@ -218,6 +222,8 @@ export interface ManagerEvaluationSummary {
   branch_name: string;
   manager_name: string;
   evaluation_date: string;
+  overall_score: number | null;
+  status: EvaluationStatus;
   created_by_name: string;
   created_at: string;
 }

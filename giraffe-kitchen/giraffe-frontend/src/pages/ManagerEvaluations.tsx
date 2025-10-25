@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { managerEvaluationAPI, aiAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowRight, Plus, MessageCircle } from 'lucide-react';
+import { ArrowRight, Plus, MessageCircle, CheckCircle, Clock, Eye } from 'lucide-react';
 import type { ManagerEvaluationSummary } from '../types';
 
 export default function ManagerEvaluations() {
@@ -86,6 +86,41 @@ export default function ManagerEvaluations() {
       month: 'long',
       day: 'numeric',
     });
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+            <CheckCircle className="h-3 w-3" />
+            הושלם
+          </span>
+        );
+      case 'reviewed':
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+            <Eye className="h-3 w-3" />
+            נבדק
+          </span>
+        );
+      case 'draft':
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
+            <Clock className="h-3 w-3" />
+            טיוטה
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const getScoreColor = (score: number | null) => {
+    if (score === null) return 'text-gray-400';
+    if (score >= 8) return 'text-green-600';
+    if (score >= 6) return 'text-yellow-600';
+    return 'text-red-600';
   };
 
   if (!hasAccess) {
@@ -182,6 +217,12 @@ export default function ManagerEvaluations() {
                         תאריך הערכה
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        ציון
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        סטטוס
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         מעריך
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -208,6 +249,14 @@ export default function ManagerEvaluations() {
                           <div className="text-sm text-gray-500">
                             {formatDate(evaluation.evaluation_date)}
                           </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className={`text-sm font-semibold ${getScoreColor(evaluation.overall_score)}`}>
+                            {evaluation.overall_score !== null ? evaluation.overall_score.toFixed(2) : '-'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {getStatusBadge(evaluation.status)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-500">

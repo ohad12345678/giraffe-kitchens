@@ -63,6 +63,127 @@ def load_prompt_template(prompt_name: str) -> Optional[str]:
         return None
 
 
+def calculate_evaluation_score(evaluation: ManagerEvaluation, db: Session) -> None:
+    """
+    Calculate weighted average score for an evaluation based on category ratings.
+    Updates the evaluation's overall_score.
+    """
+    # Category weights (must sum to 1.0)
+    WEIGHTS = {
+        "תפעול": 0.30,
+        "ניהול אנשים": 0.35,
+        "ביצועים עסקיים": 0.25,
+        "מנהיגות": 0.10
+    }
+
+    if not evaluation.categories:
+        evaluation.overall_score = None
+        return
+
+    weighted_sum = 0.0
+    total_weight = 0.0
+
+    for category in evaluation.categories:
+        weight = WEIGHTS.get(category.category_name, 0.25)  # Default weight if category not found
+        weighted_sum += category.rating * weight
+        total_weight += weight
+
+    if total_weight > 0:
+        evaluation.overall_score = round(weighted_sum / total_weight, 2)
+    else:
+        evaluation.overall_score = None
+
+    db.commit()
+
+
+def generate_ai_summary(evaluation: ManagerEvaluation, db: Session) -> None:
+    """
+    Generate AI summary for a manager evaluation.
+    Similar to sanitation audits - called automatically on creation.
+    """
+    from anthropic import Anthropic
+    from app.core.config import settings
+
+    # Get branch info
+    branch = db.query(Branch).filter(Branch.id == evaluation.branch_id).first()
+
+    # Load prompt template
+    prompt_template = load_prompt_template("manager_evaluation_analysis")
+    if not prompt_template:
+        print("⚠️  Could not load prompt template, skipping AI summary")
+        return
+
+    # Build context
+    categories_text = "\n".join([
+        f"- {cat.category_name}: {cat.rating}/10{f' - {cat.comments}' if cat.comments else ''}"
+        for cat in evaluation.categories
+    ])
+
+    context = f"""
+דוח הערכת מנהל עבור {evaluation.manager_name} מסניף {branch.name if branch else 'לא ידוע'}
+תאריך הערכה: {evaluation.evaluation_date.strftime('%d/%m/%Y')}
+
+קטגוריות הערכה:
+{categories_text}
+
+הערות כלליות: {evaluation.general_comments or 'אין'}
+"""
+
+    # Build AI prompt
+    system_prompt = f"""{prompt_template}
+
+---
+
+להלן מידע על הערכת המנהל:
+
+{context}
+
+נא לנתח את ההערכה לפי המבנה שהוגדר לעיל."""
+
+    try:
+        # Check API key
+        if not settings.ANTHROPIC_API_KEY:
+            print("⚠️  ANTHROPIC_API_KEY not configured, skipping AI summary")
+            return
+
+        # Create Anthropic client
+        client = Anthropic(api_key=settings.ANTHROPIC_API_KEY, timeout=60.0)
+
+        # Try models in order
+        models_to_try = [
+            "claude-3-5-sonnet-latest",
+            "claude-3-opus-latest",
+            "claude-3-sonnet-20240229",
+            "claude-3-haiku-20240307"
+        ]
+
+        for model_name in models_to_try:
+            try:
+                print(f"🤖 Generating AI summary with {model_name}...")
+                message = client.messages.create(
+                    model=model_name,
+                    max_tokens=4096,
+                    system=system_prompt,
+                    messages=[{"role": "user", "content": "נא לספק ניתוח מקצועי ומקיף של ההערכה."}]
+                )
+
+                ai_summary = message.content[0].text
+                evaluation.ai_summary = ai_summary
+                db.commit()
+                print(f"✅ AI summary generated successfully with {model_name}")
+                return
+
+            except Exception as model_error:
+                print(f"❌ Model {model_name} failed: {str(model_error)}")
+                continue
+
+        print("⚠️  All AI models failed, evaluation created without summary")
+
+    except Exception as e:
+        print(f"❌ Error generating AI summary: {str(e)}")
+        # Don't raise - allow evaluation to be created without summary
+
+
 @router.get("/", response_model=List[ManagerEvaluationSummary])
 def list_manager_evaluations(
     branch_id: Optional[int] = Query(None, description="Filter by branch"),
@@ -101,6 +222,8 @@ def list_manager_evaluations(
             branch_name=branch.name if branch else "Unknown",
             manager_name=evaluation.manager_name,
             evaluation_date=evaluation.evaluation_date,
+            overall_score=evaluation.overall_score,
+            status=evaluation.status,
             created_by_name=creator.full_name if creator else "Unknown",
             created_at=evaluation.created_at
         ))
@@ -150,6 +273,13 @@ def create_manager_evaluation(
     db.commit()
     db.refresh(new_evaluation)
 
+    # Calculate overall score (weighted average)
+    calculate_evaluation_score(new_evaluation, db)
+
+    # Generate AI summary automatically (like sanitation audits)
+    generate_ai_summary(new_evaluation, db)
+
+    db.refresh(new_evaluation)
     return new_evaluation
 
 

@@ -6,6 +6,14 @@ These schemas validate data coming from the frontend and structure API responses
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime, date
+from enum import Enum
+
+
+class EvaluationStatus(str, Enum):
+    """Status of a manager evaluation."""
+    DRAFT = "draft"
+    COMPLETED = "completed"
+    REVIEWED = "reviewed"
 
 
 # ===== Category Schemas =====
@@ -38,7 +46,7 @@ class ManagerEvaluationBase(BaseModel):
     """Base schema for manager evaluation."""
     branch_id: int
     manager_name: str = Field(..., description="Name of the manager being evaluated (manual entry)")
-    evaluation_date: date
+    evaluation_date: datetime
     general_comments: Optional[str] = Field(None, description="General comments about the manager")
 
 
@@ -50,15 +58,18 @@ class ManagerEvaluationCreate(ManagerEvaluationBase):
 class ManagerEvaluationUpdate(BaseModel):
     """Schema for updating an existing evaluation."""
     manager_name: Optional[str] = None
-    evaluation_date: Optional[date] = None
+    evaluation_date: Optional[datetime] = None
     general_comments: Optional[str] = None
     ai_summary: Optional[str] = None
+    status: Optional[EvaluationStatus] = None
 
 
 class ManagerEvaluationResponse(ManagerEvaluationBase):
     """Schema for evaluation in API responses."""
     id: int
     created_by: int
+    overall_score: Optional[float] = None
+    status: EvaluationStatus
     ai_summary: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
@@ -76,7 +87,9 @@ class ManagerEvaluationSummary(BaseModel):
     branch_id: int
     branch_name: str
     manager_name: str
-    evaluation_date: date
+    evaluation_date: datetime
+    overall_score: Optional[float] = None
+    status: EvaluationStatus
     created_by_name: str
     created_at: datetime
 

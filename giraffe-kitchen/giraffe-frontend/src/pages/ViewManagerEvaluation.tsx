@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { managerEvaluationAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowRight, Trash2, Sparkles } from 'lucide-react';
+import { ArrowRight, Trash2, Sparkles, CheckCircle, Clock, Eye } from 'lucide-react';
 import type { ManagerEvaluation } from '../types';
 
 export default function ViewManagerEvaluation() {
@@ -12,7 +12,6 @@ export default function ViewManagerEvaluation() {
   const [evaluation, setEvaluation] = useState<ManagerEvaluation | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [generatingSummary, setGeneratingSummary] = useState(false);
 
   // Authorized emails
   const AUTHORIZED_EMAILS = [
@@ -63,21 +62,6 @@ export default function ViewManagerEvaluation() {
     }
   };
 
-  const handleGenerateSummary = async () => {
-    if (!id) return;
-
-    setGeneratingSummary(true);
-    try {
-      const updated = await managerEvaluationAPI.generateSummary(Number(id));
-      setEvaluation(updated);
-    } catch (err: any) {
-      console.error('Failed to generate summary:', err);
-      alert(err.response?.data?.detail || 'שגיאה ביצירת סיכום AI');
-    } finally {
-      setGeneratingSummary(false);
-    }
-  };
-
   const getRatingColor = (rating: number) => {
     if (rating >= 8) return 'text-green-600';
     if (rating >= 6) return 'text-yellow-600';
@@ -90,6 +74,34 @@ export default function ViewManagerEvaluation() {
       month: 'long',
       day: 'numeric',
     });
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return (
+          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+            <CheckCircle className="h-4 w-4" />
+            הושלם
+          </span>
+        );
+      case 'reviewed':
+        return (
+          <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+            <Eye className="h-4 w-4" />
+            נבדק
+          </span>
+        );
+      case 'draft':
+        return (
+          <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">
+            <Clock className="h-4 w-4" />
+            טיוטה
+          </span>
+        );
+      default:
+        return null;
+    }
   };
 
   if (!hasAccess) {
@@ -113,8 +125,6 @@ export default function ViewManagerEvaluation() {
       </div>
     );
   }
-
-  const averageRating = evaluation.categories.reduce((sum, cat) => sum + cat.rating, 0) / evaluation.categories.length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -146,22 +156,29 @@ export default function ViewManagerEvaluation() {
         <div className="space-y-6">
             {/* Header Card */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                הערכת {evaluation.manager_name}
-              </h1>
-              <p className="text-gray-600 mb-4">
-                {formatDate(evaluation.evaluation_date)}
-              </p>
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    הערכת {evaluation.manager_name}
+                  </h1>
+                  <p className="text-gray-600">
+                    {formatDate(evaluation.evaluation_date)}
+                  </p>
+                </div>
+                {getStatusBadge(evaluation.status)}
+              </div>
 
               {/* Rating Display */}
-              <div className="grid grid-cols-1 gap-4">
-                <div className="bg-purple-50 rounded-lg p-4">
-                  <div className="text-sm text-gray-600 mb-1">ממוצע קטגוריות</div>
-                  <div className={`text-4xl font-bold ${getRatingColor(averageRating)}`}>
-                    {averageRating.toFixed(1)}/10
+              {evaluation.overall_score !== null && (
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="bg-purple-50 rounded-lg p-4">
+                    <div className="text-sm text-gray-600 mb-1">ציון כללי משוקלל</div>
+                    <div className={`text-4xl font-bold ${getRatingColor(evaluation.overall_score)}`}>
+                      {evaluation.overall_score.toFixed(2)}/10
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* General Comments */}
@@ -193,34 +210,17 @@ export default function ViewManagerEvaluation() {
             </div>
 
             {/* AI Summary */}
-            <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg shadow-sm p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+            {evaluation.ai_summary && (
+              <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg shadow-sm p-6">
+                <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2 mb-4">
                   <Sparkles className="h-5 w-5 text-purple-600" />
                   סיכום AI מקצועי
                 </h2>
-                {!evaluation.ai_summary && (
-                  <button
-                    onClick={handleGenerateSummary}
-                    disabled={generatingSummary}
-                    className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    {generatingSummary ? 'מייצר...' : 'צור סיכום'}
-                  </button>
-                )}
-              </div>
-
-              {evaluation.ai_summary ? (
                 <div className="prose prose-sm max-w-none">
                   <div className="text-gray-700 whitespace-pre-wrap">{evaluation.ai_summary}</div>
                 </div>
-              ) : (
-                <p className="text-gray-500 italic">
-                  לחץ על "צור סיכום" כדי לקבל ניתוח מקצועי מבוסס AI של ההערכה
-                </p>
-              )}
-            </div>
-          </div>
+              </div>
+            )}
         </div>
       </main>
     </div>

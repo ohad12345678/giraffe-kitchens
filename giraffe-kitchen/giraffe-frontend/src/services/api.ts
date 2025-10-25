@@ -379,6 +379,7 @@ export const managerEvaluationAPI = {
     overall_rating?: number;
     general_comments?: string;
     ai_summary?: string;
+    status?: 'draft' | 'completed' | 'reviewed';
   }): Promise<ManagerEvaluation> => {
     const response = await api.put<ManagerEvaluation>(`/api/v1/manager-evaluations/${id}`, data);
     return response.data;

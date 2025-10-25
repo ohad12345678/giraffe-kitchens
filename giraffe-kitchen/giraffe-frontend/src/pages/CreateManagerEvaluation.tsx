@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { managerEvaluationAPI, branchAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowRight, Save } from 'lucide-react';
 import { MANAGER_EVALUATION_CATEGORIES } from '../data/managerEvaluationCategories';
 import type { Branch, CreateManagerEvaluation, ManagerEvaluationCategory } from '../types';
 
@@ -18,6 +17,13 @@ export default function CreateManagerEvaluation() {
   const [managerName, setManagerName] = useState('');
   const [evaluationDate, setEvaluationDate] = useState(new Date().toISOString().split('T')[0]);
   const [generalComments, setGeneralComments] = useState('');
+
+  // Summary state - 2-step flow
+  const [evaluationSaved, setEvaluationSaved] = useState(false);
+  const [savedEvaluationId, setSavedEvaluationId] = useState<number | null>(null);
+  const [aiSummary, setAiSummary] = useState<string>('');
+  const [manualNotes, setManualNotes] = useState<string>('');
+  const [overallScore, setOverallScore] = useState<number | null>(null);
 
   // Categories state
   const [categories, setCategories] = useState<Omit<ManagerEvaluationCategory, 'id'>[]>(
@@ -89,17 +95,51 @@ export default function CreateManagerEvaluation() {
     const evaluationData: CreateManagerEvaluation = {
       branch_id: selectedBranchId,
       manager_name: managerName.trim(),
-      evaluation_date: evaluationDate,
+      evaluation_date: `${evaluationDate}T00:00:00`,
       general_comments: generalComments.trim() || null,
       categories: categories,
     };
 
     try {
       const created = await managerEvaluationAPI.create(evaluationData);
-      navigate(`/manager-evaluations/${created.id}`);
+      setSavedEvaluationId(created.id);
+      setAiSummary(created.ai_summary || '');
+      setOverallScore(created.overall_score);
+      setEvaluationSaved(true);
     } catch (err: any) {
       console.error('Failed to create evaluation:', err);
       setError(err.response?.data?.detail || 'שגיאה ביצירת הערכה');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFinalSubmit = async () => {
+    if (!savedEvaluationId) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Update evaluation with manual notes if provided and set status to completed
+      if (manualNotes.trim()) {
+        const updatedSummary = aiSummary + '\n\nהערות נוספות:\n' + manualNotes;
+        await managerEvaluationAPI.update(savedEvaluationId, {
+          ai_summary: updatedSummary,
+          status: 'completed'
+        });
+      } else {
+        await managerEvaluationAPI.update(savedEvaluationId, {
+          status: 'completed'
+        });
+      }
+
+      // Navigate to view page
+      navigate(`/manager-evaluations/${savedEvaluationId}`);
+    } catch (err: any) {
+      console.error('Failed to submit evaluation:', err);
+      setError('שגיאה בשליחת הערכה');
+    } finally {
       setLoading(false);
     }
   };
@@ -109,48 +149,36 @@ export default function CreateManagerEvaluation() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => navigate('/manager-evaluations')}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowRight className="h-5 w-5" />
-              <span>חזרה להערכות</span>
-            </button>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {evaluationSaved ? 'הערכה נשמרה בהצלחה' : 'הערכת מנהל חדשה'}
+          </h1>
+          <p className="text-gray-600">
+            {evaluationSaved ? 'סקור את הסיכום והוסף הערות נוספות לפני השליחה הסופית' : 'מלא את כל השדות והקטגוריות למטה'}
+          </p>
 
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-            >
-              <Save className="h-5 w-5" />
-              {loading ? 'שומר...' : 'שמור הערכה'}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-6">
-          {/* Title */}
-          <h1 className="text-3xl font-bold text-gray-900">הערכת מנהל חדשה</h1>
-
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              {error}
+          {/* Score Display */}
+          {overallScore !== null && (
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+              <div className="text-sm text-gray-600">ציון כללי</div>
+              <div className="text-4xl font-bold text-blue-600">{overallScore.toFixed(2)}</div>
             </div>
           )}
+        </div>
 
-          {/* Form */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+            {error}
+          </div>
+        )}
+
+        {!evaluationSaved && (
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Info Card */}
-            <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
+            <div className="bg-white rounded-lg shadow p-6 space-y-4">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">פרטי ההערכה</h2>
 
               {/* Branch Selection */}
@@ -218,7 +246,7 @@ export default function CreateManagerEvaluation() {
             </div>
 
             {/* Evaluation Categories */}
-            <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
+            <div className="bg-white rounded-lg shadow p-6 space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">קטגוריות הערכה</h2>
 
               {MANAGER_EVALUATION_CATEGORIES.map((template, index) => (
@@ -268,20 +296,70 @@ export default function CreateManagerEvaluation() {
               ))}
             </div>
 
-            {/* Submit Button */}
-            <div className="flex justify-end">
+            {/* Submit Buttons */}
+            <div className="flex gap-4">
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-8 py-3 rounded-lg font-medium transition-colors text-lg"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-colors"
               >
-                <Save className="h-5 w-5" />
                 {loading ? 'שומר...' : 'שמור הערכה'}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/manager-evaluations')}
+                className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                ביטול
               </button>
             </div>
           </form>
-        </div>
-      </main>
+        )}
+
+        {/* AI Summary Section - Shows after evaluation is saved */}
+        {evaluationSaved && aiSummary && (
+          <div className="space-y-6 mt-6">
+            {/* AI Summary Display */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">סיכום אוטומטי של ההערכה</h2>
+              <div className="prose max-w-none">
+                <pre className="whitespace-pre-wrap font-sans text-gray-700 text-sm leading-relaxed bg-gray-50 p-4 rounded-lg">
+{aiSummary}
+                </pre>
+              </div>
+            </div>
+
+            {/* Manual Notes Section */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">הערות נוספות (אופציונלי)</h2>
+              <textarea
+                value={manualNotes}
+                onChange={(e) => setManualNotes(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                rows={6}
+                placeholder="הוסף הערות נוספות, המלצות, או מידע רלוונטי אחר..."
+              />
+            </div>
+
+            {/* Final Submit Button */}
+            <div className="flex gap-4">
+              <button
+                onClick={handleFinalSubmit}
+                disabled={loading}
+                className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              >
+                {loading ? 'שולח...' : 'שלח הערכה'}
+              </button>
+              <button
+                onClick={() => navigate(`/manager-evaluations/${savedEvaluationId}`)}
+                className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                צפה בהערכה ללא שליחה
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
