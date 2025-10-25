@@ -260,11 +260,12 @@ def generate_ai_summary(
 הערות כלליות: {evaluation.general_comments or 'אין'}
 """
 
-    # Import AI service
-    from app.services.ai_service import get_ai_response
+    # Import Anthropic client
+    from anthropic import Anthropic
+    from app.core.config import settings
 
-    prompt = """
-אתה יועץ ארגוני מנוסה המתמחה בהערכת מנהלי מסעדות. נא לספק סיכום מקצועי ומעמיק של ההערכה הבאה:
+    # Build AI prompt
+    system_prompt = f"""אתה יועץ ארגוני מנוסה המתמחה בהערכת מנהלי מסעדות. נא לספק סיכום מקצועי ומעמיק של ההערכה הבאה:
 
 {context}
 
@@ -284,11 +285,48 @@ def generate_ai_summary(
 
 5. **סיכום**: סיים במשפט תמציתי המסכם את הפוטנציאל של המנהל ואת כיוון ההתפתחות המומלץ.
 
-נא לכתוב בעברית ברורה ומקצועית, תוך שימוש בנקודות ומבנה ברור.
-""".format(context=context)
+נא לכתוב בעברית ברורה ומקצועית, תוך שימוש בנקודות ומבנה ברור."""
 
     try:
-        ai_summary = get_ai_response(prompt)
+        # Check API key
+        if not settings.ANTHROPIC_API_KEY:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="ANTHROPIC_API_KEY not configured"
+            )
+
+        # Create Anthropic client
+        client = Anthropic(api_key=settings.ANTHROPIC_API_KEY, timeout=60.0)
+
+        # Try models in order
+        models_to_try = [
+            "claude-3-5-sonnet-latest",
+            "claude-3-opus-latest",
+            "claude-3-sonnet-20240229",
+            "claude-3-haiku-20240307"
+        ]
+
+        ai_summary = None
+        for model_name in models_to_try:
+            try:
+                print(f"🤖 Trying Claude model: {model_name}")
+                message = client.messages.create(
+                    model=model_name,
+                    max_tokens=4096,
+                    system=system_prompt,
+                    messages=[
+                        {"role": "user", "content": "צור ניתוח מפורט של הערכת המנהל"}
+                    ]
+                )
+                ai_summary = message.content[0].text
+                print(f"✅ Claude responded successfully with {model_name}")
+                break
+            except Exception as model_error:
+                print(f"❌ Model {model_name} failed: {str(model_error)}")
+                continue
+
+        if not ai_summary:
+            raise Exception("All Claude models failed")
 
         # Save summary to database
         evaluation.ai_summary = ai_summary
@@ -346,24 +384,56 @@ def chat_about_evaluation(
 {'סיכום AI: ' + evaluation.ai_summary if evaluation.ai_summary else ''}
 """
 
-    # Import AI service
-    from app.services.ai_service import get_ai_response
+    # Import Anthropic client
+    from anthropic import Anthropic
+    from app.core.config import settings
 
-    prompt = f"""
-אתה יועץ ארגוני מנוסה המתמחה בהערכת מנהלי מסעדות.
+    system_prompt = f"""אתה יועץ ארגוני מנוסה המתמחה בהערכת מנהלי מסעדות.
 
 להלן מידע על הערכת מנהל:
 {context}
 
-המשתמש שואל: {chat_request.question}
-
-נא לענות על השאלה בצורה מקצועית, תמציתית וממוקדת, תוך התבססות על הנתונים שבדוח ההערכה.
+נא לענות על השאלות בצורה מקצועית, תמציתית וממוקדת, תוך התבססות על הנתונים שבדוח ההערכה.
 אם השאלה דורשת המלצות - תן המלצות ספציפיות ומעשיות.
-כתוב בעברית ברורה.
-"""
+כתוב בעברית ברורה."""
 
     try:
-        ai_answer = get_ai_response(prompt)
+        # Check API key
+        if not settings.ANTHROPIC_API_KEY:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="ANTHROPIC_API_KEY not configured"
+            )
+
+        # Create Anthropic client
+        client = Anthropic(api_key=settings.ANTHROPIC_API_KEY, timeout=30.0)
+
+        # Try models in order
+        models_to_try = [
+            "claude-3-5-sonnet-latest",
+            "claude-3-opus-latest",
+            "claude-3-sonnet-20240229",
+            "claude-3-haiku-20240307"
+        ]
+
+        ai_answer = None
+        for model_name in models_to_try:
+            try:
+                message = client.messages.create(
+                    model=model_name,
+                    max_tokens=2048,
+                    system=system_prompt,
+                    messages=[
+                        {"role": "user", "content": chat_request.question}
+                    ]
+                )
+                ai_answer = message.content[0].text
+                break
+            except Exception:
+                continue
+
+        if not ai_answer:
+            raise Exception("All Claude models failed")
 
         return ManagerEvaluationChatResponse(
             evaluation_id=chat_request.evaluation_id,
