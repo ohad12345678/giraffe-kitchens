@@ -32,6 +32,21 @@ export default function ViewSanitationAudit() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!confirm('האם אתה בטוח שברצונך למחוק ביקורת זו? פעולה זו לא ניתנת לביטול.')) {
+      return;
+    }
+
+    try {
+      await sanitationAuditAPI.delete(Number(id));
+      alert('הביקורת נמחקה בהצלחה');
+      navigate('/sanitation-audits');
+    } catch (err: any) {
+      console.error('Failed to delete audit:', err);
+      alert(err.response?.data?.detail || 'שגיאה במחיקת ביקורת');
+    }
+  };
+
   const getScoreColor = (score: number) => {
     if (score >= 90) return 'text-green-600';
     if (score >= 80) return 'text-yellow-600';
@@ -257,12 +272,20 @@ export default function ViewSanitationAudit() {
             חזרה לרשימה
           </button>
           {isHQ && (
-            <button
-              onClick={() => window.print()}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-            >
-              הדפס
-            </button>
+            <>
+              <button
+                onClick={() => window.print()}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              >
+                הדפס
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+              >
+                מחק ביקורת
+              </button>
+            </>
           )}
         </div>
       </div>

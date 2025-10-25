@@ -8,6 +8,14 @@ from app.api.v1 import auth, branches, dishes, chefs, checks, ai, daily_tasks, s
 from app.db.base import Base, engine
 import os
 
+# Import all models to ensure they are registered with SQLAlchemy
+from app.models import (
+    User, Branch, Dish, Chef, DishCheck,
+    DailyTask, TaskAssignment,
+    SanitationAudit, SanitationAuditCategory,
+    ManagerEvaluation, ManagerEvaluationCategory
+)
+
 # Create database tables on startup
 os.makedirs(os.path.dirname(settings.DATABASE_URL.replace('sqlite:///', '')), exist_ok=True)
 Base.metadata.create_all(bind=engine)
