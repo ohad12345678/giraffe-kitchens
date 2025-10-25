@@ -125,6 +125,25 @@ def ask_ai_analysis(
 
     weak_dishes_list = [f"{d.name} ({round(float(d.avg_score), 1)})" for d in weak_dishes_query]
 
+    # Get ALL dishes with ratings (not just weak ones)
+    all_dishes_query = db.query(
+        func.coalesce(Dish.name, DishCheck.dish_name_manual).label('name'),
+        func.avg(DishCheck.rating).label('avg_score'),
+        func.count(DishCheck.id).label('check_count')
+    ).select_from(DishCheck).outerjoin(
+        Dish, DishCheck.dish_id == Dish.id
+    ).filter(
+        DishCheck.check_date >= start_date,
+        DishCheck.check_date <= end_date
+    ).group_by(
+        DishCheck.dish_id,
+        func.coalesce(Dish.name, DishCheck.dish_name_manual)
+    ).order_by(
+        func.avg(DishCheck.rating).desc()
+    ).all()
+
+    all_dishes_list = [f"{d.name} ({round(float(d.avg_score), 1)}, {d.check_count} בדיקות)" for d in all_dishes_query]
+
     # Get top chefs - no need to fetch all checks
     top_chefs_query = db.query(
         func.coalesce(Chef.name, DishCheck.chef_name_manual).label('name'),
