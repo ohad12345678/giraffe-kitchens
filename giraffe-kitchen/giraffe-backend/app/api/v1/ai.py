@@ -102,19 +102,18 @@ def ask_ai_analysis(
     # Get total checks
     total_checks = query.count()
 
-    # Get average rating
-    avg_rating = db.query(func.avg(DishCheck.rating)).filter(
-        DishCheck.id.in_([c.id for c in query.all()])
-    ).scalar() or 0
+    # Get average rating - use subquery instead of .all()
+    avg_rating = query.with_entities(func.avg(DishCheck.rating)).scalar() or 0
 
-    # Get weak dishes (rating < 7)
+    # Get weak dishes (rating < 7) - no need to fetch all checks
     weak_dishes_query = db.query(
         func.coalesce(Dish.name, DishCheck.dish_name_manual).label('name'),
         func.avg(DishCheck.rating).label('avg_score')
-    ).outerjoin(
+    ).select_from(DishCheck).outerjoin(
         Dish, DishCheck.dish_id == Dish.id
     ).filter(
-        DishCheck.id.in_([c.id for c in query.all()])
+        DishCheck.check_date >= start_date,
+        DishCheck.check_date <= end_date
     ).group_by(
         DishCheck.dish_id,
         func.coalesce(Dish.name, DishCheck.dish_name_manual)
@@ -126,14 +125,15 @@ def ask_ai_analysis(
 
     weak_dishes_list = [f"{d.name} ({round(float(d.avg_score), 1)})" for d in weak_dishes_query]
 
-    # Get top chefs
+    # Get top chefs - no need to fetch all checks
     top_chefs_query = db.query(
         func.coalesce(Chef.name, DishCheck.chef_name_manual).label('name'),
         func.avg(DishCheck.rating).label('avg_score')
-    ).outerjoin(
+    ).select_from(DishCheck).outerjoin(
         Chef, DishCheck.chef_id == Chef.id
     ).filter(
-        DishCheck.id.in_([c.id for c in query.all()])
+        DishCheck.check_date >= start_date,
+        DishCheck.check_date <= end_date
     ).group_by(
         DishCheck.chef_id,
         func.coalesce(Chef.name, DishCheck.chef_name_manual)
@@ -155,9 +155,7 @@ def ask_ai_analysis(
     elif request.branch_id:
         previous_query = previous_query.filter(DishCheck.branch_id == request.branch_id)
 
-    previous_avg = db.query(func.avg(DishCheck.rating)).filter(
-        DishCheck.id.in_([c.id for c in previous_query.all()])
-    ).scalar() or 0
+    previous_avg = previous_query.with_entities(func.avg(DishCheck.rating)).scalar() or 0
 
     if previous_avg > 0:
         trend_diff = round(float(avg_rating - previous_avg), 1)
