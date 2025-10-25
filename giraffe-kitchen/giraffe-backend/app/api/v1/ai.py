@@ -62,7 +62,7 @@ def ask_ai_analysis(
     """
 
     # Authorization check
-    if current_user.role.value == "BRANCH_MANAGER" and request.branch_id != current_user.branch_id:
+    if current_user.role.value == "branch_manager" and request.branch_id != current_user.branch_id:
         raise HTTPException(status_code=403, detail="Not authorized to access this branch data")
 
     # Get API key from settings or environment
@@ -89,7 +89,7 @@ def ask_ai_analysis(
     )
 
     # Branch managers see only their branch
-    if current_user.role.value == "BRANCH_MANAGER":
+    if current_user.role.value == "branch_manager":
         query = query.filter(DishCheck.branch_id == current_user.branch_id)
     elif request.branch_id:
         query = query.filter(DishCheck.branch_id == request.branch_id)
@@ -147,7 +147,7 @@ def ask_ai_analysis(
         DishCheck.check_date < start_date
     )
 
-    if current_user.role.value == "BRANCH_MANAGER":
+    if current_user.role.value == "branch_manager":
         previous_query = previous_query.filter(DishCheck.branch_id == current_user.branch_id)
     elif request.branch_id:
         previous_query = previous_query.filter(DishCheck.branch_id == request.branch_id)
@@ -273,7 +273,7 @@ def ask_sanitation_analysis(
     """
 
     # Authorization check
-    if current_user.role.value == "BRANCH_MANAGER" and request.branch_id != current_user.branch_id:
+    if current_user.role.value == "branch_manager" and request.branch_id != current_user.branch_id:
         raise HTTPException(status_code=403, detail="Not authorized to access this branch data")
 
     # Get API key from settings or environment
@@ -300,7 +300,7 @@ def ask_sanitation_analysis(
     )
 
     # Branch managers see only their branch
-    if current_user.role.value == "BRANCH_MANAGER":
+    if current_user.role.value == "branch_manager":
         query = query.filter(SanitationAudit.branch_id == current_user.branch_id)
     elif request.branch_id:
         query = query.filter(SanitationAudit.branch_id == request.branch_id)
