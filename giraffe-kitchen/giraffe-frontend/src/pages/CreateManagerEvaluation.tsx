@@ -281,17 +281,69 @@ export default function CreateManagerEvaluation() {
                     </div>
                   </div>
 
-                  {/* Comments */}
+                  {/* Sub-Categories Comments */}
+                  {template.subCategories && template.subCategories.length > 0 && (
+                    <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+                      <h4 className="text-sm font-semibold text-gray-700">פירוט לפי תתי-קטגוריות:</h4>
+                      {template.subCategories.map((subCat) => (
+                        <div key={subCat.name}>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">
+                            {subCat.name}
+                          </label>
+                          <textarea
+                            value={(() => {
+                              const comments = categories[index].comments || '';
+                              const match = comments.match(new RegExp(`${subCat.name}:\\s*([^\\n]*)`));
+                              return match ? match[1] : '';
+                            })()}
+                            onChange={(e) => {
+                              const currentComments = categories[index].comments || '';
+                              const lines = currentComments.split('\n').filter(line => !line.startsWith(`${subCat.name}:`));
+                              if (e.target.value.trim()) {
+                                lines.push(`${subCat.name}: ${e.target.value.trim()}`);
+                              }
+                              updateCategory(index, 'comments', lines.join('\n').trim() || null);
+                            }}
+                            rows={2}
+                            className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            placeholder={subCat.placeholder}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* General Comments */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      הערות והמלצות
+                      הערות כלליות נוספות
                     </label>
                     <textarea
-                      value={categories[index].comments || ''}
-                      onChange={(e) => updateCategory(index, 'comments', e.target.value || null)}
+                      value={(() => {
+                        const comments = categories[index].comments || '';
+                        // Extract general comments (lines that don't start with sub-category names)
+                        const lines = comments.split('\n');
+                        const generalLines = lines.filter(line => {
+                          return !template.subCategories?.some(sub => line.startsWith(`${sub.name}:`));
+                        });
+                        return generalLines.join('\n');
+                      })()}
+                      onChange={(e) => {
+                        const currentComments = categories[index].comments || '';
+                        const lines = currentComments.split('\n');
+                        // Keep only sub-category lines
+                        const subCatLines = lines.filter(line =>
+                          template.subCategories?.some(sub => line.startsWith(`${sub.name}:`))
+                        );
+                        // Add general comments
+                        if (e.target.value.trim()) {
+                          subCatLines.push(e.target.value.trim());
+                        }
+                        updateCategory(index, 'comments', subCatLines.join('\n').trim() || null);
+                      }}
                       rows={2}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder={`הערות על ${template.category_name}...`}
+                      placeholder="הערות כלליות נוספות על הקטגוריה..."
                     />
                   </div>
                 </div>
