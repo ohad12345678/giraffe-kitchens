@@ -1,0 +1,3674 @@
+{
+  "metadata": {
+    "exported_at": "2025-10-25T09:20:10.638847",
+    "source_db": "/Users/ohadbanay/Desktop/giraffe11/giraffe-kitchen/giraffe-backend/giraffe_kitchens.db",
+    "tables_count": 10
+  },
+  "tables": {
+    "alembic_version": {
+      "schema": [
+        {
+          "cid": 0,
+          "name": "version_num",
+          "type": "VARCHAR(32)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        }
+      ],
+      "row_count": 1,
+      "data": [
+        {
+          "version_num": "ac919eceee26"
+        }
+      ]
+    },
+    "branches": {
+      "schema": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "name",
+          "type": "VARCHAR",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "location",
+          "type": "VARCHAR",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "created_at",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": "CURRENT_TIMESTAMP",
+          "pk": 0
+        }
+      ],
+      "row_count": 9,
+      "data": [
+        {
+          "id": 10,
+          "name": "Giraffe חיפה",
+          "location": "חיפה",
+          "created_at": "2025-10-17 20:19:32"
+        },
+        {
+          "id": 11,
+          "name": "Giraffe הרצליה",
+          "location": "הרצליה",
+          "created_at": "2025-10-17 20:19:32"
+        },
+        {
+          "id": 12,
+          "name": "Giraffe לנדמרק",
+          "location": "תל אביב - לנדמרק",
+          "created_at": "2025-10-17 20:19:32"
+        },
+        {
+          "id": 13,
+          "name": "Giraffe רמת החייל",
+          "location": "תל אביב - רמת החייל",
+          "created_at": "2025-10-17 20:19:32"
+        },
+        {
+          "id": 14,
+          "name": "Giraffe נס ציונה",
+          "location": "נס ציונה",
+          "created_at": "2025-10-17 20:19:32"
+        },
+        {
+          "id": 15,
+          "name": "Giraffe סביון",
+          "location": "סביון",
+          "created_at": "2025-10-17 20:19:32"
+        },
+        {
+          "id": 16,
+          "name": "Giraffe ראשון לציון",
+          "location": "ראשון לציון",
+          "created_at": "2025-10-17 20:19:32"
+        },
+        {
+          "id": 17,
+          "name": "Giraffe מודיעין",
+          "location": "מודיעין",
+          "created_at": "2025-10-17 20:19:32"
+        },
+        {
+          "id": 18,
+          "name": "Giraffe פתח תקווה",
+          "location": "פתח תקווה",
+          "created_at": "2025-10-17 20:19:32"
+        }
+      ]
+    },
+    "chefs": {
+      "schema": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "name",
+          "type": "VARCHAR",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "branch_id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "created_at",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": "CURRENT_TIMESTAMP",
+          "pk": 0
+        }
+      ],
+      "row_count": 37,
+      "data": [
+        {
+          "id": 1,
+          "name": "li jinfeng",
+          "branch_id": 10,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 2,
+          "name": "wang yonggang",
+          "branch_id": 10,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 3,
+          "name": "zhao hongshuai",
+          "branch_id": 10,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 4,
+          "name": "li fangliu",
+          "branch_id": 10,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 5,
+          "name": "shi guang",
+          "branch_id": 11,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 6,
+          "name": "zhang hopeng",
+          "branch_id": 11,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 7,
+          "name": "hao shenghuan",
+          "branch_id": 11,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 8,
+          "name": "tang hongli",
+          "branch_id": 11,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 9,
+          "name": "zhang wanlin",
+          "branch_id": 12,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 10,
+          "name": "ma huan",
+          "branch_id": 12,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 11,
+          "name": "wang fuquan",
+          "branch_id": 12,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 12,
+          "name": "li zhao",
+          "branch_id": 13,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 13,
+          "name": "zhang decai",
+          "branch_id": 13,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 14,
+          "name": "yue zhou",
+          "branch_id": 13,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 15,
+          "name": "zhu chaofan",
+          "branch_id": 13,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 16,
+          "name": "huang zhicheng",
+          "branch_id": 13,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 17,
+          "name": "yin hongfeng",
+          "branch_id": 13,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 18,
+          "name": "liu zengwei",
+          "branch_id": 13,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 19,
+          "name": "zhao kecun",
+          "branch_id": 14,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 20,
+          "name": "zhang jinzhen",
+          "branch_id": 14,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 21,
+          "name": "li feng",
+          "branch_id": 14,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 22,
+          "name": "jinxiang feng",
+          "branch_id": 14,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 23,
+          "name": "wu gang",
+          "branch_id": 15,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 24,
+          "name": "wang yulong",
+          "branch_id": 15,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 25,
+          "name": "wang binbin",
+          "branch_id": 15,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 26,
+          "name": "liu guodong",
+          "branch_id": 15,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 27,
+          "name": "CAIHUA SONG",
+          "branch_id": 15,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 28,
+          "name": "liu fujie",
+          "branch_id": 15,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 29,
+          "name": "ma guangbing",
+          "branch_id": 16,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 30,
+          "name": "jinlai zhou",
+          "branch_id": 16,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 31,
+          "name": "ran yuze",
+          "branch_id": 16,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 32,
+          "name": "fang ding",
+          "branch_id": 16,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 33,
+          "name": "yu jian",
+          "branch_id": 18,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 34,
+          "name": "li junjie",
+          "branch_id": 18,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 35,
+          "name": "he shen",
+          "branch_id": 18,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 36,
+          "name": "dai jianbo",
+          "branch_id": 18,
+          "created_at": "2025-10-18 08:36:52"
+        },
+        {
+          "id": 37,
+          "name": "li zhang",
+          "branch_id": 18,
+          "created_at": "2025-10-18 08:36:52"
+        }
+      ]
+    },
+    "daily_tasks": {
+      "schema": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "title",
+          "type": "VARCHAR",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "description",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "task_type",
+          "type": "VARCHAR(13)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 4,
+          "name": "dish_id",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 5,
+          "name": "frequency",
+          "type": "VARCHAR(6)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 6,
+          "name": "start_date",
+          "type": "DATE",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 7,
+          "name": "end_date",
+          "type": "DATE",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 8,
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 9,
+          "name": "created_at",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 10,
+          "name": "created_by_user_id",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "row_count": 4,
+      "data": [
+        {
+          "id": 1,
+          "title": "עבור על מתכון",
+          "description": "",
+          "task_type": "RECIPE_REVIEW",
+          "dish_id": 44,
+          "frequency": "WEEKLY",
+          "start_date": "2025-10-18",
+          "end_date": null,
+          "is_active": 1,
+          "created_at": "2025-10-18 19:00:36.691295",
+          "created_by_user_id": 11
+        },
+        {
+          "id": 2,
+          "title": "עבור על מתכון",
+          "description": "עוף לימון",
+          "task_type": "RECIPE_REVIEW",
+          "dish_id": 44,
+          "frequency": "WEEKLY",
+          "start_date": "2025-10-18",
+          "end_date": null,
+          "is_active": 1,
+          "created_at": "2025-10-18 19:00:52.975347",
+          "created_by_user_id": 11
+        },
+        {
+          "id": 3,
+          "title": "עבור על מתכון",
+          "description": "עוף לימון",
+          "task_type": "RECIPE_REVIEW",
+          "dish_id": 44,
+          "frequency": "ONCE",
+          "start_date": "2025-10-18",
+          "end_date": "2025-10-18",
+          "is_active": 1,
+          "created_at": "2025-10-18 19:01:57.069533",
+          "created_by_user_id": 11
+        },
+        {
+          "id": 4,
+          "title": "בדיקת מאקי סלמון",
+          "description": "חליל",
+          "task_type": "DISH_CHECK",
+          "dish_id": 21,
+          "frequency": "ONCE",
+          "start_date": "2025-10-18",
+          "end_date": "2025-10-18",
+          "is_active": 1,
+          "created_at": "2025-10-18 19:17:38.082459",
+          "created_by_user_id": 11
+        }
+      ]
+    },
+    "dish_checks": {
+      "schema": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "branch_id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "dish_id",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "dish_name_manual",
+          "type": "VARCHAR",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 4,
+          "name": "chef_id",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 5,
+          "name": "chef_name_manual",
+          "type": "VARCHAR",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 6,
+          "name": "created_by",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 7,
+          "name": "rating",
+          "type": "FLOAT",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 8,
+          "name": "comments",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 9,
+          "name": "check_date",
+          "type": "DATE",
+          "notnull": 1,
+          "dflt_value": "CURRENT_TIMESTAMP",
+          "pk": 0
+        },
+        {
+          "cid": 10,
+          "name": "created_at",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": "CURRENT_TIMESTAMP",
+          "pk": 0
+        }
+      ],
+      "row_count": 140,
+      "data": [
+        {
+          "id": 1,
+          "branch_id": 14,
+          "dish_id": 8,
+          "dish_name_manual": null,
+          "chef_id": 254,
+          "chef_name_manual": null,
+          "created_by": 2,
+          "rating": 8.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 2,
+          "branch_id": 11,
+          "dish_id": 53,
+          "dish_name_manual": null,
+          "chef_id": 196,
+          "chef_name_manual": null,
+          "created_by": 18,
+          "rating": 7.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 3,
+          "branch_id": 12,
+          "dish_id": 33,
+          "dish_name_manual": null,
+          "chef_id": 179,
+          "chef_name_manual": null,
+          "created_by": 7,
+          "rating": 9.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 4,
+          "branch_id": 12,
+          "dish_id": 31,
+          "dish_name_manual": null,
+          "chef_id": 5,
+          "chef_name_manual": null,
+          "created_by": 7,
+          "rating": 7.0,
+          "comments": "איכות גבוהה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 5,
+          "branch_id": 18,
+          "dish_id": 25,
+          "dish_name_manual": null,
+          "chef_id": 367,
+          "chef_name_manual": null,
+          "created_by": 7,
+          "rating": 10.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 6,
+          "branch_id": 13,
+          "dish_id": 18,
+          "dish_name_manual": null,
+          "chef_id": 237,
+          "chef_name_manual": null,
+          "created_by": 15,
+          "rating": 7.0,
+          "comments": "איכות גבוהה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 7,
+          "branch_id": 13,
+          "dish_id": 5,
+          "dish_name_manual": null,
+          "chef_id": 311,
+          "chef_name_manual": null,
+          "created_by": 14,
+          "rating": 7.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 8,
+          "branch_id": 10,
+          "dish_id": 41,
+          "dish_name_manual": null,
+          "chef_id": 302,
+          "chef_name_manual": null,
+          "created_by": 13,
+          "rating": 6.0,
+          "comments": "צריך שיפור קל",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 9,
+          "branch_id": 12,
+          "dish_id": 49,
+          "dish_name_manual": null,
+          "chef_id": 340,
+          "chef_name_manual": null,
+          "created_by": 21,
+          "rating": 4.0,
+          "comments": "לא טעים",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 10,
+          "branch_id": 11,
+          "dish_id": 40,
+          "dish_name_manual": null,
+          "chef_id": 172,
+          "chef_name_manual": null,
+          "created_by": 3,
+          "rating": 9.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 11,
+          "branch_id": 18,
+          "dish_id": 31,
+          "dish_name_manual": null,
+          "chef_id": 128,
+          "chef_name_manual": null,
+          "created_by": 17,
+          "rating": 9.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 12,
+          "branch_id": 18,
+          "dish_id": 20,
+          "dish_name_manual": null,
+          "chef_id": 297,
+          "chef_name_manual": null,
+          "created_by": 13,
+          "rating": 7.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 13,
+          "branch_id": 15,
+          "dish_id": 41,
+          "dish_name_manual": null,
+          "chef_id": 143,
+          "chef_name_manual": null,
+          "created_by": 14,
+          "rating": 5.0,
+          "comments": "בסדר",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 14,
+          "branch_id": 17,
+          "dish_id": 51,
+          "dish_name_manual": null,
+          "chef_id": 248,
+          "chef_name_manual": null,
+          "created_by": 4,
+          "rating": 9.0,
+          "comments": "איכות גבוהה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 15,
+          "branch_id": 16,
+          "dish_id": 18,
+          "dish_name_manual": null,
+          "chef_id": 398,
+          "chef_name_manual": null,
+          "created_by": 21,
+          "rating": 8.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 16,
+          "branch_id": 10,
+          "dish_id": 43,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 17,
+          "rating": 9.0,
+          "comments": "איכות גבוהה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 17,
+          "branch_id": 17,
+          "dish_id": 37,
+          "dish_name_manual": null,
+          "chef_id": 135,
+          "chef_name_manual": null,
+          "created_by": 21,
+          "rating": 7.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 18,
+          "branch_id": 10,
+          "dish_id": 46,
+          "dish_name_manual": null,
+          "chef_id": 145,
+          "chef_name_manual": null,
+          "created_by": 13,
+          "rating": 7.0,
+          "comments": "איכות גבוהה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 19,
+          "branch_id": 17,
+          "dish_id": 48,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 13,
+          "rating": 9.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 20,
+          "branch_id": 18,
+          "dish_id": 31,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 10,
+          "rating": 7.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 21,
+          "branch_id": 12,
+          "dish_id": 44,
+          "dish_name_manual": null,
+          "chef_id": 104,
+          "chef_name_manual": null,
+          "created_by": 13,
+          "rating": 8.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 22,
+          "branch_id": 17,
+          "dish_id": 12,
+          "dish_name_manual": null,
+          "chef_id": 280,
+          "chef_name_manual": null,
+          "created_by": 5,
+          "rating": 5.0,
+          "comments": "צריך שיפור קל",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 23,
+          "branch_id": 11,
+          "dish_id": 44,
+          "dish_name_manual": null,
+          "chef_id": 195,
+          "chef_name_manual": null,
+          "created_by": 4,
+          "rating": 5.0,
+          "comments": "צריך שיפור קל",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 24,
+          "branch_id": 10,
+          "dish_id": 6,
+          "dish_name_manual": null,
+          "chef_id": 364,
+          "chef_name_manual": null,
+          "created_by": 15,
+          "rating": 8.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 25,
+          "branch_id": 13,
+          "dish_id": 5,
+          "dish_name_manual": null,
+          "chef_id": 263,
+          "chef_name_manual": null,
+          "created_by": 12,
+          "rating": 9.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 26,
+          "branch_id": 18,
+          "dish_id": 38,
+          "dish_name_manual": null,
+          "chef_id": 314,
+          "chef_name_manual": null,
+          "created_by": 17,
+          "rating": 8.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 27,
+          "branch_id": 10,
+          "dish_id": 28,
+          "dish_name_manual": null,
+          "chef_id": 177,
+          "chef_name_manual": null,
+          "created_by": 11,
+          "rating": 10.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 28,
+          "branch_id": 12,
+          "dish_id": 15,
+          "dish_name_manual": null,
+          "chef_id": 339,
+          "chef_name_manual": null,
+          "created_by": 12,
+          "rating": 7.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 29,
+          "branch_id": 18,
+          "dish_id": 43,
+          "dish_name_manual": null,
+          "chef_id": 244,
+          "chef_name_manual": null,
+          "created_by": 12,
+          "rating": 4.0,
+          "comments": "לא טעים",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 30,
+          "branch_id": 12,
+          "dish_id": 14,
+          "dish_name_manual": null,
+          "chef_id": 139,
+          "chef_name_manual": null,
+          "created_by": 17,
+          "rating": 10.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 31,
+          "branch_id": 13,
+          "dish_id": 36,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 20,
+          "rating": 9.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 32,
+          "branch_id": 16,
+          "dish_id": 18,
+          "dish_name_manual": null,
+          "chef_id": 115,
+          "chef_name_manual": null,
+          "created_by": 16,
+          "rating": 8.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 33,
+          "branch_id": 15,
+          "dish_id": 36,
+          "dish_name_manual": null,
+          "chef_id": 87,
+          "chef_name_manual": null,
+          "created_by": 4,
+          "rating": 10.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 34,
+          "branch_id": 16,
+          "dish_id": 45,
+          "dish_name_manual": null,
+          "chef_id": 124,
+          "chef_name_manual": null,
+          "created_by": 15,
+          "rating": 5.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 35,
+          "branch_id": 16,
+          "dish_id": 18,
+          "dish_name_manual": null,
+          "chef_id": 379,
+          "chef_name_manual": null,
+          "created_by": 5,
+          "rating": 7.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 36,
+          "branch_id": 16,
+          "dish_id": 19,
+          "dish_name_manual": null,
+          "chef_id": 213,
+          "chef_name_manual": null,
+          "created_by": 7,
+          "rating": 3.0,
+          "comments": "צריך שיפור דחוף",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 37,
+          "branch_id": 14,
+          "dish_id": 35,
+          "dish_name_manual": null,
+          "chef_id": 246,
+          "chef_name_manual": null,
+          "created_by": 5,
+          "rating": 9.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 38,
+          "branch_id": 10,
+          "dish_id": 39,
+          "dish_name_manual": null,
+          "chef_id": 179,
+          "chef_name_manual": null,
+          "created_by": 10,
+          "rating": 9.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 39,
+          "branch_id": 12,
+          "dish_id": 35,
+          "dish_name_manual": null,
+          "chef_id": 21,
+          "chef_name_manual": null,
+          "created_by": 8,
+          "rating": 7.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 40,
+          "branch_id": 16,
+          "dish_id": 46,
+          "dish_name_manual": null,
+          "chef_id": 220,
+          "chef_name_manual": null,
+          "created_by": 20,
+          "rating": 9.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 41,
+          "branch_id": 14,
+          "dish_id": 43,
+          "dish_name_manual": null,
+          "chef_id": 399,
+          "chef_name_manual": null,
+          "created_by": 17,
+          "rating": 5.0,
+          "comments": "בסדר",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 42,
+          "branch_id": 14,
+          "dish_id": 45,
+          "dish_name_manual": null,
+          "chef_id": 262,
+          "chef_name_manual": null,
+          "created_by": 12,
+          "rating": 10.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 43,
+          "branch_id": 16,
+          "dish_id": 7,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 10,
+          "rating": 7.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 44,
+          "branch_id": 16,
+          "dish_id": 40,
+          "dish_name_manual": null,
+          "chef_id": 277,
+          "chef_name_manual": null,
+          "created_by": 6,
+          "rating": 8.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 45,
+          "branch_id": 10,
+          "dish_id": 3,
+          "dish_name_manual": null,
+          "chef_id": 273,
+          "chef_name_manual": null,
+          "created_by": 2,
+          "rating": 6.0,
+          "comments": "צריך שיפור קל",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 46,
+          "branch_id": 14,
+          "dish_id": 4,
+          "dish_name_manual": null,
+          "chef_id": 363,
+          "chef_name_manual": null,
+          "created_by": 16,
+          "rating": 6.0,
+          "comments": "טעים אבל יכול להיות טוב יותר",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 47,
+          "branch_id": 10,
+          "dish_id": 52,
+          "dish_name_manual": null,
+          "chef_id": 126,
+          "chef_name_manual": null,
+          "created_by": 2,
+          "rating": 8.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 48,
+          "branch_id": 13,
+          "dish_id": 7,
+          "dish_name_manual": null,
+          "chef_id": 177,
+          "chef_name_manual": null,
+          "created_by": 15,
+          "rating": 6.0,
+          "comments": "טעים אבל יכול להיות טוב יותר",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 49,
+          "branch_id": 13,
+          "dish_id": 52,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 11,
+          "rating": 10.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 50,
+          "branch_id": 18,
+          "dish_id": 3,
+          "dish_name_manual": null,
+          "chef_id": 170,
+          "chef_name_manual": null,
+          "created_by": 3,
+          "rating": 3.0,
+          "comments": "לא טרי",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 51,
+          "branch_id": 12,
+          "dish_id": 37,
+          "dish_name_manual": null,
+          "chef_id": 270,
+          "chef_name_manual": null,
+          "created_by": 18,
+          "rating": 7.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 52,
+          "branch_id": 16,
+          "dish_id": 28,
+          "dish_name_manual": null,
+          "chef_id": 215,
+          "chef_name_manual": null,
+          "created_by": 19,
+          "rating": 5.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 53,
+          "branch_id": 15,
+          "dish_id": 46,
+          "dish_name_manual": null,
+          "chef_id": 332,
+          "chef_name_manual": null,
+          "created_by": 17,
+          "rating": 10.0,
+          "comments": "איכות גבוהה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 54,
+          "branch_id": 12,
+          "dish_id": 21,
+          "dish_name_manual": null,
+          "chef_id": 193,
+          "chef_name_manual": null,
+          "created_by": 5,
+          "rating": 9.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 55,
+          "branch_id": 14,
+          "dish_id": 50,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 6,
+          "rating": 8.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 56,
+          "branch_id": 15,
+          "dish_id": 19,
+          "dish_name_manual": null,
+          "chef_id": 137,
+          "chef_name_manual": null,
+          "created_by": 2,
+          "rating": 9.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 57,
+          "branch_id": 15,
+          "dish_id": 13,
+          "dish_name_manual": null,
+          "chef_id": 132,
+          "chef_name_manual": null,
+          "created_by": 7,
+          "rating": 8.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 58,
+          "branch_id": 12,
+          "dish_id": 8,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 3,
+          "rating": 8.0,
+          "comments": "איכות גבוהה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 59,
+          "branch_id": 17,
+          "dish_id": 42,
+          "dish_name_manual": null,
+          "chef_id": 292,
+          "chef_name_manual": null,
+          "created_by": 5,
+          "rating": 9.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 60,
+          "branch_id": 17,
+          "dish_id": 39,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 8,
+          "rating": 7.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 61,
+          "branch_id": 10,
+          "dish_id": 9,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 4,
+          "rating": 7.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 62,
+          "branch_id": 16,
+          "dish_id": 24,
+          "dish_name_manual": null,
+          "chef_id": 255,
+          "chef_name_manual": null,
+          "created_by": 12,
+          "rating": 5.0,
+          "comments": "בסדר",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 63,
+          "branch_id": 10,
+          "dish_id": 6,
+          "dish_name_manual": null,
+          "chef_id": 263,
+          "chef_name_manual": null,
+          "created_by": 10,
+          "rating": 8.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 64,
+          "branch_id": 14,
+          "dish_id": 41,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 7,
+          "rating": 4.0,
+          "comments": "צריך שיפור דחוף",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 65,
+          "branch_id": 18,
+          "dish_id": 23,
+          "dish_name_manual": null,
+          "chef_id": 366,
+          "chef_name_manual": null,
+          "created_by": 11,
+          "rating": 5.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 66,
+          "branch_id": 13,
+          "dish_id": 40,
+          "dish_name_manual": null,
+          "chef_id": 363,
+          "chef_name_manual": null,
+          "created_by": 4,
+          "rating": 7.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 67,
+          "branch_id": 16,
+          "dish_id": 15,
+          "dish_name_manual": null,
+          "chef_id": 199,
+          "chef_name_manual": null,
+          "created_by": 4,
+          "rating": 5.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 68,
+          "branch_id": 13,
+          "dish_id": 22,
+          "dish_name_manual": null,
+          "chef_id": 194,
+          "chef_name_manual": null,
+          "created_by": 21,
+          "rating": 7.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 69,
+          "branch_id": 10,
+          "dish_id": 37,
+          "dish_name_manual": null,
+          "chef_id": 296,
+          "chef_name_manual": null,
+          "created_by": 11,
+          "rating": 6.0,
+          "comments": "צריך שיפור קל",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 70,
+          "branch_id": 16,
+          "dish_id": 11,
+          "dish_name_manual": null,
+          "chef_id": 378,
+          "chef_name_manual": null,
+          "created_by": 8,
+          "rating": 7.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 71,
+          "branch_id": 16,
+          "dish_id": 51,
+          "dish_name_manual": null,
+          "chef_id": 371,
+          "chef_name_manual": null,
+          "created_by": 10,
+          "rating": 7.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 72,
+          "branch_id": 17,
+          "dish_id": 40,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 5,
+          "rating": 6.0,
+          "comments": "צריך שיפור קל",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 73,
+          "branch_id": 12,
+          "dish_id": 37,
+          "dish_name_manual": null,
+          "chef_id": 12,
+          "chef_name_manual": null,
+          "created_by": 14,
+          "rating": 3.0,
+          "comments": "צריך שיפור דחוף",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 74,
+          "branch_id": 11,
+          "dish_id": 45,
+          "dish_name_manual": null,
+          "chef_id": 336,
+          "chef_name_manual": null,
+          "created_by": 13,
+          "rating": 8.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 75,
+          "branch_id": 17,
+          "dish_id": 29,
+          "dish_name_manual": null,
+          "chef_id": 32,
+          "chef_name_manual": null,
+          "created_by": 19,
+          "rating": 8.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 76,
+          "branch_id": 10,
+          "dish_id": 41,
+          "dish_name_manual": null,
+          "chef_id": 392,
+          "chef_name_manual": null,
+          "created_by": 4,
+          "rating": 6.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 77,
+          "branch_id": 14,
+          "dish_id": 13,
+          "dish_name_manual": null,
+          "chef_id": 101,
+          "chef_name_manual": null,
+          "created_by": 2,
+          "rating": 7.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 78,
+          "branch_id": 14,
+          "dish_id": 24,
+          "dish_name_manual": null,
+          "chef_id": 263,
+          "chef_name_manual": null,
+          "created_by": 19,
+          "rating": 9.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 79,
+          "branch_id": 12,
+          "dish_id": 11,
+          "dish_name_manual": null,
+          "chef_id": 170,
+          "chef_name_manual": null,
+          "created_by": 15,
+          "rating": 10.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 80,
+          "branch_id": 18,
+          "dish_id": 16,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 5,
+          "rating": 8.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 81,
+          "branch_id": 17,
+          "dish_id": 8,
+          "dish_name_manual": null,
+          "chef_id": 177,
+          "chef_name_manual": null,
+          "created_by": 9,
+          "rating": 7.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 82,
+          "branch_id": 10,
+          "dish_id": 3,
+          "dish_name_manual": null,
+          "chef_id": 265,
+          "chef_name_manual": null,
+          "created_by": 13,
+          "rating": 8.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 83,
+          "branch_id": 10,
+          "dish_id": 13,
+          "dish_name_manual": null,
+          "chef_id": 220,
+          "chef_name_manual": null,
+          "created_by": 7,
+          "rating": 10.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 84,
+          "branch_id": 14,
+          "dish_id": 9,
+          "dish_name_manual": null,
+          "chef_id": 244,
+          "chef_name_manual": null,
+          "created_by": 5,
+          "rating": 4.0,
+          "comments": "צריך שיפור דחוף",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 85,
+          "branch_id": 17,
+          "dish_id": 38,
+          "dish_name_manual": null,
+          "chef_id": 185,
+          "chef_name_manual": null,
+          "created_by": 16,
+          "rating": 9.0,
+          "comments": "איכות גבוהה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 86,
+          "branch_id": 10,
+          "dish_id": 31,
+          "dish_name_manual": null,
+          "chef_id": 243,
+          "chef_name_manual": null,
+          "created_by": 19,
+          "rating": 7.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 87,
+          "branch_id": 16,
+          "dish_id": 15,
+          "dish_name_manual": null,
+          "chef_id": 381,
+          "chef_name_manual": null,
+          "created_by": 13,
+          "rating": 7.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 88,
+          "branch_id": 18,
+          "dish_id": 4,
+          "dish_name_manual": null,
+          "chef_id": 88,
+          "chef_name_manual": null,
+          "created_by": 8,
+          "rating": 5.0,
+          "comments": "טעים אבל יכול להיות טוב יותר",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 89,
+          "branch_id": 11,
+          "dish_id": 29,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 3,
+          "rating": 10.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 90,
+          "branch_id": 18,
+          "dish_id": 3,
+          "dish_name_manual": null,
+          "chef_id": 87,
+          "chef_name_manual": null,
+          "created_by": 2,
+          "rating": 9.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 91,
+          "branch_id": 16,
+          "dish_id": 29,
+          "dish_name_manual": null,
+          "chef_id": 125,
+          "chef_name_manual": null,
+          "created_by": 10,
+          "rating": 8.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 92,
+          "branch_id": 14,
+          "dish_id": 10,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 4,
+          "rating": 5.0,
+          "comments": "צריך שיפור קל",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 93,
+          "branch_id": 12,
+          "dish_id": 23,
+          "dish_name_manual": null,
+          "chef_id": 205,
+          "chef_name_manual": null,
+          "created_by": 7,
+          "rating": 6.0,
+          "comments": "צריך שיפור קל",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 94,
+          "branch_id": 10,
+          "dish_id": 47,
+          "dish_name_manual": null,
+          "chef_id": 101,
+          "chef_name_manual": null,
+          "created_by": 12,
+          "rating": 8.0,
+          "comments": "איכות גבוהה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 95,
+          "branch_id": 11,
+          "dish_id": 40,
+          "dish_name_manual": null,
+          "chef_id": 240,
+          "chef_name_manual": null,
+          "created_by": 5,
+          "rating": 7.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 96,
+          "branch_id": 12,
+          "dish_id": 31,
+          "dish_name_manual": null,
+          "chef_id": 203,
+          "chef_name_manual": null,
+          "created_by": 21,
+          "rating": 4.0,
+          "comments": "צריך שיפור דחוף",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 97,
+          "branch_id": 16,
+          "dish_id": 15,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 4,
+          "rating": 10.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 98,
+          "branch_id": 16,
+          "dish_id": 50,
+          "dish_name_manual": null,
+          "chef_id": 128,
+          "chef_name_manual": null,
+          "created_by": 12,
+          "rating": 10.0,
+          "comments": "איכות גבוהה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 99,
+          "branch_id": 15,
+          "dish_id": 21,
+          "dish_name_manual": null,
+          "chef_id": 186,
+          "chef_name_manual": null,
+          "created_by": 11,
+          "rating": 8.0,
+          "comments": "איכות גבוהה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 100,
+          "branch_id": 13,
+          "dish_id": 48,
+          "dish_name_manual": null,
+          "chef_id": 20,
+          "chef_name_manual": null,
+          "created_by": 17,
+          "rating": 10.0,
+          "comments": "איכות גבוהה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 101,
+          "branch_id": 13,
+          "dish_id": 2,
+          "dish_name_manual": null,
+          "chef_id": 173,
+          "chef_name_manual": null,
+          "created_by": 7,
+          "rating": 3.0,
+          "comments": "לא טעים",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 102,
+          "branch_id": 18,
+          "dish_id": 21,
+          "dish_name_manual": null,
+          "chef_id": 190,
+          "chef_name_manual": null,
+          "created_by": 20,
+          "rating": 10.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 103,
+          "branch_id": 11,
+          "dish_id": 30,
+          "dish_name_manual": null,
+          "chef_id": 35,
+          "chef_name_manual": null,
+          "created_by": 13,
+          "rating": 9.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 104,
+          "branch_id": 14,
+          "dish_id": 13,
+          "dish_name_manual": null,
+          "chef_id": 348,
+          "chef_name_manual": null,
+          "created_by": 4,
+          "rating": 9.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 105,
+          "branch_id": 10,
+          "dish_id": 15,
+          "dish_name_manual": null,
+          "chef_id": 210,
+          "chef_name_manual": null,
+          "created_by": 11,
+          "rating": 8.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 106,
+          "branch_id": 16,
+          "dish_id": 27,
+          "dish_name_manual": null,
+          "chef_id": 127,
+          "chef_name_manual": null,
+          "created_by": 12,
+          "rating": 8.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 107,
+          "branch_id": 18,
+          "dish_id": 25,
+          "dish_name_manual": null,
+          "chef_id": 344,
+          "chef_name_manual": null,
+          "created_by": 11,
+          "rating": 9.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 108,
+          "branch_id": 17,
+          "dish_id": 47,
+          "dish_name_manual": null,
+          "chef_id": 202,
+          "chef_name_manual": null,
+          "created_by": 2,
+          "rating": 9.0,
+          "comments": "איכות גבוהה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 109,
+          "branch_id": 12,
+          "dish_id": 53,
+          "dish_name_manual": null,
+          "chef_id": 266,
+          "chef_name_manual": null,
+          "created_by": 17,
+          "rating": 3.0,
+          "comments": "צריך שיפור דחוף",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 110,
+          "branch_id": 16,
+          "dish_id": 20,
+          "dish_name_manual": null,
+          "chef_id": 296,
+          "chef_name_manual": null,
+          "created_by": 19,
+          "rating": 10.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 111,
+          "branch_id": 13,
+          "dish_id": 22,
+          "dish_name_manual": null,
+          "chef_id": 286,
+          "chef_name_manual": null,
+          "created_by": 15,
+          "rating": 9.0,
+          "comments": "איכות גבוהה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 112,
+          "branch_id": 15,
+          "dish_id": 37,
+          "dish_name_manual": null,
+          "chef_id": 370,
+          "chef_name_manual": null,
+          "created_by": 14,
+          "rating": 10.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 113,
+          "branch_id": 14,
+          "dish_id": 31,
+          "dish_name_manual": null,
+          "chef_id": 93,
+          "chef_name_manual": null,
+          "created_by": 20,
+          "rating": 9.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 114,
+          "branch_id": 15,
+          "dish_id": 53,
+          "dish_name_manual": null,
+          "chef_id": 318,
+          "chef_name_manual": null,
+          "created_by": 8,
+          "rating": 9.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 115,
+          "branch_id": 13,
+          "dish_id": 11,
+          "dish_name_manual": null,
+          "chef_id": 298,
+          "chef_name_manual": null,
+          "created_by": 8,
+          "rating": 10.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 116,
+          "branch_id": 13,
+          "dish_id": 1,
+          "dish_name_manual": null,
+          "chef_id": 225,
+          "chef_name_manual": null,
+          "created_by": 17,
+          "rating": 7.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 117,
+          "branch_id": 15,
+          "dish_id": 48,
+          "dish_name_manual": null,
+          "chef_id": 115,
+          "chef_name_manual": null,
+          "created_by": 19,
+          "rating": 10.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 118,
+          "branch_id": 10,
+          "dish_id": 8,
+          "dish_name_manual": null,
+          "chef_id": 203,
+          "chef_name_manual": null,
+          "created_by": 12,
+          "rating": 7.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 119,
+          "branch_id": 16,
+          "dish_id": 52,
+          "dish_name_manual": null,
+          "chef_id": 119,
+          "chef_name_manual": null,
+          "created_by": 20,
+          "rating": 10.0,
+          "comments": "טעים מאוד",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 120,
+          "branch_id": 10,
+          "dish_id": 23,
+          "dish_name_manual": null,
+          "chef_id": 357,
+          "chef_name_manual": null,
+          "created_by": 2,
+          "rating": 9.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 121,
+          "branch_id": 12,
+          "dish_id": 10,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": null,
+          "created_by": 5,
+          "rating": 10.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 122,
+          "branch_id": 15,
+          "dish_id": 37,
+          "dish_name_manual": null,
+          "chef_id": 284,
+          "chef_name_manual": null,
+          "created_by": 13,
+          "rating": 7.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 123,
+          "branch_id": 17,
+          "dish_id": 16,
+          "dish_name_manual": null,
+          "chef_id": 146,
+          "chef_name_manual": null,
+          "created_by": 11,
+          "rating": 10.0,
+          "comments": "הכנה מושלמת",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 124,
+          "branch_id": 12,
+          "dish_id": 51,
+          "dish_name_manual": null,
+          "chef_id": 209,
+          "chef_name_manual": null,
+          "created_by": 5,
+          "rating": 8.0,
+          "comments": "מעולה!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 07:15:01"
+        },
+        {
+          "id": 125,
+          "branch_id": 12,
+          "dish_id": 23,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": "יוסי כהן",
+          "created_by": 2,
+          "rating": 8.2,
+          "comments": "מושלם!",
+          "check_date": 2025,
+          "created_at": "2025-10-18 18:19:36"
+        },
+        {
+          "id": 126,
+          "branch_id": 18,
+          "dish_id": 49,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": "דני אברהם",
+          "created_by": 2,
+          "rating": 8.2,
+          "comments": "נהדר, ממשיכים ככה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 18:19:36"
+        },
+        {
+          "id": 127,
+          "branch_id": 18,
+          "dish_id": 16,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": "שרה גולן",
+          "created_by": 2,
+          "rating": 8.3,
+          "comments": "איכותי ומוצג יפה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 18:19:36"
+        },
+        {
+          "id": 128,
+          "branch_id": 16,
+          "dish_id": 53,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": "יוסי כהן",
+          "created_by": 2,
+          "rating": 8.5,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 18:19:36"
+        },
+        {
+          "id": 129,
+          "branch_id": 15,
+          "dish_id": null,
+          "dish_name_manual": "סלט יווני מיוחד",
+          "chef_id": null,
+          "chef_name_manual": "מירי לוי",
+          "created_by": 2,
+          "rating": 9.1,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 18:19:36"
+        },
+        {
+          "id": 130,
+          "branch_id": 15,
+          "dish_id": null,
+          "dish_name_manual": "סלט יווני מיוחד",
+          "chef_id": 25,
+          "chef_name_manual": null,
+          "created_by": 2,
+          "rating": 5.7,
+          "comments": "איכותי ומוצג יפה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 18:19:36"
+        },
+        {
+          "id": 131,
+          "branch_id": 18,
+          "dish_id": 26,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": "דני אברהם",
+          "created_by": 2,
+          "rating": 6.4,
+          "comments": "איכותי ומוצג יפה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 18:19:36"
+        },
+        {
+          "id": 132,
+          "branch_id": 13,
+          "dish_id": 35,
+          "dish_name_manual": null,
+          "chef_id": 15,
+          "chef_name_manual": null,
+          "created_by": 2,
+          "rating": 9.5,
+          "comments": "כמות קטנה מדי",
+          "check_date": 2025,
+          "created_at": "2025-10-18 18:19:36"
+        },
+        {
+          "id": 133,
+          "branch_id": 11,
+          "dish_id": 39,
+          "dish_name_manual": null,
+          "chef_id": 5,
+          "chef_name_manual": null,
+          "created_by": 2,
+          "rating": 9.1,
+          "comments": "כמות קטנה מדי",
+          "check_date": 2025,
+          "created_at": "2025-10-18 18:19:36"
+        },
+        {
+          "id": 134,
+          "branch_id": 18,
+          "dish_id": null,
+          "dish_name_manual": "שניצל פרגית",
+          "chef_id": null,
+          "chef_name_manual": "דני אברהם",
+          "created_by": 2,
+          "rating": 6.5,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 18:19:36"
+        },
+        {
+          "id": 135,
+          "branch_id": 1,
+          "dish_id": null,
+          "dish_name_manual": "שקשוקה",
+          "chef_id": null,
+          "chef_name_manual": "משה",
+          "created_by": 11,
+          "rating": 8.5,
+          "comments": "מנה מעולה",
+          "check_date": 2025,
+          "created_at": "2025-10-18 18:25:59"
+        },
+        {
+          "id": 136,
+          "branch_id": 13,
+          "dish_id": 5,
+          "dish_name_manual": null,
+          "chef_id": 15,
+          "chef_name_manual": null,
+          "created_by": 11,
+          "rating": 5.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 18:51:39"
+        },
+        {
+          "id": 137,
+          "branch_id": 11,
+          "dish_id": 5,
+          "dish_name_manual": null,
+          "chef_id": 7,
+          "chef_name_manual": null,
+          "created_by": 11,
+          "rating": 4.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 18:52:24"
+        },
+        {
+          "id": 138,
+          "branch_id": 11,
+          "dish_id": 3,
+          "dish_name_manual": null,
+          "chef_id": 8,
+          "chef_name_manual": null,
+          "created_by": 11,
+          "rating": 3.0,
+          "comments": "קרטר",
+          "check_date": 2025,
+          "created_at": "2025-10-18 18:52:41"
+        },
+        {
+          "id": 139,
+          "branch_id": 12,
+          "dish_id": 1,
+          "dish_name_manual": null,
+          "chef_id": null,
+          "chef_name_manual": "חללית",
+          "created_by": 11,
+          "rating": 5.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 18:55:52"
+        },
+        {
+          "id": 140,
+          "branch_id": 12,
+          "dish_id": 3,
+          "dish_name_manual": null,
+          "chef_id": 10,
+          "chef_name_manual": null,
+          "created_by": 11,
+          "rating": 8.0,
+          "comments": null,
+          "check_date": 2025,
+          "created_at": "2025-10-18 19:11:08"
+        }
+      ]
+    },
+    "dishes": {
+      "schema": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "name",
+          "type": "VARCHAR",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "category",
+          "type": "VARCHAR",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "created_at",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": "CURRENT_TIMESTAMP",
+          "pk": 0
+        }
+      ],
+      "row_count": 58,
+      "data": [
+        {
+          "id": 1,
+          "name": "סלט אילנדי",
+          "category": "ראשונות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 2,
+          "name": "סלט בריאות",
+          "category": "ראשונות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 3,
+          "name": "סלט מלפפונים",
+          "category": "ראשונות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 4,
+          "name": "בריוש טרטר ים",
+          "category": "ראשונות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 5,
+          "name": "טרטר מיזו",
+          "category": "ראשונות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 6,
+          "name": "סשימי סלמון",
+          "category": "ראשונות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 7,
+          "name": "טוקיו סביצ'ה",
+          "category": "ראשונות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 8,
+          "name": "סלט דג לבן",
+          "category": "ראשונות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 9,
+          "name": "סלט מיסו סיזר",
+          "category": "ראשונות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 10,
+          "name": "קריספי שרימפס",
+          "category": "ראשונות חמות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 11,
+          "name": "באן דג",
+          "category": "ראשונות חמות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 12,
+          "name": "באן בשר",
+          "category": "ראשונות חמות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 13,
+          "name": "באן עוף",
+          "category": "ראשונות חמות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 14,
+          "name": "גיוזה",
+          "category": "ראשונות חמות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 15,
+          "name": "בייבי דאמפלינג",
+          "category": "ראשונות חמות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 16,
+          "name": "קלמרי מטוגן",
+          "category": "ראשונות חמות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 17,
+          "name": "אגרול",
+          "category": "ראשונות חמות",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 18,
+          "name": "אוקינאווה הנד רול",
+          "category": "סושי",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 19,
+          "name": "ווג'י רול",
+          "category": "סושי",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 20,
+          "name": "ווג'י גרנדה",
+          "category": "סושי",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 21,
+          "name": "מאקי סלמון",
+          "category": "סושי",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 22,
+          "name": "דרגון קראנץ'",
+          "category": "סושי",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 23,
+          "name": "סלמון מאודה",
+          "category": "סושי",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 24,
+          "name": "שרימפס טמפורה",
+          "category": "סושי",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 25,
+          "name": "מאקי טונה",
+          "category": "סושי",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 26,
+          "name": "סלמון גרנדה",
+          "category": "סושי",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 27,
+          "name": "ספיישל ספייסי סלמון",
+          "category": "סושי",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 28,
+          "name": "ספייסי טונה",
+          "category": "סושי",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 29,
+          "name": "צ'יזו רול",
+          "category": "סושי",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 30,
+          "name": "צ'אזה",
+          "category": "אורז",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 31,
+          "name": "סינטה סצ'ואן",
+          "category": "אורז",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 32,
+          "name": "עוף בלימון",
+          "category": "אורז",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 33,
+          "name": "אפגנית",
+          "category": "אורז",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 34,
+          "name": "קארי כתום",
+          "category": "אורז",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 35,
+          "name": "אורז מטוגן",
+          "category": "אורז",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 36,
+          "name": "פילה סלמון",
+          "category": "אורז",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 37,
+          "name": "צ'יראשי סלמון מאודה",
+          "category": "צ'יראשי",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 38,
+          "name": "צ'יראשי סלמון",
+          "category": "צ'יראשי",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 39,
+          "name": "צ'יראשי טופו",
+          "category": "צ'יראשי",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 40,
+          "name": "המנה החריפה",
+          "category": "ווק",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 41,
+          "name": "סינטה נודלס",
+          "category": "ווק",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 42,
+          "name": "הקיסרית החדשה",
+          "category": "ווק",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 43,
+          "name": "פיליפינית",
+          "category": "ווק",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 44,
+          "name": "באטר נודלס",
+          "category": "ווק",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 45,
+          "name": "סלמון אודון",
+          "category": "ווק",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 46,
+          "name": "מלאזית",
+          "category": "ווק",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 47,
+          "name": "ביף רייס",
+          "category": "ווק",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 48,
+          "name": "פאד תאי קלאסי",
+          "category": "ווק",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 49,
+          "name": "פאד תאי חריף",
+          "category": "ווק",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 50,
+          "name": "אטריות שחורות",
+          "category": "ווק",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 51,
+          "name": "מרק עדשים",
+          "category": "מרקים",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 52,
+          "name": "מרק תירס",
+          "category": "מרקים",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 53,
+          "name": "מרק תאילנדי",
+          "category": "מרקים",
+          "created_at": "2025-10-18 07:09:44"
+        },
+        {
+          "id": 54,
+          "name": "סלט תאילנדי",
+          "category": null,
+          "created_at": "2025-10-18 16:12:56"
+        },
+        {
+          "id": 55,
+          "name": "וון טון",
+          "category": null,
+          "created_at": "2025-10-18 16:12:56"
+        },
+        {
+          "id": 56,
+          "name": "סצ'ואן",
+          "category": null,
+          "created_at": "2025-10-18 16:12:56"
+        },
+        {
+          "id": 57,
+          "name": "מלאכית",
+          "category": null,
+          "created_at": "2025-10-18 16:12:56"
+        },
+        {
+          "id": 58,
+          "name": "קארי דלעת",
+          "category": null,
+          "created_at": "2025-10-18 16:12:56"
+        }
+      ]
+    },
+    "sanitation_audit_categories": {
+      "schema": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "audit_id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "category_name",
+          "type": "VARCHAR(200)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "category_key",
+          "type": "VARCHAR(100)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 4,
+          "name": "status",
+          "type": "VARCHAR(50)",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 5,
+          "name": "notes",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 6,
+          "name": "score_deduction",
+          "type": "FLOAT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 7,
+          "name": "check_performed",
+          "type": "BOOLEAN",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 8,
+          "name": "check_name",
+          "type": "VARCHAR(200)",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 9,
+          "name": "image_urls",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 10,
+          "name": "created_at",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 11,
+          "name": "updated_at",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "row_count": 0,
+      "data": []
+    },
+    "sanitation_audits": {
+      "schema": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "branch_id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "auditor_id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "audit_date",
+          "type": "DATETIME",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 4,
+          "name": "start_time",
+          "type": "DATETIME",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 5,
+          "name": "end_time",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 6,
+          "name": "auditor_name",
+          "type": "VARCHAR(200)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 7,
+          "name": "accompanist_name",
+          "type": "VARCHAR(200)",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 8,
+          "name": "total_score",
+          "type": "FLOAT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 9,
+          "name": "total_deductions",
+          "type": "FLOAT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 10,
+          "name": "status",
+          "type": "VARCHAR(11)",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 11,
+          "name": "general_notes",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 12,
+          "name": "equipment_issues",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 13,
+          "name": "deficiencies_summary",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 14,
+          "name": "signature_url",
+          "type": "VARCHAR(500)",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 15,
+          "name": "signed_at",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 16,
+          "name": "created_at",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 17,
+          "name": "updated_at",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "row_count": 0,
+      "data": []
+    },
+    "task_assignments": {
+      "schema": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "task_id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "branch_id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "task_date",
+          "type": "DATE",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 4,
+          "name": "is_completed",
+          "type": "BOOLEAN",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 5,
+          "name": "completed_at",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 6,
+          "name": "completed_by_user_id",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 7,
+          "name": "notes",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 8,
+          "name": "check_id",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 9,
+          "name": "created_at",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "row_count": 12,
+      "data": [
+        {
+          "id": 1,
+          "task_id": 1,
+          "branch_id": 11,
+          "task_date": "2025-10-18",
+          "is_completed": 0,
+          "completed_at": null,
+          "completed_by_user_id": null,
+          "notes": null,
+          "check_id": null,
+          "created_at": "2025-10-18 19:00:36.697697"
+        },
+        {
+          "id": 2,
+          "task_id": 2,
+          "branch_id": 11,
+          "task_date": "2025-10-18",
+          "is_completed": 0,
+          "completed_at": null,
+          "completed_by_user_id": null,
+          "notes": null,
+          "check_id": null,
+          "created_at": "2025-10-18 19:00:52.978995"
+        },
+        {
+          "id": 3,
+          "task_id": 3,
+          "branch_id": 11,
+          "task_date": "2025-10-18",
+          "is_completed": 0,
+          "completed_at": null,
+          "completed_by_user_id": null,
+          "notes": null,
+          "check_id": null,
+          "created_at": "2025-10-18 19:01:57.073178"
+        },
+        {
+          "id": 4,
+          "task_id": 4,
+          "branch_id": 10,
+          "task_date": "2025-10-18",
+          "is_completed": 0,
+          "completed_at": null,
+          "completed_by_user_id": null,
+          "notes": null,
+          "check_id": null,
+          "created_at": "2025-10-18 19:17:38.096095"
+        },
+        {
+          "id": 5,
+          "task_id": 4,
+          "branch_id": 11,
+          "task_date": "2025-10-18",
+          "is_completed": 0,
+          "completed_at": null,
+          "completed_by_user_id": null,
+          "notes": null,
+          "check_id": null,
+          "created_at": "2025-10-18 19:17:38.096098"
+        },
+        {
+          "id": 6,
+          "task_id": 4,
+          "branch_id": 12,
+          "task_date": "2025-10-18",
+          "is_completed": 0,
+          "completed_at": null,
+          "completed_by_user_id": null,
+          "notes": null,
+          "check_id": null,
+          "created_at": "2025-10-18 19:17:38.096099"
+        },
+        {
+          "id": 7,
+          "task_id": 4,
+          "branch_id": 13,
+          "task_date": "2025-10-18",
+          "is_completed": 0,
+          "completed_at": null,
+          "completed_by_user_id": null,
+          "notes": null,
+          "check_id": null,
+          "created_at": "2025-10-18 19:17:38.096100"
+        },
+        {
+          "id": 8,
+          "task_id": 4,
+          "branch_id": 14,
+          "task_date": "2025-10-18",
+          "is_completed": 0,
+          "completed_at": null,
+          "completed_by_user_id": null,
+          "notes": null,
+          "check_id": null,
+          "created_at": "2025-10-18 19:17:38.096101"
+        },
+        {
+          "id": 9,
+          "task_id": 4,
+          "branch_id": 15,
+          "task_date": "2025-10-18",
+          "is_completed": 0,
+          "completed_at": null,
+          "completed_by_user_id": null,
+          "notes": null,
+          "check_id": null,
+          "created_at": "2025-10-18 19:17:38.096102"
+        },
+        {
+          "id": 10,
+          "task_id": 4,
+          "branch_id": 16,
+          "task_date": "2025-10-18",
+          "is_completed": 0,
+          "completed_at": null,
+          "completed_by_user_id": null,
+          "notes": null,
+          "check_id": null,
+          "created_at": "2025-10-18 19:17:38.096103"
+        },
+        {
+          "id": 11,
+          "task_id": 4,
+          "branch_id": 17,
+          "task_date": "2025-10-18",
+          "is_completed": 0,
+          "completed_at": null,
+          "completed_by_user_id": null,
+          "notes": null,
+          "check_id": null,
+          "created_at": "2025-10-18 19:17:38.096104"
+        },
+        {
+          "id": 12,
+          "task_id": 4,
+          "branch_id": 18,
+          "task_date": "2025-10-18",
+          "is_completed": 0,
+          "completed_at": null,
+          "completed_by_user_id": null,
+          "notes": null,
+          "check_id": null,
+          "created_at": "2025-10-18 19:17:38.096104"
+        }
+      ]
+    },
+    "users": {
+      "schema": [
+        {
+          "cid": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "cid": 1,
+          "name": "email",
+          "type": "VARCHAR",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 2,
+          "name": "password_hash",
+          "type": "VARCHAR",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 3,
+          "name": "full_name",
+          "type": "VARCHAR",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 4,
+          "name": "role",
+          "type": "VARCHAR(14)",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 5,
+          "name": "branch_id",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "cid": 6,
+          "name": "created_at",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": "CURRENT_TIMESTAMP",
+          "pk": 0
+        },
+        {
+          "cid": 7,
+          "name": "updated_at",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ],
+      "row_count": 29,
+      "data": [
+        {
+          "id": 2,
+          "email": "telaviv",
+          "password_hash": "$pbkdf2-sha256$29000$.r83ZqwVgjCmVIoxJgSAMA$4eWr7DsuNenjUIlaPjaBIOiy8JFuSATyV.gahUgoeOc",
+          "full_name": "Manager - Giraffe Tel Aviv",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 1,
+          "created_at": "2025-10-17 19:16:53",
+          "updated_at": null
+        },
+        {
+          "id": 3,
+          "email": "jerusalem",
+          "password_hash": "$pbkdf2-sha256$29000$XwtBiNE6J6QU4twbYwwBwA$pF75Di2vyYqWMmN74g5th.A27XAmfmnYvEgV5oLa.5M",
+          "full_name": "Manager - Giraffe Jerusalem",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 2,
+          "created_at": "2025-10-17 19:16:53",
+          "updated_at": null
+        },
+        {
+          "id": 4,
+          "email": "haifa",
+          "password_hash": "$pbkdf2-sha256$29000$1VrrHaNUKmVMCQEAwPg/hw$odan2DGYmVZh119T0V18ryyaCSSapF0mlP4pF0OkxSE",
+          "full_name": "Manager - Giraffe Haifa",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 3,
+          "created_at": "2025-10-17 19:16:53",
+          "updated_at": null
+        },
+        {
+          "id": 5,
+          "email": "beersheva",
+          "password_hash": "$pbkdf2-sha256$29000$Pcf4/z/n/N.7l7KWMoZwbg$fEroXUft/I524J.wcieIMlTM4mqHokbt8PkrJtaH7RE",
+          "full_name": "Manager - Giraffe Beer Sheva",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 4,
+          "created_at": "2025-10-17 19:16:53",
+          "updated_at": null
+        },
+        {
+          "id": 6,
+          "email": "netanya",
+          "password_hash": "$pbkdf2-sha256$29000$ZAwBACBEyLnX.r83xjgnhA$j888EeNOgVp0EICOCP/b9cc3Pvi0fUAYe/yedwg/GlM",
+          "full_name": "Manager - Giraffe Netanya",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 5,
+          "created_at": "2025-10-17 19:16:53",
+          "updated_at": null
+        },
+        {
+          "id": 7,
+          "email": "herzliya",
+          "password_hash": "$pbkdf2-sha256$29000$9N4bYyxlbI1xTgnhXCulVA$BNzTm915KhXyyG0u97nExDUww9lYdZmDTSK/35OuQp0",
+          "full_name": "Manager - Giraffe Herzliya",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 6,
+          "created_at": "2025-10-17 19:16:53",
+          "updated_at": null
+        },
+        {
+          "id": 8,
+          "email": "eilat",
+          "password_hash": "$pbkdf2-sha256$29000$hhDCuFeqdS6lFGLsvXcOgQ$Iaunz1HKXb675rjzu4M9vGAX5yR2Sj09Qz3Hh04H0Yk",
+          "full_name": "Manager - Giraffe Eilat",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 7,
+          "created_at": "2025-10-17 19:16:53",
+          "updated_at": null
+        },
+        {
+          "id": 9,
+          "email": "ashdod",
+          "password_hash": "$pbkdf2-sha256$29000$wri39n5vrbXWOodwDoFQKg$7pOHc/blAzVQZeWagfl3YkTXdXveWcRKvmvwYzqtHDw",
+          "full_name": "Manager - Giraffe Ashdod",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 8,
+          "created_at": "2025-10-17 19:16:53",
+          "updated_at": null
+        },
+        {
+          "id": 10,
+          "email": "rishon",
+          "password_hash": "$pbkdf2-sha256$29000$OYfwXqt1jnEupTQmJMT43w$SmAoZQ/kzvn0wmLQ7FFC/qV9fqL9HP1cdcU1Daill/I",
+          "full_name": "Manager - Giraffe Rishon",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 9,
+          "created_at": "2025-10-17 19:16:53",
+          "updated_at": null
+        },
+        {
+          "id": 11,
+          "email": "giraffe@giraffe.com",
+          "password_hash": "$pbkdf2-sha256$29000$iHHOWYtRqrVWypnzntM6hw$u2GDli2ovNFe3zjrrKijhKZCJDbIVkncWUTWkzF11tM",
+          "full_name": "Ohad Banay (HQ)",
+          "role": "HQ",
+          "branch_id": null,
+          "created_at": "2025-10-17 19:21:21",
+          "updated_at": null
+        },
+        {
+          "id": 12,
+          "email": "giraffe",
+          "password_hash": "$pbkdf2-sha256$29000$F0IIgdBaK4Xw3ttb611L6Q$Zpclb1LlckNip2Bd1VbSgbOg..PczlBy4HXYt.uliPU",
+          "full_name": "Ohad Banay (HQ)",
+          "role": "HQ",
+          "branch_id": null,
+          "created_at": "2025-10-17 20:19:32",
+          "updated_at": null
+        },
+        {
+          "id": 13,
+          "email": "חיפה",
+          "password_hash": "$pbkdf2-sha256$29000$Xet97z2H0Bqj1Drn/N97Dw$fBsFGsOApCb15gmaEmMabCX3ki/Wqxv54mKTHIb1WnY",
+          "full_name": "Manager - Giraffe חיפה",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 10,
+          "created_at": "2025-10-17 20:19:32",
+          "updated_at": null
+        },
+        {
+          "id": 14,
+          "email": "הרצליה",
+          "password_hash": "$pbkdf2-sha256$29000$2JvzvvfeWyuFUCpFaA3hXA$kuJ27C/6XlLEIe8.zhoNIELORwJbz2VFyBHpIisZiJY",
+          "full_name": "Manager - Giraffe הרצליה",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 11,
+          "created_at": "2025-10-17 20:19:32",
+          "updated_at": null
+        },
+        {
+          "id": 15,
+          "email": "לנדמרק",
+          "password_hash": "$pbkdf2-sha256$29000$7L1XSonROkcoZWxNaY0xRg$yugFlBppT3XkE5XCSxR4HtQrJUDQ7iWLM9Fe7loU1jc",
+          "full_name": "Manager - Giraffe לנדמרק",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 12,
+          "created_at": "2025-10-17 20:19:32",
+          "updated_at": null
+        },
+        {
+          "id": 16,
+          "email": "רמתהחייל",
+          "password_hash": "$pbkdf2-sha256$29000$Uar1njPm/J9zzrmX0vrfuw$J5MbnE.7tpvROOReXw5w7nfE2fSfhjq8jIv/3WVsuPw",
+          "full_name": "Manager - Giraffe רמת החייל",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 13,
+          "created_at": "2025-10-17 20:19:32",
+          "updated_at": null
+        },
+        {
+          "id": 17,
+          "email": "נסציונה",
+          "password_hash": "$pbkdf2-sha256$29000$wziHcM45R6j1/j/nHCPEuA$WTfsTa8JujRVkGcrMovD1cWygAgSri1Lfkm2rd09VVI",
+          "full_name": "Manager - Giraffe נס ציונה",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 14,
+          "created_at": "2025-10-17 20:19:32",
+          "updated_at": null
+        },
+        {
+          "id": 18,
+          "email": "סביון",
+          "password_hash": "$pbkdf2-sha256$29000$XctZC2FsLeWcM8a4FwJACA$AQ24Kn1w2xc91xwwLYpFqZ63Mo1fYxDxel/GdcUEqio",
+          "full_name": "Manager - Giraffe סביון",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 15,
+          "created_at": "2025-10-17 20:19:32",
+          "updated_at": null
+        },
+        {
+          "id": 19,
+          "email": "ראשוןלציון",
+          "password_hash": "$pbkdf2-sha256$29000$1vp/TwlBCAGgdO6d8x5jTA$KTVGVHxucRwTeACkxS26gw4zJwt99q5MwrQUQYTCQbo",
+          "full_name": "Manager - Giraffe ראשון לציון",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 16,
+          "created_at": "2025-10-17 20:19:32",
+          "updated_at": null
+        },
+        {
+          "id": 20,
+          "email": "מודיעין",
+          "password_hash": "$pbkdf2-sha256$29000$ViqFsBbCeC9FSGmtlZKydg$/ZoB7Tc3tcAkq1cW4U6kVozyKTUV6geTkPwTqA.d0bA",
+          "full_name": "Manager - Giraffe מודיעין",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 17,
+          "created_at": "2025-10-17 20:19:32",
+          "updated_at": null
+        },
+        {
+          "id": 21,
+          "email": "פתחתקווה",
+          "password_hash": "$pbkdf2-sha256$29000$1NrbW0tpbQ0BQCjl3Ftr7Q$gJ.tae1rWFrtDiUeO6wA8N7Rzg5RekCeAU7lbG/4zIo",
+          "full_name": "Manager - Giraffe פתח תקווה",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 18,
+          "created_at": "2025-10-17 20:19:32",
+          "updated_at": null
+        },
+        {
+          "id": 22,
+          "email": "חיפה@giraffe.com",
+          "password_hash": "$pbkdf2-sha256$29000$jFEKIYTQ2vvfm1PKOQdAyA$lkL0T..kg5C//Sw7cqDsX1sYyldKmhIVKyf58zNrpp4",
+          "full_name": "Manager - Giraffe חיפה",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 10,
+          "created_at": "2025-10-18 16:12:56",
+          "updated_at": null
+        },
+        {
+          "id": 23,
+          "email": "הרצליה@giraffe.com",
+          "password_hash": "$pbkdf2-sha256$29000$1VqrtTamdK51LqXUek/pHQ$JoC4Yliius6C18/JdfD3se6BM6n4foPqNFTIv7z5Vrs",
+          "full_name": "Manager - Giraffe הרצליה",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 11,
+          "created_at": "2025-10-18 16:12:56",
+          "updated_at": null
+        },
+        {
+          "id": 24,
+          "email": "לנדמרק@giraffe.com",
+          "password_hash": "$pbkdf2-sha256$29000$bY0xRiglhJDyHmNsDQFAaA$ddFy2UH7kdZlbCvixuWwT.y/6lkNFYhYk0AYxMTei7k",
+          "full_name": "Manager - Giraffe לנדמרק",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 12,
+          "created_at": "2025-10-18 16:12:56",
+          "updated_at": null
+        },
+        {
+          "id": 25,
+          "email": "רמתהחייל@giraffe.com",
+          "password_hash": "$pbkdf2-sha256$29000$9x4D4Lx3LsV4L.WcU8r53w$F2Hg.j/QYDN7/4WTRAKDJjzf.rH48OLK5LrcjqdgY.g",
+          "full_name": "Manager - Giraffe רמת החייל",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 13,
+          "created_at": "2025-10-18 16:12:56",
+          "updated_at": null
+        },
+        {
+          "id": 26,
+          "email": "נסציונה@giraffe.com",
+          "password_hash": "$pbkdf2-sha256$29000$5/wfA0Co1XqPUWqNcU4p5Q$LJXKWbOQIA8etdKBZbNX1HeX/j.TeqwU8/umSavZ5eg",
+          "full_name": "Manager - Giraffe נס ציונה",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 14,
+          "created_at": "2025-10-18 16:12:56",
+          "updated_at": null
+        },
+        {
+          "id": 27,
+          "email": "סביון@giraffe.com",
+          "password_hash": "$pbkdf2-sha256$29000$IqT0XmuttfbeG0MIgfDeOw$ez3TK4w1DOsmVGJXzzdTVjQO0Bf5v6dveSQUoX9tTsM",
+          "full_name": "Manager - Giraffe סביון",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 15,
+          "created_at": "2025-10-18 16:12:56",
+          "updated_at": null
+        },
+        {
+          "id": 28,
+          "email": "ראשוןלציון@giraffe.com",
+          "password_hash": "$pbkdf2-sha256$29000$N6bUeg8BIESoVWpNSck55w$yxHVFGy.ynmCx99Xse8GEY/1CGuPvAuCKqkoxgyPVAw",
+          "full_name": "Manager - Giraffe ראשון לציון",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 16,
+          "created_at": "2025-10-18 16:12:56",
+          "updated_at": null
+        },
+        {
+          "id": 29,
+          "email": "מודיעין@giraffe.com",
+          "password_hash": "$pbkdf2-sha256$29000$NYbQGsMYQ0gppRRCyBlDSA$aL1y3eMzWO67wvV40De.CB.p9sW.nnJCHGi8ntYTsbI",
+          "full_name": "Manager - Giraffe מודיעין",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 17,
+          "created_at": "2025-10-18 16:12:56",
+          "updated_at": null
+        },
+        {
+          "id": 30,
+          "email": "פתחתקווה@giraffe.com",
+          "password_hash": "$pbkdf2-sha256$29000$a.2d835vDWEsJWTsPcf4/w$qIk1UCgFvcllJOHxNMvJFVdg8Rb9VLcx0HZoFVVKVt0",
+          "full_name": "Manager - Giraffe פתח תקווה",
+          "role": "BRANCH_MANAGER",
+          "branch_id": 18,
+          "created_at": "2025-10-18 16:12:56",
+          "updated_at": null
+        }
+      ]
+    }
+  }
+}
