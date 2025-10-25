@@ -364,7 +364,7 @@ def delete_manager_evaluation(
 
 
 @router.post("/{evaluation_id}/generate-summary", response_model=ManagerEvaluationResponse)
-def generate_ai_summary(
+def generate_ai_summary_endpoint(
     evaluation_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
