@@ -10,6 +10,9 @@ import SanitationAudits from './pages/SanitationAudits';
 import NewSanitationAudit from './pages/NewSanitationAudit';
 import ViewSanitationAudit from './pages/ViewSanitationAudit';
 import AuditSummary from './pages/AuditSummary';
+import ManagerEvaluations from './pages/ManagerEvaluations';
+import CreateManagerEvaluation from './pages/CreateManagerEvaluation';
+import ViewManagerEvaluation from './pages/ViewManagerEvaluation';
 
 function App() {
   return (
@@ -83,6 +86,30 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ViewSanitationAudit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/manager-evaluations"
+              element={
+                <ProtectedRoute>
+                  <ManagerEvaluations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/manager-evaluations/new"
+              element={
+                <ProtectedRoute>
+                  <CreateManagerEvaluation />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/manager-evaluations/:id"
+              element={
+                <ProtectedRoute>
+                  <ViewManagerEvaluation />
                 </ProtectedRoute>
               }
             />
