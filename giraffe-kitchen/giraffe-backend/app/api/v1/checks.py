@@ -212,7 +212,8 @@ def get_analytics(
         DishCheck.id.in_([c.id for c in base_query.all()])
     ).group_by(
         DishCheck.chef_id,
-        func.coalesce(Chef.name, DishCheck.chef_name_manual)
+        Chef.name,
+        DishCheck.chef_name_manual
     ).order_by(
         func.avg(DishCheck.rating).desc()
     ).first()
@@ -230,7 +231,8 @@ def get_analytics(
         DishCheck.id.in_([c.id for c in base_query.all()])
     ).group_by(
         DishCheck.dish_id,
-        func.coalesce(Dish.name, DishCheck.dish_name_manual),
+        Dish.name,
+        DishCheck.dish_name_manual,
         Dish.category
     ).order_by(
         func.avg(DishCheck.rating).desc()
@@ -263,7 +265,8 @@ def get_analytics(
         DishCheck.id.in_([c.id for c in base_query.all()])
     ).group_by(
         DishCheck.chef_id,
-        func.coalesce(Chef.name, DishCheck.chef_name_manual),
+        Chef.name,
+        DishCheck.chef_name_manual,
         Branch.name
     ).order_by(
         func.avg(DishCheck.rating).desc()

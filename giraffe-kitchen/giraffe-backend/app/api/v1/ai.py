@@ -65,13 +65,8 @@ def ask_ai_analysis(
     if current_user.role.value == "BRANCH_MANAGER" and request.branch_id != current_user.branch_id:
         raise HTTPException(status_code=403, detail="Not authorized to access this branch data")
 
-    # Get API key from settings
-    api_key = settings.ANTHROPIC_API_KEY
-    if not api_key:
-        raise HTTPException(
-            status_code=500,
-            detail="Claude API key not configured. Please set ANTHROPIC_API_KEY environment variable."
-        )
+    # Get API key from settings or environment
+    api_key = settings.ANTHROPIC_API_KEY or os.getenv('ANTHROPIC_API_KEY')
 
     # Fetch actual data from database based on filters
     # Calculate date range
@@ -117,7 +112,8 @@ def ask_ai_analysis(
         DishCheck.id.in_([c.id for c in query.all()])
     ).group_by(
         DishCheck.dish_id,
-        func.coalesce(Dish.name, DishCheck.dish_name_manual)
+        Dish.name,
+        DishCheck.dish_name_manual
     ).having(
         func.avg(DishCheck.rating) < 7
     ).order_by(
@@ -136,7 +132,8 @@ def ask_ai_analysis(
         DishCheck.id.in_([c.id for c in query.all()])
     ).group_by(
         DishCheck.chef_id,
-        func.coalesce(Chef.name, DishCheck.chef_name_manual)
+        Chef.name,
+        DishCheck.chef_name_manual
     ).order_by(
         func.avg(DishCheck.rating).desc()
     ).limit(3).all()
@@ -179,6 +176,24 @@ def ask_ai_analysis(
         "trend": trend,
         "date_range": f"{start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}"
     }
+
+    # If no API key, provide helpful mock response
+    if not api_key:
+        mock_answer = f"""בהתבסס על הנתונים שלך:
+📊 תקופה: {real_context['date_range']}
+📋 סך בדיקות: {real_context['total_checks']}
+⭐ ממוצע ציונים: {real_context['average_rating']}
+📈 מגמה: {real_context['trend']}
+
+מנות חלשות: {', '.join(real_context['weak_dishes'][:3]) if real_context['weak_dishes'] else 'אין'}
+טבחים מובילים: {', '.join(real_context['top_chefs'][:3]) if real_context['top_chefs'] else 'אין נתונים'}
+
+(שירות AI אינו מוגדר. להפעלת Claude AI, הגדר ANTHROPIC_API_KEY)"""
+
+        return AIQueryResponse(
+            answer=mock_answer,
+            context_used=real_context
+        )
 
     # Create Claude client with timeout
     try:
@@ -261,13 +276,8 @@ def ask_sanitation_analysis(
     if current_user.role.value == "BRANCH_MANAGER" and request.branch_id != current_user.branch_id:
         raise HTTPException(status_code=403, detail="Not authorized to access this branch data")
 
-    # Get API key from settings
-    api_key = settings.ANTHROPIC_API_KEY
-    if not api_key:
-        raise HTTPException(
-            status_code=500,
-            detail="Claude API key not configured. Please set ANTHROPIC_API_KEY environment variable."
-        )
+    # Get API key from settings or environment
+    api_key = settings.ANTHROPIC_API_KEY or os.getenv('ANTHROPIC_API_KEY')
 
     # Fetch sanitation audit data from database
     # Calculate date range
