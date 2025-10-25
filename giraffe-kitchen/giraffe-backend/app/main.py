@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.routing import APIRoute
 from app.core.config import settings
-from app.api.v1 import auth, branches, dishes, chefs, checks, ai, daily_tasks, sanitation_audits, users
+from app.api.v1 import auth, branches, dishes, chefs, checks, ai, daily_tasks, sanitation_audits, users, manager_evaluations
 from app.db.base import Base, engine
 import os
 
