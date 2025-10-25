@@ -226,7 +226,12 @@ export default function ViewManagerEvaluation() {
                   סיכום AI מקצועי
                 </h2>
                 <div className="prose prose-sm max-w-none">
-                  <div className="text-gray-700 whitespace-pre-wrap">{evaluation.ai_summary}</div>
+                  <div
+                    className="text-gray-700 whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{
+                      __html: evaluation.ai_summary.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    }}
+                  />
                 </div>
               </div>
             )}
