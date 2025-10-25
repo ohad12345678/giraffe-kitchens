@@ -357,4 +357,64 @@ export const sanitationAuditAPI = {
   },
 };
 
+// User Management endpoints (Admin only - ohadb@giraffe.co.il)
+export const userAPI = {
+  list: async (): Promise<{
+    id: number;
+    email: string;
+    role: string;
+    branch_id: number | null;
+    created_at: string | null;
+  }[]> => {
+    const response = await api.get('/api/v1/users/');
+    return response.data;
+  },
+
+  create: async (data: {
+    email: string;
+    password: string;
+    role: string;
+    branch_id: number | null;
+  }): Promise<{
+    id: number;
+    email: string;
+    role: string;
+    branch_id: number | null;
+    created_at: string | null;
+  }> => {
+    const response = await api.post('/api/v1/users/', data);
+    return response.data;
+  },
+
+  update: async (
+    id: number,
+    data: {
+      email?: string;
+      role?: string;
+      branch_id?: number | null;
+    }
+  ): Promise<{
+    id: number;
+    email: string;
+    role: string;
+    branch_id: number | null;
+    created_at: string | null;
+  }> => {
+    const response = await api.put(`/api/v1/users/${id}`, data);
+    return response.data;
+  },
+
+  changePassword: async (id: number, newPassword: string): Promise<{ status: string }> => {
+    const response = await api.put(`/api/v1/users/${id}/password`, {
+      new_password: newPassword,
+    });
+    return response.data;
+  },
+
+  delete: async (id: number): Promise<{ status: string }> => {
+    const response = await api.delete(`/api/v1/users/${id}`);
+    return response.data;
+  },
+};
+
 export default api;

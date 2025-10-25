@@ -10,6 +10,7 @@ import SanitationAudits from './pages/SanitationAudits';
 import NewSanitationAudit from './pages/NewSanitationAudit';
 import ViewSanitationAudit from './pages/ViewSanitationAudit';
 import AuditSummary from './pages/AuditSummary';
+import Admin from './pages/Admin';
 
 function App() {
   return (
@@ -83,6 +84,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ViewSanitationAudit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <Admin />
                 </ProtectedRoute>
               }
             />
