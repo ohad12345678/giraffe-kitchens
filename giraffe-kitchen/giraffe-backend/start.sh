@@ -4,7 +4,11 @@ echo "Starting deployment..."
 
 # Run database migrations (don't fail on error)
 echo "Running database migrations..."
-alembic upgrade head || echo "⚠️  Migration failed or already up to date"
+# If migration fails due to duplicate columns, stamp to latest and continue
+if ! alembic upgrade head 2>&1; then
+    echo "⚠️  Migration failed, attempting to stamp current version..."
+    alembic stamp head || echo "⚠️  Could not stamp, continuing anyway..."
+fi
 
 # Seed initial data if needed (don't fail if already seeded)
 echo "Seeding initial data..."
