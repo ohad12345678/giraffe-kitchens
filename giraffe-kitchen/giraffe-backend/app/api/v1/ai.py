@@ -450,13 +450,23 @@ def ask_manager_evaluations_analysis(
     """
     Ask AI to analyze manager evaluation data
 
-    - For HQ users: can query all manager evaluations
-    - For Branch Managers: only their branch data
+    Only accessible to specific HQ users: nofar, aviv, ohad, avital
     """
 
-    # Authorization check - same as sanitation audits
-    if current_user.role.value == "BRANCH_MANAGER" and request.branch_id != current_user.branch_id:
-        raise HTTPException(status_code=403, detail="Not authorized to access this branch data")
+    # Authorized emails for manager evaluations
+    AUTHORIZED_EMAILS = [
+        "nofar@giraffe.co.il",
+        "aviv@giraffe.co.il",
+        "ohadb@giraffe.co.il",
+        "avital@giraffe.co.il"
+    ]
+
+    # Authorization check - must be HQ user with authorized email
+    if current_user.role.value != "HQ":
+        raise HTTPException(status_code=403, detail="Only HQ users can access manager evaluations")
+
+    if current_user.email not in AUTHORIZED_EMAILS:
+        raise HTTPException(status_code=403, detail="Not authorized to access manager evaluations")
 
     # Get API key from settings
     api_key = settings.ANTHROPIC_API_KEY
