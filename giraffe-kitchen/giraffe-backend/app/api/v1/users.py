@@ -3,7 +3,7 @@ User management endpoints - Admin only (ohadb@giraffe.co.il)
 """
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, EmailStr
 from app.api import deps
 from app.models.user import User, UserRole
@@ -23,8 +23,8 @@ class UserResponse(BaseModel):
     id: int
     email: str
     role: str
-    branch_id: int | None
-    created_at: str | None
+    branch_id: Optional[int]
+    created_at: Optional[str]
 
     class Config:
         from_attributes = True
@@ -34,13 +34,13 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     role: str  # "hq" or "branch_manager"
-    branch_id: int | None = None
+    branch_id: Optional[int] = None
 
 
 class UserUpdate(BaseModel):
-    email: EmailStr | None = None
-    role: str | None = None
-    branch_id: int | None = None
+    email: Optional[EmailStr] = None
+    role: Optional[str] = None
+    branch_id: Optional[int] = None
 
 
 class PasswordChange(BaseModel):
