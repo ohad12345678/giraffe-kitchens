@@ -156,6 +156,79 @@ def get_weakest_dish(
     }
 
 
+@router.get("/dashboard-stats")
+def get_dashboard_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get dashboard statistics for the main page."""
+    from datetime import datetime, timedelta
+
+    # Calculate date ranges
+    today = datetime.now().date()
+    week_ago = today - timedelta(days=7)
+    two_weeks_ago = today - timedelta(days=14)
+
+    # Build base query for HQ vs Branch Manager
+    base_query = db.query(DishCheck)
+    if current_user.role.value == "branch_manager":
+        base_query = base_query.filter(DishCheck.branch_id == current_user.branch_id)
+
+    # 1. Best and worst dishes (last week)
+    dish_stats_week = db.query(
+        func.coalesce(Dish.name, DishCheck.dish_name_manual).label('dish_name'),
+        func.avg(DishCheck.rating).label('avg_score'),
+        func.count(DishCheck.id).label('check_count')
+    ).select_from(DishCheck).outerjoin(
+        Dish, DishCheck.dish_id == Dish.id
+    ).filter(
+        DishCheck.check_date >= week_ago,
+        DishCheck.check_date <= today
+    )
+
+    if current_user.role.value == "branch_manager":
+        dish_stats_week = dish_stats_week.filter(DishCheck.branch_id == current_user.branch_id)
+
+    dish_stats_week = dish_stats_week.group_by(
+        DishCheck.dish_id,
+        func.coalesce(Dish.name, DishCheck.dish_name_manual)
+    ).all()
+
+    best_dish = None
+    worst_dish = None
+
+    if dish_stats_week:
+        sorted_dishes = sorted(dish_stats_week, key=lambda x: x.avg_score, reverse=True)
+        best_dish = {
+            "name": sorted_dishes[0].dish_name,
+            "score": round(float(sorted_dishes[0].avg_score), 1),
+            "check_count": sorted_dishes[0].check_count
+        }
+        worst_dish = {
+            "name": sorted_dishes[-1].dish_name,
+            "score": round(float(sorted_dishes[-1].avg_score), 1),
+            "check_count": sorted_dishes[-1].check_count
+        }
+
+    # 2. Quality checks count (this week vs last week)
+    this_week_count = base_query.filter(
+        DishCheck.check_date >= week_ago,
+        DishCheck.check_date <= today
+    ).count()
+
+    last_week_count = base_query.filter(
+        DishCheck.check_date >= two_weeks_ago,
+        DishCheck.check_date < week_ago
+    ).count()
+
+    return {
+        "best_dish": best_dish,
+        "worst_dish": worst_dish,
+        "this_week_checks": this_week_count,
+        "last_week_checks": last_week_count
+    }
+
+
 @router.get("/analytics")
 def get_analytics(
     start_date: Optional[date] = None,
@@ -432,77 +505,4 @@ def bulk_delete_checks(
         "status": "success",
         "message": f"Successfully deleted {count} check(s)",
         "deleted_count": count
-    }
-
-
-@router.get("/dashboard-stats")
-def get_dashboard_stats(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Get dashboard statistics for the main page."""
-    from datetime import datetime, timedelta
-
-    # Calculate date ranges
-    today = datetime.now().date()
-    week_ago = today - timedelta(days=7)
-    two_weeks_ago = today - timedelta(days=14)
-
-    # Build base query for HQ vs Branch Manager
-    base_query = db.query(DishCheck)
-    if current_user.role.value == "branch_manager":
-        base_query = base_query.filter(DishCheck.branch_id == current_user.branch_id)
-
-    # 1. Best and worst dishes (last week)
-    dish_stats_week = db.query(
-        func.coalesce(Dish.name, DishCheck.dish_name_manual).label('dish_name'),
-        func.avg(DishCheck.rating).label('avg_score'),
-        func.count(DishCheck.id).label('check_count')
-    ).select_from(DishCheck).outerjoin(
-        Dish, DishCheck.dish_id == Dish.id
-    ).filter(
-        DishCheck.check_date >= week_ago,
-        DishCheck.check_date <= today
-    )
-
-    if current_user.role.value == "branch_manager":
-        dish_stats_week = dish_stats_week.filter(DishCheck.branch_id == current_user.branch_id)
-
-    dish_stats_week = dish_stats_week.group_by(
-        DishCheck.dish_id,
-        func.coalesce(Dish.name, DishCheck.dish_name_manual)
-    ).all()
-
-    best_dish = None
-    worst_dish = None
-
-    if dish_stats_week:
-        sorted_dishes = sorted(dish_stats_week, key=lambda x: x.avg_score, reverse=True)
-        best_dish = {
-            "name": sorted_dishes[0].dish_name,
-            "score": round(float(sorted_dishes[0].avg_score), 1),
-            "check_count": sorted_dishes[0].check_count
-        }
-        worst_dish = {
-            "name": sorted_dishes[-1].dish_name,
-            "score": round(float(sorted_dishes[-1].avg_score), 1),
-            "check_count": sorted_dishes[-1].check_count
-        }
-
-    # 2. Quality checks count (this week vs last week)
-    this_week_count = base_query.filter(
-        DishCheck.check_date >= week_ago,
-        DishCheck.check_date <= today
-    ).count()
-
-    last_week_count = base_query.filter(
-        DishCheck.check_date >= two_weeks_ago,
-        DishCheck.check_date < week_ago
-    ).count()
-
-    return {
-        "best_dish": best_dish,
-        "worst_dish": worst_dish,
-        "this_week_checks": this_week_count,
-        "last_week_checks": last_week_count
     }
