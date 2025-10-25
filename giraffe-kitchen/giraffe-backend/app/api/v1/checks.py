@@ -136,7 +136,8 @@ def get_weakest_dish(
     # Group by dish and order by average score (ascending = worst first)
     result = query.group_by(
         DishCheck.dish_id,
-        func.coalesce(Dish.name, DishCheck.dish_name_manual)
+        Dish.name,
+        DishCheck.dish_name_manual
     ).order_by(func.avg(DishCheck.rating).asc()).first()
 
     if not result:
@@ -191,14 +192,17 @@ def get_analytics(
     if dish_id:
         base_query = base_query.filter(DishCheck.dish_id == dish_id)
 
+    # Cache check IDs to avoid multiple query executions
+    check_ids = [c.id for c in base_query.all()] if base_query.count() > 0 else []
+
     # 1. KPIs
-    total_checks = base_query.count()
+    total_checks = len(check_ids)
     avg_rating = db.query(func.avg(DishCheck.rating)).filter(
-        DishCheck.id.in_([c.id for c in base_query.all()])
+        DishCheck.id.in_(check_ids) if check_ids else False
     ).scalar() or 0
 
     weak_dishes_count = db.query(func.count(func.distinct(DishCheck.dish_id))).filter(
-        DishCheck.id.in_([c.id for c in base_query.all()]),
+        DishCheck.id.in_(check_ids) if check_ids else False,
         DishCheck.rating < 7
     ).scalar() or 0
 
@@ -209,7 +213,7 @@ def get_analytics(
     ).outerjoin(
         Chef, DishCheck.chef_id == Chef.id
     ).filter(
-        DishCheck.id.in_([c.id for c in base_query.all()])
+        DishCheck.id.in_(check_ids) if check_ids else False
     ).group_by(
         DishCheck.chef_id,
         Chef.name,
@@ -228,7 +232,7 @@ def get_analytics(
     ).outerjoin(
         Dish, DishCheck.dish_id == Dish.id
     ).filter(
-        DishCheck.id.in_([c.id for c in base_query.all()])
+        DishCheck.id.in_(check_ids) if check_ids else False
     ).group_by(
         DishCheck.dish_id,
         Dish.name,
@@ -262,7 +266,7 @@ def get_analytics(
     ).outerjoin(
         Branch, Chef.branch_id == Branch.id
     ).filter(
-        DishCheck.id.in_([c.id for c in base_query.all()])
+        DishCheck.id.in_(check_ids) if check_ids else False
     ).group_by(
         DishCheck.chef_id,
         Chef.name,
@@ -289,7 +293,7 @@ def get_analytics(
         func.count(DishCheck.id).label('checks'),
         func.avg(DishCheck.rating).label('avg_rating')
     ).filter(
-        DishCheck.id.in_([c.id for c in base_query.all()])
+        DishCheck.id.in_(check_ids) if check_ids else False
     ).group_by(DishCheck.check_date).order_by(DishCheck.check_date).all()
 
     daily_trend = [
