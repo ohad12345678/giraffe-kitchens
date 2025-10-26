@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { aiAPI, checkAPI, branchAPI, dishAPI } from '../services/api';
 import { ArrowRight, TrendingUp, TrendingDown, AlertCircle, MessageSquare } from 'lucide-react';
@@ -287,12 +288,12 @@ const Reports: React.FC = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">דוחות וניתוחים</h1>
-          <p className="text-gray-600">ניתוח מעמיק של בדיקות האיכות במערכת</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">דוחות וניתוחים</h1>
+          <p className="text-lg text-gray-600">ניתוח מעמיק של בדיקות האיכות במערכת</p>
         </div>
 
         {/* Filters */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">סינון נתונים</h2>
             {isAdmin && (
@@ -310,7 +311,7 @@ const Reports: React.FC = () => {
               <select
                 value={dateRange}
                 onChange={(e) => setDateRange(e.target.value)}
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition-all"
               >
                 <option value="today">היום</option>
                 <option value="week">שבוע אחרון</option>
@@ -325,7 +326,7 @@ const Reports: React.FC = () => {
                 <select
                   value={selectedBranch || ''}
                   onChange={(e) => setSelectedBranch(e.target.value ? Number(e.target.value) : null)}
-                  className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition-all"
                 >
                   <option value="">כל הסניפים</option>
                   {branches.map((branch) => (
@@ -342,7 +343,7 @@ const Reports: React.FC = () => {
               <select
                 value={selectedDish || ''}
                 onChange={(e) => setSelectedDish(e.target.value ? Number(e.target.value) : null)}
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition-all"
               >
                 <option value="">כל המנות</option>
                 {Array.isArray(dishes) && dishes.map((dish) => (
@@ -365,52 +366,77 @@ const Reports: React.FC = () => {
           </div>
         ) : analytics ? (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                <p className="text-sm font-medium text-gray-600 mb-1">סך הבדיקות</p>
-                <p className="text-3xl font-bold text-gray-900">{analytics.kpis.total_checks}</p>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-white rounded-xl border border-gray-200 p-6 shadow-md hover:shadow-lg transition-shadow"
+              >
+                <p className="text-sm font-medium text-gray-600 mb-2">סך הבדיקות</p>
+                <p className="text-4xl font-bold text-gray-900">{analytics.kpis.total_checks}</p>
+              </motion.div>
 
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                <p className="text-sm font-medium text-gray-600 mb-1">ממוצע ציונים</p>
-                <p className="text-3xl font-bold text-green-600">{analytics.kpis.average_rating}</p>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-white rounded-xl border border-gray-200 p-6 shadow-md hover:shadow-lg transition-shadow"
+              >
+                <p className="text-sm font-medium text-gray-600 mb-2">ממוצע ציונים</p>
+                <p className="text-4xl font-bold text-green-600">{analytics.kpis.average_rating}</p>
+              </motion.div>
 
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                <p className="text-sm font-medium text-gray-600 mb-1">מנות בעייתיות</p>
-                <p className="text-3xl font-bold text-red-600">{analytics.kpis.weak_dishes}</p>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-white rounded-xl border border-gray-200 p-6 shadow-md hover:shadow-lg transition-shadow"
+              >
+                <p className="text-sm font-medium text-gray-600 mb-2">מנות בעייתיות</p>
+                <p className="text-4xl font-bold text-red-600">{analytics.kpis.weak_dishes}</p>
+              </motion.div>
 
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                <p className="text-sm font-medium text-gray-600 mb-1">טבח מוביל</p>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="bg-white rounded-xl border border-gray-200 p-6 shadow-md hover:shadow-lg transition-shadow"
+              >
+                <p className="text-sm font-medium text-gray-600 mb-2">טבח מוביל</p>
                 {analytics.kpis.top_chef ? (
                   <>
-                    <p className="text-xl font-bold text-gray-900">{analytics.kpis.top_chef}</p>
-                    <p className="text-sm text-green-600">ציון: {analytics.kpis.top_chef_rating}</p>
+                    <p className="text-2xl font-bold text-gray-900">{analytics.kpis.top_chef}</p>
+                    <p className="text-sm text-green-600 mt-1">ציון: {analytics.kpis.top_chef_rating}</p>
                   </>
                 ) : (
-                  <p className="text-lg text-gray-400">אין נתונים</p>
+                  <p className="text-xl text-gray-400">אין נתונים</p>
                 )}
-              </div>
+              </motion.div>
             </div>
 
             {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               {/* Daily Trend */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="bg-white rounded-xl border border-gray-200 p-6 shadow-md hover:shadow-lg transition-shadow"
+              >
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">מגמת בדיקות לפי תאריך</h3>
                 <div className="space-y-3">
                   {analytics.daily_trend.length > 0 ? (
                     analytics.daily_trend.map((day: any) => {
                       const maxChecks = Math.max(...analytics.daily_trend.map((d: any) => d.checks));
                       return (
-                        <div key={day.date} className="flex items-center gap-4">
+                        <div key={day.date} className="flex items-center gap-4 hover:bg-gray-50 rounded-lg p-2 transition-all">
                           <div className="w-24 text-sm text-gray-600">
                             {new Date(day.date).toLocaleDateString('he-IL', { month: 'short', day: 'numeric' })}
                           </div>
                           <div className="flex-1 bg-gray-100 rounded-full h-8 relative overflow-hidden">
                             <div
-                              className="bg-primary-500 h-full flex items-center justify-end px-3 text-white text-xs font-medium transition-all"
+                              className="bg-[#f97316] h-full flex items-center justify-end px-3 text-white text-xs font-medium transition-all"
                               style={{ width: `${(day.checks / maxChecks) * 100}%`, minWidth: day.checks > 0 ? '60px' : '0' }}
                             >
                               {day.checks > 0 && `${day.checks} בדיקות`}
@@ -424,15 +450,20 @@ const Reports: React.FC = () => {
                     <p className="text-gray-500 text-center py-8">אין נתונים לתקופה זו</p>
                   )}
                 </div>
-              </div>
+              </motion.div>
 
               {/* Dish Ratings */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="bg-white rounded-xl border border-gray-200 p-6 shadow-md hover:shadow-lg transition-shadow"
+              >
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">דירוג מנות</h3>
                 <div className="space-y-3">
                   {analytics.dish_ratings.length > 0 ? (
                     analytics.dish_ratings.slice(0, 8).map((dish: any) => (
-                      <div key={dish.dish_id} className="flex items-center justify-between">
+                      <div key={dish.dish_id} className="flex items-center justify-between hover:bg-gray-50 rounded-lg p-2 transition-all">
                         <div className="flex items-center gap-3 flex-1">
                           <span className="text-sm text-gray-700">{dish.name}</span>
                           {dish.category && <span className="text-xs text-gray-500">({dish.category})</span>}
@@ -450,17 +481,22 @@ const Reports: React.FC = () => {
                     <p className="text-gray-500 text-center py-8">אין נתונים לתקופה זו</p>
                   )}
                 </div>
-              </div>
+              </motion.div>
             </div>
 
             {/* Chef Performance */}
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="bg-white rounded-xl border border-gray-200 p-6 shadow-md hover:shadow-lg transition-shadow mb-8"
+            >
               <h3 className="text-lg font-semibold text-gray-900 mb-4">ביצועי טבחים</h3>
               <div className="overflow-x-auto">
                 {analytics.chef_performance.length > 0 ? (
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-gray-200">
+                      <tr className="bg-gray-50 border-b-2 border-gray-200">
                         <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">שם טבח</th>
                         <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">סניף</th>
                         <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">מספר בדיקות</th>
@@ -470,7 +506,7 @@ const Reports: React.FC = () => {
                     </thead>
                     <tbody>
                       {analytics.chef_performance.map((chef: any) => (
-                        <tr key={chef.chef_id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <tr key={chef.chef_id} className="border-b border-gray-100 hover:bg-gray-50 transition-all">
                           <td className="py-3 px-4 font-medium text-gray-900">{chef.name}</td>
                           <td className="py-3 px-4 text-gray-600">{chef.branch}</td>
                           <td className="py-3 px-4 text-gray-600">{chef.checks_count}</td>
@@ -499,7 +535,7 @@ const Reports: React.FC = () => {
                   <p className="text-gray-500 text-center py-8">אין נתונים לתקופה זו</p>
                 )}
               </div>
-            </div>
+            </motion.div>
           </>
         ) : (
           <div className="text-center py-12">
