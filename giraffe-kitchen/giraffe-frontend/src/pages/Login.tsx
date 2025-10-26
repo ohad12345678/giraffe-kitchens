@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogIn } from 'lucide-react';
 
-const Login: React.FC = () => {
+export default function Login() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -20,82 +20,188 @@ const Login: React.FC = () => {
     try {
       await login({ email, password });
       navigate('/dashboard');
-    } catch (err) {
-      setError('שגיאה בהתחברות - בדוק את המייל והסיסמה');
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'שגיאה בהתחברות');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-md w-full space-y-8 bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-gray-200">
-        <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-primary-500 rounded-full flex items-center justify-center mb-4">
-            <LogIn className="h-8 w-8 text-white" />
+    <div className="min-h-screen bg-[#fafafa] flex" dir="rtl">
+      {/* Right side - Form */}
+      <div className="flex-1 flex items-center justify-center p-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md"
+        >
+          {/* Logo & Header */}
+          <div className="text-center mb-8">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#f97316] to-[#ea580c] mb-4 shadow-lg shadow-orange-500/20"
+            >
+              <span className="text-3xl">🦒</span>
+            </motion.div>
+
+            <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+              ברוכים הבאים ל-Giraffe
+            </h1>
+            <p className="text-gray-600">
+              מערכת ניהול איכות מטבח מקצועית
+            </p>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">
-            התחברות למערכת
-          </h2>
-          <p className="mt-2 text-gray-600">
-            Giraffe Kitchens - מערכת בקרת איכות
+
+          {/* Form Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm"
+          >
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Email Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  אימייל
+                </label>
+                <div className="relative">
+                  <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pr-11 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition-all text-right"
+                    placeholder="your@email.com"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  סיסמה
+                </label>
+                <div className="relative">
+                  <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pr-11 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition-all text-right"
+                    placeholder="••••••••"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              {/* Error Message */}
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg"
+                >
+                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                  <p className="text-sm text-red-600">{error}</p>
+                </motion.div>
+              )}
+
+              {/* Submit Button */}
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                type="submit"
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#f97316] to-[#ea580c] text-white rounded-lg font-medium shadow-lg shadow-orange-500/20 hover:shadow-xl hover:shadow-orange-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <span>התחבר</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </>
+                )}
+              </motion.button>
+            </form>
+          </motion.div>
+
+          {/* Footer */}
+          <p className="text-center text-sm text-gray-500 mt-6">
+            מערכת Giraffe © 2025
           </p>
+        </motion.div>
+      </div>
+
+      {/* Left side - Black Hero with GIRAFFE Logo */}
+      <div className="hidden lg:flex flex-1 bg-black items-center justify-center relative overflow-hidden">
+        {/* Subtle decorative elements */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-20 right-20 w-72 h-72 bg-white rounded-full blur-3xl" />
+          <div className="absolute bottom-20 left-20 w-96 h-96 bg-white rounded-full blur-3xl" />
         </div>
 
-        <form onSubmit={handleLogin} className="mt-8 space-y-6">
-          {error && (
-            <div className="bg-red-50 border-r-4 border-red-500 p-4 rounded">
-              <p className="text-red-700 text-sm">{error}</p>
-            </div>
-          )}
-
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2 text-right">
-                כתובת מייל
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-right"
-                placeholder="example@giraffe.co.il"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2 text-right">
-                סיסמה
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-right"
-                placeholder="הכנס סיסמה"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex justify-center py-4 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+          className="relative z-10 text-white max-w-lg px-8"
+        >
+          {/* GIRAFFE Logo - Improved */}
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="mb-12 text-center"
           >
-            {loading ? 'מתחבר...' : 'התחבר למערכת'}
-          </button>
-        </form>
+            <h2
+              className="text-8xl mb-6"
+              style={{
+                fontWeight: '200',
+                letterSpacing: '0.15em',
+                fontFamily: 'system-ui, -apple-system, sans-serif'
+              }}
+            >
+              GIRAFFE
+            </h2>
+            <div className="w-40 h-0.5 bg-white mx-auto mb-8"></div>
+            <h3 className="text-2xl font-light mb-3 tracking-wide">
+              ניהול איכות חכם
+            </h3>
+            <p className="text-base text-white/70 leading-relaxed">
+              מעקב בזמן אמת אחר בדיקות איכות, תברואה והדרכות
+            </p>
+          </motion.div>
+
+          {/* Features - Right to Left */}
+          <div className="space-y-4">
+            {[
+              'בדיקות איכות מנות',
+              'ביקורות תברואה',
+              'הערכות מנהלים',
+              'דוחות מתקדמים'
+            ].map((feature, i) => (
+              <motion.div
+                key={feature}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 + i * 0.1 }}
+                className="flex items-center gap-3 text-white/90"
+              >
+                <div className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
+                <span className="text-lg font-light">{feature}</span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </div>
   );
-};
-
-export default Login;
+}
