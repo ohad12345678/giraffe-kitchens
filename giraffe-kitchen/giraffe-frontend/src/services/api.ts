@@ -243,6 +243,10 @@ export const aiAPI = {
     const response = await api.post('/api/v1/ai/ask-sanitation', params);
     return response.data;
   },
+  askManagerEvaluations: async (params: { question: string; date_range?: string; branch_id?: number }): Promise<{ answer: string; context_used: any }> => {
+    const response = await api.post('/api/v1/ai/ask-manager-evaluations', params);
+    return response.data;
+  },
 };
 
 // Daily Tasks endpoints
@@ -443,6 +447,38 @@ export const userAPI = {
 
   delete: async (id: number): Promise<{ status: string }> => {
     const response = await api.delete(`/api/v1/users/${id}`);
+    return response.data;
+  },
+};
+
+// Manager Evaluations endpoints
+export const managerEvaluationAPI = {
+  list: async (): Promise<any[]> => {
+    const response = await api.get('/api/v1/manager-evaluations/');
+    return response.data;
+  },
+
+  get: async (id: number): Promise<any> => {
+    const response = await api.get(`/api/v1/manager-evaluations/${id}`);
+    return response.data;
+  },
+
+  create: async (data: any): Promise<any> => {
+    const response = await api.post('/api/v1/manager-evaluations/', data);
+    return response.data;
+  },
+
+  update: async (id: number, data: any): Promise<any> => {
+    const response = await api.put(`/api/v1/manager-evaluations/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/api/v1/manager-evaluations/${id}`);
+  },
+
+  generateSummary: async (id: number): Promise<any> => {
+    const response = await api.post(`/api/v1/manager-evaluations/${id}/generate-summary`);
     return response.data;
   },
 };

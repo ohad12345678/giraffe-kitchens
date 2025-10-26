@@ -2,6 +2,8 @@ export interface User {
   id: number;
   email: string;
   full_name: string;
+  username?: string; // Added for Layout component
+  location?: string; // Added for Layout component
   role: 'hq' | 'branch_manager';
   branch_id: number | null;
   created_at: string;
@@ -189,4 +191,55 @@ export interface NetworkAuditStats {
   worst_performing_branch: BranchAuditStats | null;
   branch_stats: BranchAuditStats[];
   common_issues_network: string[];
+}
+
+// Manager Evaluations
+export interface ManagerEvaluationCategory {
+  id?: number;
+  category_name: string;
+  rating: number;
+  comments?: string | null; // Added for compatibility with UI
+  notes: string | null;
+  strengths: string | null;
+  areas_for_improvement: string | null;
+}
+
+export interface ManagerEvaluation {
+  id: number;
+  branch_id: number;
+  manager_name: string;
+  evaluator_name: string;
+  evaluation_date: string;
+  overall_score: number | null;
+  summary: string | null;
+  action_items: string | null;
+  next_review_date: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  categories: ManagerEvaluationCategory[];
+}
+
+export interface ManagerEvaluationSummary {
+  id: number;
+  branch_id: number;
+  branch_name: string;
+  manager_name: string;
+  evaluator_name: string;
+  evaluation_date: string;
+  overall_score: number | null;
+  status: string;
+  created_at: string;
+}
+
+export interface CreateManagerEvaluation {
+  branch_id: number;
+  manager_name: string;
+  evaluator_name: string;
+  evaluation_date: string;
+  summary: string | null;
+  action_items: string | null;
+  next_review_date: string | null;
+  general_comments?: string | null; // Added for UI
+  categories: Omit<ManagerEvaluationCategory, 'id'>[];
 }

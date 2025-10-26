@@ -298,7 +298,7 @@ export default function CreateManagerEvaluation() {
                             })()}
                             onChange={(e) => {
                               const currentComments = categories[index].comments || '';
-                              const lines = currentComments.split('\n').filter(line => !line.startsWith(`${subCat.name}:`));
+                              const lines = currentComments.split('\n').filter((line: string) => !line.startsWith(`${subCat.name}:`));
                               if (e.target.value.trim()) {
                                 lines.push(`${subCat.name}: ${e.target.value.trim()}`);
                               }
@@ -323,7 +323,7 @@ export default function CreateManagerEvaluation() {
                         const comments = categories[index].comments || '';
                         // Extract general comments (lines that don't start with sub-category names)
                         const lines = comments.split('\n');
-                        const generalLines = lines.filter(line => {
+                        const generalLines = lines.filter((line: string) => {
                           return !template.subCategories?.some(sub => line.startsWith(`${sub.name}:`));
                         });
                         return generalLines.join('\n');
@@ -332,7 +332,7 @@ export default function CreateManagerEvaluation() {
                         const currentComments = categories[index].comments || '';
                         const lines = currentComments.split('\n');
                         // Keep only sub-category lines
-                        const subCatLines = lines.filter(line =>
+                        const subCatLines = lines.filter((line: string) =>
                           template.subCategories?.some(sub => line.startsWith(`${sub.name}:`))
                         );
                         // Add general comments

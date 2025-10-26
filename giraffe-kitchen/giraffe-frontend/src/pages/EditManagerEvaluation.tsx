@@ -64,10 +64,13 @@ export default function EditManagerEvaluation() {
       setGeneralComments(evaluation.general_comments || '');
 
       // Load categories
-      setCategories(evaluation.categories.map(cat => ({
+      setCategories(evaluation.categories.map((cat: any) => ({
         category_name: cat.category_name,
         rating: cat.rating,
         comments: cat.comments,
+        notes: cat.notes,
+        strengths: cat.strengths,
+        areas_for_improvement: cat.areas_for_improvement,
       })));
     } catch (err: any) {
       console.error('Failed to load evaluation:', err);
@@ -297,7 +300,7 @@ export default function EditManagerEvaluation() {
                             })()}
                             onChange={(e) => {
                               const currentComments = categories[index]?.comments || '';
-                              const lines = currentComments.split('\n').filter(line => !line.startsWith(`${subCat.name}:`));
+                              const lines = currentComments.split('\n').filter((line: string) => !line.startsWith(`${subCat.name}:`));
                               if (e.target.value.trim()) {
                                 lines.push(`${subCat.name}: ${e.target.value.trim()}`);
                               }
@@ -321,7 +324,7 @@ export default function EditManagerEvaluation() {
                       value={(() => {
                         const comments = categories[index]?.comments || '';
                         const lines = comments.split('\n');
-                        const generalLines = lines.filter(line => {
+                        const generalLines = lines.filter((line: string) => {
                           return !template.subCategories?.some(sub => line.startsWith(`${sub.name}:`));
                         });
                         return generalLines.join('\n');
@@ -329,7 +332,7 @@ export default function EditManagerEvaluation() {
                       onChange={(e) => {
                         const currentComments = categories[index]?.comments || '';
                         const lines = currentComments.split('\n');
-                        const subCatLines = lines.filter(line =>
+                        const subCatLines = lines.filter((line: string) =>
                           template.subCategories?.some(sub => line.startsWith(`${sub.name}:`))
                         );
                         if (e.target.value.trim()) {
