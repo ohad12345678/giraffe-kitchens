@@ -79,8 +79,15 @@ export default function Layout({ children }: LayoutProps) {
   // Filter nav items based on user role
   const filteredNavItems = navItems.filter((item) => {
     if (!item.roles) return true;
-    if (user?.username === 'ohadb') return true;
-    return item.roles.includes(user?.location || '');
+
+    // Admin access (ohadb)
+    if (user?.email === 'ohadb@giraffe.co.il') return true;
+
+    // Check role-based access
+    if (item.roles.includes('admin') && user?.email !== 'ohadb@giraffe.co.il') return false;
+    if (item.roles.includes('headquarters') && user?.role !== 'hq') return false;
+
+    return true;
   });
 
   const handleLogout = () => {
