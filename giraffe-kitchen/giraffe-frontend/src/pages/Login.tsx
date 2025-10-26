@@ -131,37 +131,6 @@ export default function Login() {
                 )}
               </motion.button>
             </form>
-
-            {/* Demo Credentials */}
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <p className="text-xs text-gray-500 text-center mb-3">
-                חשבונות לדוגמה
-              </p>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('headquarters');
-                    setPassword('admin123');
-                  }}
-                  className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-gray-700 transition-colors"
-                >
-                  <div className="font-medium">מטה</div>
-                  <div className="text-gray-500">headquarters</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('haifa_user');
-                    setPassword('haifa123');
-                  }}
-                  className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-gray-700 transition-colors"
-                >
-                  <div className="font-medium">חיפה</div>
-                  <div className="text-gray-500">haifa_user</div>
-                </button>
-              </div>
-            </div>
           </motion.div>
 
           {/* Footer */}
