@@ -70,7 +70,7 @@ export default function NewCheck() {
         dish_id: parseInt(selectedDish),
         chef_id: parseInt(selectedChef),
         rating,
-        comments: notes || null,
+        notes: notes || null,
       });
 
       alert('הבדיקה נשמרה בהצלחה!');
