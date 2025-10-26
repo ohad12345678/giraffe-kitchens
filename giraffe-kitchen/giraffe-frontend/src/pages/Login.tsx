@@ -183,29 +183,36 @@ export default function Login() {
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
-          className="relative z-10 text-white text-center max-w-lg"
+          className="relative z-10 text-white max-w-lg px-8"
         >
-          {/* GIRAFFE Logo */}
+          {/* GIRAFFE Logo - Improved */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="mb-8"
+            className="mb-12 text-center"
           >
-            <h2 className="text-7xl font-bold mb-4 tracking-wider" style={{ fontWeight: '300' }}>
+            <h2
+              className="text-8xl mb-6"
+              style={{
+                fontWeight: '200',
+                letterSpacing: '0.15em',
+                fontFamily: 'system-ui, -apple-system, sans-serif'
+              }}
+            >
               GIRAFFE
             </h2>
-            <div className="w-32 h-1 bg-white mx-auto mb-6"></div>
-            <h3 className="text-2xl font-semibold mb-2">
+            <div className="w-40 h-0.5 bg-white mx-auto mb-8"></div>
+            <h3 className="text-2xl font-light mb-3 tracking-wide">
               ניהול איכות חכם
             </h3>
-            <p className="text-lg text-white/80">
+            <p className="text-base text-white/70 leading-relaxed">
               מעקב בזמן אמת אחר בדיקות איכות, תברואה והדרכות
             </p>
           </motion.div>
 
-          {/* Features */}
-          <div className="space-y-4 text-right">
+          {/* Features - Right to Left */}
+          <div className="space-y-4">
             {[
               'בדיקות איכות מנות',
               'ביקורות תברואה',
@@ -214,26 +221,16 @@ export default function Login() {
             ].map((feature, i) => (
               <motion.div
                 key={feature}
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.5 + i * 0.1 }}
-                className="flex items-center gap-3 text-white/90 justify-end"
+                className="flex items-center gap-3 text-white/90"
               >
-                <span className="text-lg">{feature}</span>
-                <div className="w-2 h-2 rounded-full bg-white" />
+                <div className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
+                <span className="text-lg font-light">{feature}</span>
               </motion.div>
             ))}
           </div>
-
-          {/* Giraffe Emoji */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9 }}
-            className="text-6xl mt-12"
-          >
-            🦒
-          </motion.div>
         </motion.div>
       </div>
     </div>
