@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MapPin, Utensils, ChefHat, MessageSquare, ArrowRight } from 'lucide-react';
 import api from '../services/api';
-import { notify } from '../components/ToastProvider';
 
 interface Location {
   id: number;
@@ -42,15 +41,16 @@ export default function NewCheck() {
   const fetchData = async () => {
     try {
       const [locationsRes, dishesRes, chefsRes] = await Promise.all([
-        api.get('/locations'),
-        api.get('/dishes'),
-        api.get('/chefs'),
+        api.get('/api/v1/branches/'),
+        api.get('/api/v1/dishes/'),
+        api.get('/api/v1/chefs/'),
       ]);
       setLocations(locationsRes.data);
       setDishes(dishesRes.data);
       setChefs(chefsRes.data);
     } catch (error) {
-      notify.error('שגיאה בטעינת הנתונים');
+      alert('שגיאה בטעינת הנתונים');
+      console.error('Error fetching data:', error);
     }
   };
 
@@ -58,25 +58,26 @@ export default function NewCheck() {
     e.preventDefault();
 
     if (!selectedLocation || !selectedDish || !selectedChef) {
-      notify.error('נא למלא את כל השדות');
+      alert('נא למלא את כל השדות');
       return;
     }
 
     setLoading(true);
 
     try {
-      await api.post('/dish-checks', {
-        location_id: selectedLocation,
-        dish_id: selectedDish,
-        chef_id: selectedChef,
+      await api.post('/api/v1/checks/', {
+        branch_id: parseInt(selectedLocation),
+        dish_id: parseInt(selectedDish),
+        chef_id: parseInt(selectedChef),
         rating,
         notes: notes || null,
       });
 
-      notify.success('הבדיקה נשמרה בהצלחה!');
-      setTimeout(() => navigate('/dashboard'), 1500);
+      alert('הבדיקה נשמרה בהצלחה!');
+      setTimeout(() => navigate('/dashboard'), 500);
     } catch (error: any) {
-      notify.error(error.response?.data?.detail || 'שגיאה בשמירת הבדיקה');
+      alert(error.response?.data?.detail || 'שגיאה בשמירת הבדיקה');
+      console.error('Error submitting check:', error);
     } finally {
       setLoading(false);
     }
@@ -129,6 +130,7 @@ export default function NewCheck() {
                 onChange={(e) => setSelectedLocation(e.target.value)}
                 className="w-full pr-11 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition-all text-right appearance-none bg-white"
                 required
+                disabled={loading}
               >
                 <option value="">בחר סניף...</option>
                 {locations.map((loc) => (
@@ -152,6 +154,7 @@ export default function NewCheck() {
                 onChange={(e) => setSelectedDish(e.target.value)}
                 className="w-full pr-11 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition-all text-right appearance-none bg-white"
                 required
+                disabled={loading}
               >
                 <option value="">בחר מנה...</option>
                 {dishes.map((dish) => (
@@ -175,6 +178,7 @@ export default function NewCheck() {
                 onChange={(e) => setSelectedChef(e.target.value)}
                 className="w-full pr-11 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition-all text-right appearance-none bg-white"
                 required
+                disabled={loading}
               >
                 <option value="">בחר טבאח...</option>
                 {chefs.map((chef) => (
@@ -241,6 +245,7 @@ export default function NewCheck() {
                 rows={4}
                 className="w-full pr-11 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition-all text-right resize-none"
                 placeholder="הוסף הערות לגבי המנה, איכות, טעם, מראה וכו..."
+                disabled={loading}
               />
             </div>
             <p className="mt-2 text-xs text-gray-500 text-left">
