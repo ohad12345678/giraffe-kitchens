@@ -31,6 +31,9 @@ export default function CreateManagerEvaluation() {
       category_name: cat.category_name,
       rating: cat.defaultRating,
       comments: null,
+      notes: null,
+      strengths: null,
+      areas_for_improvement: null,
     }))
   );
 
@@ -95,7 +98,11 @@ export default function CreateManagerEvaluation() {
     const evaluationData: CreateManagerEvaluation = {
       branch_id: selectedBranchId,
       manager_name: managerName.trim(),
+      evaluator_name: user?.full_name || user?.email || 'Unknown',
       evaluation_date: `${evaluationDate}T00:00:00`,
+      summary: null,
+      action_items: null,
+      next_review_date: null,
       general_comments: generalComments.trim() || null,
       categories: categories,
     };

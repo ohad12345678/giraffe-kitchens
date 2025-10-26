@@ -212,8 +212,10 @@ export interface ManagerEvaluation {
   evaluation_date: string;
   overall_score: number | null;
   summary: string | null;
+  ai_summary?: string | null; // AI-generated summary
   action_items: string | null;
   next_review_date: string | null;
+  general_comments?: string | null; // Added for UI
   status: string;
   created_at: string;
   updated_at: string;
@@ -230,6 +232,7 @@ export interface ManagerEvaluationSummary {
   overall_score: number | null;
   status: string;
   created_at: string;
+  created_by_name?: string; // Added for UI
 }
 
 export interface CreateManagerEvaluation {
