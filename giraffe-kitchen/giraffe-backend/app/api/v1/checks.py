@@ -266,7 +266,8 @@ def get_analytics(
         base_query = base_query.filter(DishCheck.dish_id == dish_id)
 
     # Cache check IDs to avoid multiple query executions
-    check_ids = [id_tuple[0] for id_tuple in base_query.with_entities(DishCheck.id).all()]
+    all_checks = base_query.all()
+    check_ids = [c.id for c in all_checks] if all_checks else []
 
     # 1. KPIs
     total_checks = len(check_ids)

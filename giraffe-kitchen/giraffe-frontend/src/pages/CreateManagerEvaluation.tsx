@@ -31,6 +31,9 @@ export default function CreateManagerEvaluation() {
       category_name: cat.category_name,
       rating: cat.defaultRating,
       comments: null,
+      notes: null,
+      strengths: null,
+      areas_for_improvement: null,
     }))
   );
 
@@ -95,7 +98,11 @@ export default function CreateManagerEvaluation() {
     const evaluationData: CreateManagerEvaluation = {
       branch_id: selectedBranchId,
       manager_name: managerName.trim(),
+      evaluator_name: user?.full_name || user?.email || 'Unknown',
       evaluation_date: `${evaluationDate}T00:00:00`,
+      summary: null,
+      action_items: null,
+      next_review_date: null,
       general_comments: generalComments.trim() || null,
       categories: categories,
     };
@@ -298,7 +305,7 @@ export default function CreateManagerEvaluation() {
                             })()}
                             onChange={(e) => {
                               const currentComments = categories[index].comments || '';
-                              const lines = currentComments.split('\n').filter(line => !line.startsWith(`${subCat.name}:`));
+                              const lines = currentComments.split('\n').filter((line: string) => !line.startsWith(`${subCat.name}:`));
                               if (e.target.value.trim()) {
                                 lines.push(`${subCat.name}: ${e.target.value.trim()}`);
                               }
@@ -323,7 +330,7 @@ export default function CreateManagerEvaluation() {
                         const comments = categories[index].comments || '';
                         // Extract general comments (lines that don't start with sub-category names)
                         const lines = comments.split('\n');
-                        const generalLines = lines.filter(line => {
+                        const generalLines = lines.filter((line: string) => {
                           return !template.subCategories?.some(sub => line.startsWith(`${sub.name}:`));
                         });
                         return generalLines.join('\n');
@@ -332,7 +339,7 @@ export default function CreateManagerEvaluation() {
                         const currentComments = categories[index].comments || '';
                         const lines = currentComments.split('\n');
                         // Keep only sub-category lines
-                        const subCatLines = lines.filter(line =>
+                        const subCatLines = lines.filter((line: string) =>
                           template.subCategories?.some(sub => line.startsWith(`${sub.name}:`))
                         );
                         // Add general comments

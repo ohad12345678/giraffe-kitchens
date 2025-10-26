@@ -202,7 +202,7 @@ export default function ViewManagerEvaluation() {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">קטגוריות הערכה</h2>
               <div className="space-y-4">
-                {evaluation.categories.map((category) => (
+                {evaluation.categories.map((category: any) => (
                   <div key={category.id} className="border-b border-gray-200 pb-4 last:border-b-0">
                     <div className="flex justify-between items-center mb-2">
                       <h3 className="text-lg font-medium text-gray-900">{category.category_name}</h3>

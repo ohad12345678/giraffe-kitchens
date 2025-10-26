@@ -2,6 +2,8 @@ export interface User {
   id: number;
   email: string;
   full_name: string;
+  username?: string; // Added for Layout component
+  location?: string; // Added for Layout component
   role: 'hq' | 'branch_manager';
   branch_id: number | null;
   created_at: string;
@@ -192,27 +194,31 @@ export interface NetworkAuditStats {
 }
 
 // Manager Evaluations
-export type EvaluationStatus = 'draft' | 'completed' | 'reviewed';
-
 export interface ManagerEvaluationCategory {
   id?: number;
   category_name: string;
   rating: number;
-  comments: string | null;
+  comments?: string | null; // Added for compatibility with UI
+  notes: string | null;
+  strengths: string | null;
+  areas_for_improvement: string | null;
 }
 
 export interface ManagerEvaluation {
   id: number;
   branch_id: number;
-  created_by: number;
   manager_name: string;
+  evaluator_name: string;
   evaluation_date: string;
   overall_score: number | null;
-  status: EvaluationStatus;
-  general_comments: string | null;
-  ai_summary: string | null;
+  summary: string | null;
+  ai_summary?: string | null; // AI-generated summary
+  action_items: string | null;
+  next_review_date: string | null;
+  general_comments?: string | null; // Added for UI
+  status: string;
   created_at: string;
-  updated_at: string | null;
+  updated_at: string;
   categories: ManagerEvaluationCategory[];
 }
 
@@ -221,17 +227,22 @@ export interface ManagerEvaluationSummary {
   branch_id: number;
   branch_name: string;
   manager_name: string;
+  evaluator_name: string;
   evaluation_date: string;
   overall_score: number | null;
-  status: EvaluationStatus;
-  created_by_name: string;
+  status: string;
   created_at: string;
+  created_by_name?: string; // Added for UI
 }
 
 export interface CreateManagerEvaluation {
   branch_id: number;
   manager_name: string;
+  evaluator_name: string;
   evaluation_date: string;
-  general_comments: string | null;
+  summary: string | null;
+  action_items: string | null;
+  next_review_date: string | null;
+  general_comments?: string | null; // Added for UI
   categories: Omit<ManagerEvaluationCategory, 'id'>[];
 }
