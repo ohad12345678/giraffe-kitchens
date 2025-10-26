@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import Layout from './components/Layout';
+import ToastProvider from './components/ToastProvider';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import NewCheck from './pages/NewCheck';
@@ -20,120 +22,35 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        {/* Decorative background blobs */}
-        <div className="decorative-blob decorative-blob-1"></div>
-        <div className="decorative-blob decorative-blob-2"></div>
-
-        <div className="relative z-10">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/new-check"
-              element={
-                <ProtectedRoute>
-                  <NewCheck />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/reports"
-              element={
-                <ProtectedRoute>
-                  <Reports />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tasks"
-              element={
-                <ProtectedRoute>
-                  <Tasks />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/sanitation-audits"
-              element={
-                <ProtectedRoute>
-                  <SanitationAudits />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/sanitation-audits/new"
-              element={
-                <ProtectedRoute>
-                  <NewSanitationAudit />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/sanitation-audits/:id/summary"
-              element={
-                <ProtectedRoute>
-                  <AuditSummary />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/sanitation-audits/:id"
-              element={
-                <ProtectedRoute>
-                  <ViewSanitationAudit />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <Admin />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/manager-evaluations"
-              element={
-                <ProtectedRoute>
-                  <ManagerEvaluations />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/manager-evaluations/new"
-              element={
-                <ProtectedRoute>
-                  <CreateManagerEvaluation />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/manager-evaluations/:id/edit"
-              element={
-                <ProtectedRoute>
-                  <EditManagerEvaluation />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/manager-evaluations/:id"
-              element={
-                <ProtectedRoute>
-                  <ViewManagerEvaluation />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </div>
+        <ToastProvider />
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Routes>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/new-check" element={<NewCheck />} />
+                    <Route path="/reports" element={<Reports />} />
+                    <Route path="/tasks" element={<Tasks />} />
+                    <Route path="/sanitation-audits" element={<SanitationAudits />} />
+                    <Route path="/sanitation-audits/new" element={<NewSanitationAudit />} />
+                    <Route path="/sanitation-audits/:id/summary" element={<AuditSummary />} />
+                    <Route path="/sanitation-audits/:id" element={<ViewSanitationAudit />} />
+                    <Route path="/admin" element={<Admin />} />
+                    <Route path="/manager-evaluations" element={<ManagerEvaluations />} />
+                    <Route path="/manager-evaluations/new" element={<CreateManagerEvaluation />} />
+                    <Route path="/manager-evaluations/:id/edit" element={<EditManagerEvaluation />} />
+                    <Route path="/manager-evaluations/:id" element={<ViewManagerEvaluation />} />
+                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  </Routes>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
       </BrowserRouter>
     </AuthProvider>
   );
