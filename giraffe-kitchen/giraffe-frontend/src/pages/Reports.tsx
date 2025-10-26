@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../contexts/AuthContext';
 import { aiAPI, checkAPI, branchAPI, dishAPI } from '../services/api';
 import { ArrowRight, TrendingUp, TrendingDown, AlertCircle, MessageSquare } from 'lucide-react';
@@ -414,6 +415,54 @@ const Reports: React.FC = () => {
                 )}
               </motion.div>
             </div>
+
+            {/* Trend Graph */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.5 }}
+              className="bg-white rounded-xl border border-gray-200 p-6 shadow-md hover:shadow-lg transition-shadow mb-8"
+            >
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">מגמת איכות לאורך זמן</h2>
+              {analytics.daily_trend.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={analytics.daily_trend.map((day: any) => ({
+                    date: new Date(day.date).toLocaleDateString('he-IL', { month: 'numeric', day: 'numeric' }),
+                    rating: parseFloat(day.avg_rating)
+                  }))}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis
+                      dataKey="date"
+                      stroke="#6b7280"
+                      style={{ fontSize: '12px' }}
+                    />
+                    <YAxis
+                      stroke="#6b7280"
+                      domain={[0, 10]}
+                      style={{ fontSize: '12px' }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#fff',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px'
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="rating"
+                      stroke="#f97316"
+                      strokeWidth={3}
+                      dot={{ fill: '#f97316', r: 5 }}
+                      activeDot={{ r: 7 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-gray-500 text-center py-8">אין נתונים לתקופה זו</p>
+              )}
+            </motion.div>
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
