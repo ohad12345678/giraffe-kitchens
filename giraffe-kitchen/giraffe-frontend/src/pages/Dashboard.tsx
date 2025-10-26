@@ -1,17 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import {
   TrendingUp,
   TrendingDown,
-  ArrowRight,
-  CheckCircle2,
   BarChart3,
-  Sparkles,
-  Calendar,
-  Users,
-  Settings
+  Sparkles
 } from 'lucide-react';
 import { checkAPI, sanitationAuditAPI } from '../services/api';
 
@@ -92,46 +85,7 @@ function LinearStatCard({
   );
 }
 
-// Linear-style Action Card
-function LinearActionCard({
-  title,
-  description,
-  icon: Icon,
-  onClick
-}: {
-  title: string;
-  description: string;
-  icon: any;
-  onClick: () => void;
-}) {
-  return (
-    <LinearCard hover>
-      <button
-        onClick={onClick}
-        className="w-full text-right group"
-      >
-        <div className="flex items-start gap-4">
-          <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 group-hover:bg-[#f97316] group-hover:text-white transition-colors">
-            <Icon className="w-5 h-5" />
-          </div>
-
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-[#f97316] transition-colors">
-              {title}
-            </h3>
-            <p className="text-sm text-gray-600">{description}</p>
-          </div>
-
-          <ArrowRight className="w-5 h-5 text-gray-400 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-        </div>
-      </button>
-    </LinearCard>
-  );
-}
-
 export default function Dashboard() {
-  const navigate = useNavigate();
-  const { user, isHQ } = useAuth();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -270,60 +224,6 @@ export default function Dashboard() {
         </LinearCard>
       </div>
 
-      {/* Quick Actions */}
-      <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">פעולות מהירות</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <LinearActionCard
-            title="בדיקה חדשה"
-            description="הוסף בדיקת איכות למנה"
-            icon={CheckCircle2}
-            onClick={() => navigate('/new-check')}
-          />
-
-          <LinearActionCard
-            title="דוחות"
-            description="צפה בניתוחים וסטטיסטיקות"
-            icon={BarChart3}
-            onClick={() => navigate('/reports')}
-          />
-
-          <LinearActionCard
-            title="ביקורת תברואה"
-            description="צור ביקורת חדשה"
-            icon={Sparkles}
-            onClick={() => navigate('/sanitation-audits/new')}
-          />
-
-          {isHQ && (
-            <LinearActionCard
-              title="משימות"
-              description="נהל משימות יומיות"
-              icon={Calendar}
-              onClick={() => navigate('/tasks')}
-            />
-          )}
-
-          {isHQ && (
-            <LinearActionCard
-              title="הערכות מנהלים"
-              description="צפה והוסף הערכות"
-              icon={Users}
-              onClick={() => navigate('/manager-evaluations')}
-            />
-          )}
-
-          {user?.email === 'ohadb@giraffe.co.il' && (
-            <LinearActionCard
-              title="ניהול"
-              description="הגדרות מערכת"
-              icon={Settings}
-              onClick={() => navigate('/admin')}
-            />
-          )}
-        </div>
-      </div>
     </div>
   );
 }
