@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../contexts/AuthContext';
 import { aiAPI, checkAPI, branchAPI, dishAPI } from '../services/api';
 import { ArrowRight, TrendingUp, TrendingDown, AlertCircle, MessageSquare } from 'lucide-react';
@@ -285,20 +286,20 @@ const Reports: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto p-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">דוחות וניתוחים</h1>
-          <p className="text-gray-600">ניתוח מעמיק של בדיקות האיכות במערכת</p>
+          <h1 className="text-3xl font-semibold text-gray-900 mb-2">דוחות וניתוחים</h1>
+          <p className="text-base text-gray-600">ניתוח מעמיק של בדיקות האיכות במערכת</p>
         </div>
 
         {/* Filters */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">סינון נתונים</h2>
+            <h2 className="text-base font-medium text-gray-900">סינון נתונים</h2>
             {isAdmin && (
               <button
                 onClick={() => setShowDeleteModal(true)}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium"
               >
                 מחיקת נתונים
               </button>
@@ -310,7 +311,7 @@ const Reports: React.FC = () => {
               <select
                 value={dateRange}
                 onChange={(e) => setDateRange(e.target.value)}
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="block w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-1 focus:ring-[#f97316]"
               >
                 <option value="today">היום</option>
                 <option value="week">שבוע אחרון</option>
@@ -325,7 +326,7 @@ const Reports: React.FC = () => {
                 <select
                   value={selectedBranch || ''}
                   onChange={(e) => setSelectedBranch(e.target.value ? Number(e.target.value) : null)}
-                  className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="block w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-1 focus:ring-[#f97316]"
                 >
                   <option value="">כל הסניפים</option>
                   {branches.map((branch) => (
@@ -342,7 +343,7 @@ const Reports: React.FC = () => {
               <select
                 value={selectedDish || ''}
                 onChange={(e) => setSelectedDish(e.target.value ? Number(e.target.value) : null)}
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="block w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-1 focus:ring-[#f97316]"
               >
                 <option value="">כל המנות</option>
                 {Array.isArray(dishes) && dishes.map((dish) => (
@@ -365,39 +366,82 @@ const Reports: React.FC = () => {
           </div>
         ) : analytics ? (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                <p className="text-sm font-medium text-gray-600 mb-1">סך הבדיקות</p>
-                <p className="text-3xl font-bold text-gray-900">{analytics.kpis.total_checks}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <p className="text-xs font-medium text-gray-500 mb-1">סך הבדיקות</p>
+                <p className="text-3xl font-semibold text-gray-900 mb-0.5">{analytics.kpis.total_checks}</p>
               </div>
 
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                <p className="text-sm font-medium text-gray-600 mb-1">ממוצע ציונים</p>
-                <p className="text-3xl font-bold text-green-600">{analytics.kpis.average_rating}</p>
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <p className="text-xs font-medium text-gray-500 mb-1">ממוצע ציונים</p>
+                <p className="text-3xl font-semibold text-gray-900 mb-0.5">{analytics.kpis.average_rating}</p>
               </div>
 
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                <p className="text-sm font-medium text-gray-600 mb-1">מנות בעייתיות</p>
-                <p className="text-3xl font-bold text-red-600">{analytics.kpis.weak_dishes}</p>
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <p className="text-xs font-medium text-gray-500 mb-1">מנות בעייתיות</p>
+                <p className="text-3xl font-semibold text-gray-900 mb-0.5">{analytics.kpis.weak_dishes}</p>
               </div>
 
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                <p className="text-sm font-medium text-gray-600 mb-1">טבח מוביל</p>
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <p className="text-xs font-medium text-gray-500 mb-1">טבח מוביל</p>
                 {analytics.kpis.top_chef ? (
                   <>
-                    <p className="text-xl font-bold text-gray-900">{analytics.kpis.top_chef}</p>
-                    <p className="text-sm text-green-600">ציון: {analytics.kpis.top_chef_rating}</p>
+                    <p className="text-3xl font-semibold text-gray-900 mb-0.5">{analytics.kpis.top_chef}</p>
+                    <p className="text-xs text-gray-500">ציון: {analytics.kpis.top_chef_rating}</p>
                   </>
                 ) : (
-                  <p className="text-lg text-gray-400">אין נתונים</p>
+                  <p className="text-xl text-gray-400">אין נתונים</p>
                 )}
               </div>
             </div>
 
+            {/* Trend Graph */}
+            <div className="bg-white rounded-xl border border-gray-200 p-5 mb-8">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">מגמת איכות לאורך זמן</h2>
+              {analytics.daily_trend.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={analytics.daily_trend.map((day: any) => ({
+                    date: new Date(day.date).toLocaleDateString('he-IL', { month: 'numeric', day: 'numeric' }),
+                    rating: parseFloat(day.avg_rating)
+                  }))}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis
+                      dataKey="date"
+                      stroke="#6b7280"
+                      style={{ fontSize: '12px' }}
+                    />
+                    <YAxis
+                      stroke="#6b7280"
+                      domain={[0, 10]}
+                      style={{ fontSize: '12px' }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#fff',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px'
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="rating"
+                      stroke="#f97316"
+                      strokeWidth={2}
+                      dot={{ fill: '#f97316', r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-gray-500 text-center py-8">אין נתונים לתקופה זו</p>
+              )}
+            </div>
+
             {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
               {/* Daily Trend */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">מגמת בדיקות לפי תאריך</h3>
                 <div className="space-y-3">
                   {analytics.daily_trend.length > 0 ? (
@@ -410,7 +454,7 @@ const Reports: React.FC = () => {
                           </div>
                           <div className="flex-1 bg-gray-100 rounded-full h-8 relative overflow-hidden">
                             <div
-                              className="bg-primary-500 h-full flex items-center justify-end px-3 text-white text-xs font-medium transition-all"
+                              className="bg-[#f97316] h-full flex items-center justify-end px-3 text-white text-xs font-medium"
                               style={{ width: `${(day.checks / maxChecks) * 100}%`, minWidth: day.checks > 0 ? '60px' : '0' }}
                             >
                               {day.checks > 0 && `${day.checks} בדיקות`}
@@ -427,12 +471,13 @@ const Reports: React.FC = () => {
               </div>
 
               {/* Dish Ratings */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">דירוג מנות</h3>
                 <div className="space-y-3">
                   {analytics.dish_ratings.length > 0 ? (
                     analytics.dish_ratings.slice(0, 8).map((dish: any) => (
-                      <div key={dish.dish_id} className="flex items-center justify-between">
+                      <div key={dish.dish_id} className="flex items-center justify-between py-2.5 border-b border-gray-100 last:border-0">
                         <div className="flex items-center gap-3 flex-1">
                           <span className="text-sm text-gray-700">{dish.name}</span>
                           {dish.category && <span className="text-xs text-gray-500">({dish.category})</span>}
@@ -454,26 +499,27 @@ const Reports: React.FC = () => {
             </div>
 
             {/* Chef Performance */}
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-5 mb-8">
+
               <h3 className="text-lg font-semibold text-gray-900 mb-4">ביצועי טבחים</h3>
               <div className="overflow-x-auto">
                 {analytics.chef_performance.length > 0 ? (
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">שם טבח</th>
-                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">סניף</th>
-                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">מספר בדיקות</th>
-                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">ציון ממוצע</th>
-                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-600">סטטוס</th>
+                      <tr className="bg-transparent border-b border-gray-200">
+                        <th className="text-right py-3 px-4 text-xs font-medium text-gray-500">שם טבח</th>
+                        <th className="text-right py-3 px-4 text-xs font-medium text-gray-500">סניף</th>
+                        <th className="text-right py-3 px-4 text-xs font-medium text-gray-500">מספר בדיקות</th>
+                        <th className="text-right py-3 px-4 text-xs font-medium text-gray-500">ציון ממוצע</th>
+                        <th className="text-right py-3 px-4 text-xs font-medium text-gray-500">סטטוס</th>
                       </tr>
                     </thead>
                     <tbody>
                       {analytics.chef_performance.map((chef: any) => (
-                        <tr key={chef.chef_id} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="py-3 px-4 font-medium text-gray-900">{chef.name}</td>
-                          <td className="py-3 px-4 text-gray-600">{chef.branch}</td>
-                          <td className="py-3 px-4 text-gray-600">{chef.checks_count}</td>
+                        <tr key={chef.chef_id} className="border-b border-gray-100">
+                          <td className="py-3 px-4 text-sm text-gray-600">{chef.name}</td>
+                          <td className="py-3 px-4 text-sm text-gray-600">{chef.branch}</td>
+                          <td className="py-3 px-4 text-sm text-gray-600">{chef.checks_count}</td>
                           <td className="py-3 px-4">
                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRatingColor(chef.rating)}`}>
                               {chef.rating}

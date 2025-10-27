@@ -159,14 +159,14 @@ export default function ManagerEvaluations() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-6">
+      <main className="max-w-7xl mx-auto p-6">
+        <div className="space-y-8">
           {/* Header */}
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-900">הערכות מנהלים</h1>
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-semibold text-gray-900">הערכות מנהלים</h1>
             <button
               onClick={() => navigate('/manager-evaluations/new')}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+              className="flex items-center gap-2 bg-[#f97316] hover:bg-[#ea580c] text-white px-6 py-3 rounded-lg font-medium shadow-sm transition-all"
             >
               <Plus className="h-5 w-5" />
               הערכה חדשה
@@ -175,101 +175,103 @@ export default function ManagerEvaluations() {
 
           {/* Stats Summary */}
           {evaluations.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-white p-4 rounded-lg shadow">
-                <div className="text-sm text-gray-500">סה"כ הערכות</div>
-                <div className="text-2xl font-bold">{evaluations.length}</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div className="text-sm font-medium text-gray-600 mb-2">סה"כ הערכות</div>
+                <div className="text-4xl font-semibold text-gray-900 mb-1">{evaluations.length}</div>
+                <div className="text-sm text-gray-500">הערכות מנהלים</div>
               </div>
-              <div className="bg-white p-4 rounded-lg shadow">
-                <div className="text-sm text-gray-500">סניפים</div>
-                <div className="text-2xl font-bold">
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div className="text-sm font-medium text-gray-600 mb-2">סניפים</div>
+                <div className="text-4xl font-semibold text-gray-900 mb-1">
                   {new Set(evaluations.map(e => e.branch_id)).size}
                 </div>
+                <div className="text-sm text-gray-500">סניפים פעילים</div>
               </div>
             </div>
           )}
 
           {/* Evaluations List */}
           {evaluations.length === 0 ? (
-            <div className="bg-white rounded-lg shadow p-12 text-center">
-              <p className="text-gray-500 text-lg mb-4">אין הערכות עדיין</p>
+            <div className="bg-white rounded-xl border border-gray-200 p-12 shadow-sm text-center">
+              <p className="text-gray-500 text-lg mb-6">אין הערכות עדיין</p>
               <button
                 onClick={() => navigate('/manager-evaluations/new')}
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                className="inline-flex items-center gap-2 bg-[#f97316] hover:bg-[#ea580c] text-white px-8 py-4 rounded-lg font-medium shadow-sm transition-all"
               >
                 <Plus className="h-5 w-5" />
                 צור הערכה ראשונה
               </button>
             </div>
           ) : (
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50 border-b-2 border-gray-200">
+                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
                         מנהל
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
                         סניף
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
                         תאריך הערכה
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
                         ציון
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
                         סטטוס
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
                         מעריך
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
                         פעולות
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody>
                     {evaluations.map((evaluation) => (
                       <tr
                         key={evaluation.id}
-                        className="hover:bg-gray-50 cursor-pointer transition-colors"
+                        className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-all"
                         onClick={() => navigate(`/manager-evaluations/${evaluation.id}`)}
                       >
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 py-4">
                           <div className="text-sm font-medium text-gray-900">
                             {evaluation.manager_name}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">{evaluation.branch_name}</div>
+                        <td className="px-4 py-4">
+                          <div className="text-sm text-gray-700">{evaluation.branch_name}</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">
+                        <td className="px-4 py-4">
+                          <div className="text-sm text-gray-700">
                             {formatDate(evaluation.evaluation_date)}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 py-4">
                           <div className={`text-sm font-semibold ${getScoreColor(evaluation.overall_score)}`}>
                             {evaluation.overall_score !== null ? evaluation.overall_score.toFixed(2) : '-'}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 py-4">
                           {getStatusBadge(evaluation.status)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">
+                        <td className="px-4 py-4">
+                          <div className="text-sm text-gray-700">
                             {evaluation.created_by_name}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-4 py-4 text-sm">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate(`/manager-evaluations/${evaluation.id}`);
                             }}
-                            className="text-blue-600 hover:text-blue-900"
+                            className="text-[#f97316] hover:text-[#ea580c] font-medium transition-all"
                           >
                             צפה
                           </button>
