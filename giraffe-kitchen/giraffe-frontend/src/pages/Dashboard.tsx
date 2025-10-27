@@ -155,7 +155,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <LinearStatCard
           label="בדיקות השבוע"
           value={stats?.checksThisWeek || 0}
@@ -168,12 +168,6 @@ export default function Dashboard() {
           label="ציון ממוצע"
           value={avgRating}
           icon={TrendingUp}
-        />
-
-        <LinearStatCard
-          label="סניפים פעילים"
-          value={stats?.bestBranch ? '12' : '0'}
-          icon={Sparkles}
         />
       </div>
 
