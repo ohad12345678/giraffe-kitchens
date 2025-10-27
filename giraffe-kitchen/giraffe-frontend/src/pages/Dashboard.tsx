@@ -3,8 +3,7 @@ import { motion } from 'framer-motion';
 import {
   TrendingUp,
   TrendingDown,
-  BarChart3,
-  Sparkles
+  BarChart3
 } from 'lucide-react';
 import { checkAPI, sanitationAuditAPI } from '../services/api';
 
