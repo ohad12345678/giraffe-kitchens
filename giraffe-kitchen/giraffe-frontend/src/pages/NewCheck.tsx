@@ -139,13 +139,6 @@ const NewCheck: React.FC = () => {
     return 'מצוין';
   };
 
-  const getRatingColor = (value: number) => {
-    if (value <= 3) return 'bg-red-500';
-    if (value <= 5) return 'bg-orange-500';
-    if (value <= 7) return 'bg-yellow-500';
-    return 'bg-emerald-500';
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -155,37 +148,36 @@ const NewCheck: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 py-8">
-      <div className="max-w-2xl mx-auto px-4">
+    <div className="bg-white min-h-screen">
+      <div className="max-w-2xl mx-auto p-6">
         {/* Header */}
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#f97316] to-[#ea580c] bg-clip-text text-transparent mb-3">
+        <div className="mb-8">
+          <h1 className="text-3xl font-semibold text-gray-900 mb-2">
             בדיקת איכות מנה
           </h1>
-          <p className="text-lg text-gray-600">מלא את הפרטים הבאים כדי לתעד בדיקת איכות</p>
+          <p className="text-base text-gray-600">מלא את הפרטים הבאים כדי לתעד בדיקת איכות</p>
         </div>
 
         {/* Form Card */}
         <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white p-10 shadow-2xl shadow-orange-500/10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8"
         >
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Branch Selection (HQ only, Branch Managers see their branch auto-selected) */}
           {isHQ && (
-            <div className="relative group">
-              <label htmlFor="branch" className="block text-base font-semibold text-gray-700 mb-3">
+            <div>
+              <label htmlFor="branch" className="block text-sm font-medium text-gray-700 mb-2">
                 סניף <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <MapPin className="absolute right-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
+                <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <select
                   id="branch"
                   value={branchId || ''}
                   onChange={(e) => setBranchId(e.target.value ? Number(e.target.value) : null)}
-                  className="block w-full pr-14 pl-6 py-4 bg-white/50 border-2 border-gray-200 rounded-2xl focus:border-[#f97316] focus:shadow-lg focus:shadow-orange-500/20 transition-all duration-300"
+                  className="block w-full pr-11 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition-all"
                   required
                 >
                   <option value="">בחר סניף...</option>
@@ -200,12 +192,12 @@ const NewCheck: React.FC = () => {
           )}
 
           {/* Dish Selection */}
-          <div className="relative group">
-            <label htmlFor="dish" className="block text-base font-semibold text-gray-700 mb-3">
+          <div>
+            <label htmlFor="dish" className="block text-sm font-medium text-gray-700 mb-2">
               מנה <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <Utensils className="absolute right-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
+              <Utensils className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <select
                 id="dish"
                 value={dishId}
@@ -215,7 +207,7 @@ const NewCheck: React.FC = () => {
                     setCustomDishName('');
                   }
                 }}
-                className="block w-full pr-14 pl-6 py-4 bg-white/50 border-2 border-gray-200 rounded-2xl focus:border-[#f97316] focus:shadow-lg focus:shadow-orange-500/20 transition-all duration-300"
+                className="block w-full pr-11 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition-all"
               >
                 <option value="">בחר מנה...</option>
                 {Array.isArray(dishes) && dishes.map((dish) => (
@@ -235,18 +227,18 @@ const NewCheck: React.FC = () => {
                 value={customDishName}
                 onChange={(e) => setCustomDishName(e.target.value)}
                 placeholder="הקלד שם מנה..."
-                className="mt-3 block w-full px-6 py-4 bg-white/50 border-2 border-gray-200 rounded-2xl focus:border-[#f97316] focus:shadow-lg focus:shadow-orange-500/20 transition-all duration-300"
+                className="mt-3 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition-all"
               />
             )}
           </div>
 
           {/* Chef Selection */}
-          <div className="relative group">
-            <label htmlFor="chef" className="block text-base font-semibold text-gray-700 mb-3">
-              טבאח <span className="text-red-500">*</span>
+          <div>
+            <label htmlFor="chef" className="block text-sm font-medium text-gray-700 mb-2">
+              טבח <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <ChefHat className="absolute right-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
+              <ChefHat className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <select
                 id="chef"
                 value={chefId}
@@ -256,7 +248,7 @@ const NewCheck: React.FC = () => {
                     setCustomChefName('');
                   }
                 }}
-                className="block w-full pr-14 pl-6 py-4 bg-white/50 border-2 border-gray-200 rounded-2xl focus:border-[#f97316] focus:shadow-lg focus:shadow-orange-500/20 transition-all duration-300"
+                className="block w-full pr-11 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition-all"
               >
                 <option value="">בחר טבח...</option>
                 {Array.isArray(chefs) && chefs.map((chef) => (
@@ -276,31 +268,20 @@ const NewCheck: React.FC = () => {
                 value={customChefName}
                 onChange={(e) => setCustomChefName(e.target.value)}
                 placeholder="הקלד שם טבח..."
-                className="mt-3 block w-full px-6 py-4 bg-white/50 border-2 border-gray-200 rounded-2xl focus:border-[#f97316] focus:shadow-lg focus:shadow-orange-500/20 transition-all duration-300"
+                className="mt-3 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition-all"
               />
             )}
           </div>
 
           {/* Rating Slider */}
           <div>
-            <label className="block text-base font-semibold text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               ציון <span className="text-red-500">*</span>
             </label>
 
-            <div className="bg-gradient-to-br from-orange-50 to-white rounded-2xl p-6 border-2 border-orange-100">
-              {/* Rating Display - Big Number */}
-              <div className="text-center mb-6">
-                <div className="text-6xl font-black bg-gradient-to-r from-[#f97316] to-[#ea580c] bg-clip-text text-transparent mb-2">
-                  {rating.toFixed(1)}
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <div className={`w-4 h-4 rounded-full ${getRatingColor(rating)}`} />
-                  <span className="text-base font-bold text-gray-700">{getRatingLabel(rating)}</span>
-                </div>
-              </div>
-
+            <div className="bg-gray-50 rounded-lg p-4">
               {/* Slider */}
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="relative">
                   <input
                     type="range"
@@ -311,13 +292,24 @@ const NewCheck: React.FC = () => {
                     onChange={(e) => setRating(parseFloat(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                     style={{
-                      background: `linear-gradient(to left, #f97316 0%, #f97316 ${rating * 10}%, #e5e7eb ${rating * 10}%, #e5e7eb 100%)`
+                      background: `linear-gradient(to left, #84cc16 0%, #84cc16 ${rating * 10}%, #e5e7eb ${rating * 10}%, #e5e7eb 100%)`
                     }}
                   />
                 </div>
 
+                {/* Rating Display */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-lime-500" />
+                    <span className="text-sm text-gray-600">{getRatingLabel(rating)}</span>
+                  </div>
+                  <div className="text-4xl font-semibold text-gray-900">
+                    {rating.toFixed(1)}
+                  </div>
+                </div>
+
                 {/* Scale markers */}
-                <div className="flex justify-between text-xs text-gray-500 font-medium">
+                <div className="flex justify-between text-xs text-gray-500">
                   <span>1</span>
                   <span>10</span>
                 </div>
@@ -326,44 +318,40 @@ const NewCheck: React.FC = () => {
           </div>
 
           {/* Comments */}
-          <div className="relative group">
-            <label htmlFor="comments" className="block text-base font-semibold text-gray-700 mb-3">
+          <div>
+            <label htmlFor="comments" className="block text-sm font-medium text-gray-700 mb-2">
               הערות (אופציונלי)
             </label>
             <div className="relative">
-              <MessageSquare className="absolute right-4 top-4 w-6 h-6 text-gray-400" />
+              <MessageSquare className="absolute right-3 top-3 w-5 h-5 text-gray-400" />
               <textarea
                 id="comments"
                 rows={4}
                 value={comments}
                 onChange={(e) => setComments(e.target.value)}
-                className="block w-full pr-14 pl-6 py-4 bg-white/50 border-2 border-gray-200 rounded-2xl min-h-32 focus:border-[#f97316] focus:shadow-lg focus:shadow-orange-500/20 transition-all duration-300 resize-none"
+                className="block w-full pr-11 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500 transition-all resize-none"
                 placeholder="הוסף הערות לגבי המנה, איכות, טעם, מראה וכו..."
               />
             </div>
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-4 pt-8">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+          <div className="flex gap-3 pt-4">
+            <button
               type="button"
               onClick={handleCancel}
-              className="flex-1 px-8 py-5 bg-white/50 backdrop-blur-sm border-2 border-gray-300 text-gray-700 rounded-2xl text-lg font-bold hover:bg-white hover:border-gray-400 transition-all duration-300"
+              className="flex-1 px-8 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-all"
             >
               ביטול
-            </motion.button>
+            </button>
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               type="submit"
-              className="flex-1 flex items-center justify-center gap-2 px-8 py-5 bg-gradient-to-r from-[#f97316] to-[#ea580c] text-white rounded-2xl text-lg font-bold shadow-2xl shadow-orange-500/50 hover:shadow-3xl transition-all duration-300"
+              className="flex-1 flex items-center justify-center gap-2 px-8 py-3 bg-lime-500 hover:bg-lime-600 text-white rounded-lg font-medium shadow-sm transition-all"
             >
               <span>שלח בדיקה</span>
               <ArrowRight className="w-5 h-5" />
-            </motion.button>
+            </button>
           </div>
         </form>
       </motion.div>
@@ -375,31 +363,31 @@ const NewCheck: React.FC = () => {
           width: 20px;
           height: 20px;
           border-radius: 50%;
-          background: #f97316;
+          background: #84cc16;
           cursor: pointer;
-          box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
+          box-shadow: 0 2px 8px rgba(132, 204, 22, 0.4);
           transition: all 0.2s;
         }
 
         .slider::-webkit-slider-thumb:hover {
-          transform: scale(1.2);
-          box-shadow: 0 4px 12px rgba(249, 115, 22, 0.6);
+          transform: scale(1.1);
+          box-shadow: 0 4px 12px rgba(132, 204, 22, 0.6);
         }
 
         .slider::-moz-range-thumb {
           width: 20px;
           height: 20px;
           border-radius: 50%;
-          background: #f97316;
+          background: #84cc16;
           cursor: pointer;
           border: none;
-          box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
+          box-shadow: 0 2px 8px rgba(132, 204, 22, 0.4);
           transition: all 0.2s;
         }
 
         .slider::-moz-range-thumb:hover {
-          transform: scale(1.2);
-          box-shadow: 0 4px 12px rgba(249, 115, 22, 0.6);
+          transform: scale(1.1);
+          box-shadow: 0 4px 12px rgba(132, 204, 22, 0.6);
         }
       `}</style>
       </div>
