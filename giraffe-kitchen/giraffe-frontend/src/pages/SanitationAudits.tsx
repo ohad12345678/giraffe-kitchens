@@ -36,12 +36,6 @@ export default function SanitationAudits() {
     }
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600';
-    if (score >= 80) return 'text-yellow-600';
-    return 'text-red-600';
-  };
-
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { text: string; color: string }> = {
       in_progress: { text: 'בתהליך', color: 'bg-blue-100 text-blue-800' },
@@ -125,15 +119,15 @@ export default function SanitationAudits() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-6">
+      <main className="max-w-7xl mx-auto p-6">
+        <div className="space-y-8">
           {/* Header */}
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-900">ביקורות תברואה</h1>
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-semibold text-gray-900">ביקורות תברואה</h1>
         {user?.role === 'hq' && (
           <button
             onClick={() => navigate('/sanitation-audits/new')}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+            className="bg-[#f97316] hover:bg-[#ea580c] text-white px-6 py-3 rounded-lg font-medium shadow-sm transition-all"
           >
             + ביקורת חדשה
           </button>
@@ -142,102 +136,107 @@ export default function SanitationAudits() {
 
       {/* Stats Summary */}
       {audits.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-500">סה"כ ביקורות</div>
-            <div className="text-2xl font-bold">{audits.length}</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <div className="text-sm font-medium text-gray-600 mb-2">סה"כ ביקורות</div>
+            <div className="text-4xl font-semibold text-gray-900 mb-1">{audits.length}</div>
+            <div className="text-sm text-gray-500">ביקורות תברואה</div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-500">ממוצע ציונים</div>
-            <div className="text-2xl font-bold">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <div className="text-sm font-medium text-gray-600 mb-2">ממוצע ציונים</div>
+            <div className="text-4xl font-semibold text-gray-900 mb-1">
               {(audits.reduce((sum, a) => sum + a.total_score, 0) / audits.length).toFixed(1)}
             </div>
+            <div className="text-sm text-gray-500">מתוך 100</div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-500">ביקורת אחרונה</div>
-            <div className="text-2xl font-bold">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <div className="text-sm font-medium text-gray-600 mb-2">ביקורת אחרונה</div>
+            <div className="text-2xl font-semibold text-gray-900 mb-1">
               {formatDate(audits[0].audit_date)}
             </div>
+            <div className="text-sm text-gray-500">{audits[0].branch_name}</div>
           </div>
         </div>
       )}
 
       {/* Audits Table */}
       {audits.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center">
           <p className="text-gray-500 text-lg">אין ביקורות עדיין</p>
           {user?.role === 'hq' && (
             <p className="text-gray-400 text-sm mt-2">לחץ על "ביקורת חדשה" למעלה כדי ליצור ביקורת</p>
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  תאריך
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  סניף
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  מבקר
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ציון
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ניקוד
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  סטטוס
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  פעולות
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {audits.map((audit) => (
-                <tr
-                  key={audit.id}
-                  className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => navigate(`/sanitation-audits/${audit.id}`)}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {formatDate(audit.audit_date)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {audit.branch_name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {audit.auditor_name}
-                  </td>
-                  <td className={`px-6 py-4 whitespace-nowrap text-sm font-bold ${getScoreColor(audit.total_score)}`}>
-                    {audit.total_score.toFixed(1)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
-                    -{audit.total_deductions.toFixed(1)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    {getStatusBadge(audit.status)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/sanitation-audits/${audit.id}`);
-                      }}
-                      className="text-blue-600 hover:text-blue-800 font-medium"
-                    >
-                      צפה
-                    </button>
-                  </td>
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50 border-b-2 border-gray-200">
+                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+                    תאריך
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+                    סניף
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+                    מבקר
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+                    ציון
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+                    ניקוד
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+                    סטטוס
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+                    פעולות
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {audits.map((audit) => (
+                  <tr
+                    key={audit.id}
+                    className="border-b border-gray-100 hover:bg-gray-50 transition-all cursor-pointer"
+                    onClick={() => navigate(`/sanitation-audits/${audit.id}`)}
+                  >
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      {formatDate(audit.audit_date)}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      {audit.branch_name}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      {audit.auditor_name}
+                    </td>
+                    <td className={`px-4 py-4 text-sm font-semibold ${audit.total_score >= 95 ? 'text-green-600' : audit.total_score < 90 ? 'text-red-600' : 'text-gray-900'}`}>
+                      {audit.total_score.toFixed(1)}
+                    </td>
+                    <td className={`px-4 py-4 text-sm ${audit.total_deductions === 0 ? 'text-green-600' : audit.total_deductions >= 5 ? 'text-red-600' : 'text-gray-600'}`}>
+                      -{audit.total_deductions.toFixed(1)}
+                    </td>
+                    <td className="px-4 py-4 text-sm">
+                      {getStatusBadge(audit.status)}
+                    </td>
+                    <td className="px-4 py-4 text-sm">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/sanitation-audits/${audit.id}`);
+                        }}
+                        className="text-[#f97316] hover:text-[#ea580c] font-medium transition-all"
+                      >
+                        צפה
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
         </div>
