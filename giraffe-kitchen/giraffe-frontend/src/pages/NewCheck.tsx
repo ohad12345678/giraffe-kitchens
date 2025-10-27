@@ -169,7 +169,7 @@ export default function NewCheck() {
           {/* Chef */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              טבאח
+              טבח
             </label>
             <div className="relative">
               <ChefHat className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -180,7 +180,7 @@ export default function NewCheck() {
                 required
                 disabled={loading}
               >
-                <option value="">בחר טבאח...</option>
+                <option value="">בחר טבח...</option>
                 {chefs.map((chef) => (
                   <option key={chef.id} value={chef.id}>
                     {chef.name} - {chef.role}
